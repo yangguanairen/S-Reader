@@ -9,7 +9,15 @@
         android:layout_height="?attr/actionBarSize"
         android:gravity="center_vertical"
         android:paddingStart="8dp"
-        android:text="筛选" />
+        android:textStyle="bold"
+        android:textColor="?attr/textColor2"
+        android:textSize="24sp"
+        android:text="@string/main_right_nav_filter" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/textColor2" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -18,21 +26,18 @@
         android:padding="8dp">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="排序方式" />
+            style="@style/main_right_group_title"
+            android:text="@string/main_right_nav_order" />
 
         <RadioButton
-            android:id="@+id/orderTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="名称" />
+            android:id="@+id/sortTitle"
+            style="@style/main_right_group_item"
+            android:text="@string/main_right_nav_order_title" />
 
         <RadioButton
-            android:id="@+id/orderTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="日期" />
+            android:id="@+id/sortTime"
+            style="@style/main_right_group_item"
+            android:text="@string/main_right_nav_order_time" />
 
     </LinearLayout>
 
@@ -44,26 +49,19 @@
         android:padding="8dp">
 
         <TextView
-
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="顺序" />
+            style="@style/main_right_group_title"
+            android:text="@string/main_right_nav_sort" />
 
         <RadioButton
-            android:id="@+id/sortAsc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="上升" />
+            android:id="@+id/orderAsc"
+            style="@style/main_right_group_item"
+            android:text="@string/main_right_nav_sort_asc" />
 
         <RadioButton
-            android:id="@+id/sortDesc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="下降" />
+            android:id="@+id/orderDesc"
+            style="@style/main_right_group_item"
+            android:text="@string/main_right_nav_sort_desc" />
 
     </LinearLayout>
-
-
-
 
 </LinearLayout>

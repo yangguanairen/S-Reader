@@ -31,12 +31,12 @@ abstract class LanraragiDB : RoomDatabase() {
         @Volatile
         private var INSTANCE: LanraragiDB? = null
 
-        enum class SORT {
+        enum class ORDER {
             ASC,
             DESC
         }
 
-        enum class ORDER(val s: String) {
+        enum class SORT(val s: String) {
             TITLE("title"),
             TIME("data_added")
         }
@@ -69,7 +69,7 @@ abstract class LanraragiDB : RoomDatabase() {
         }
 
         suspend fun filterArchiveList(
-            order: ORDER = ORDER.TITLE, sort: SORT = SORT.ASC,
+            sort: SORT = SORT.TITLE, order: ORDER = ORDER.ASC,
             start: Int = 0, limit: Int = 20
         ): List<Archive> {
             if (INSTANCE == null) {
@@ -79,12 +79,22 @@ abstract class LanraragiDB : RoomDatabase() {
             val dao = INSTANCE!!.archiveDao()
 
             return when {
-                order == ORDER.TITLE && sort == SORT.ASC -> dao.getAllOrderByTitleAsc()
-                order ==ORDER.TITLE && sort ==  SORT.DESC -> dao.getAllOrderByTitleDesc()
-                order == ORDER.TIME && sort ==  SORT.ASC -> dao.getAllOrderByTimeAsc()
-                order == ORDER.TIME && sort == SORT.DESC -> dao.getAllOrderByTimeDesc()
+                order == ORDER.ASC && sort == SORT.TITLE -> dao.getAllOrderByTitleAsc()
+                order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.getAllOrderByTitleDesc()
+                order == ORDER.ASC && sort ==  SORT.TIME -> dao.getAllOrderByTimeAsc()
+                order == ORDER.DESC && sort == SORT.TIME -> dao.getAllOrderByTimeDesc()
                 else -> emptyList()
             }
+        }
+
+        suspend fun findArchiveByArcid(arcId: String): Archive?  {
+            if (INSTANCE == null) {
+                DebugLog.e("DB 未初始化")
+                return null
+            }
+            val dao = INSTANCE!!.archiveDao()
+
+            return dao.findByArcid(arcId)
         }
     }
 

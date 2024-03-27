@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="LAnraragiBlack" parent="Theme.LANraragi">
+
+        <item name="textColor1">#ffffff</item>
+        <item name="textColor2">#BDBDBD</item>
+        <item name="bgColor1">#303030</item>
+        <item name="bgColor2">#212121</item>
+        <item name="bgColor3">#424242</item>
+        <item name="bgColor4">#5b5b5d</item>
+
+
+    </style>
+
+
+    <style name="main_right_group_title">
+        <item name="android:textColor">?attr/textColor2</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="main_right_group_item">
+        <item name="android:textColor">?attr/textColor1</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+</resources>

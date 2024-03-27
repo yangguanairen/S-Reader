@@ -39,4 +39,8 @@ interface ArchiveDao {
     @Query("SELECT * FROM ARCHIVE ORDER BY data_added DESC")
     suspend fun getAllOrderByTimeDesc(): List<Archive>
 
+
+    @Query("SELECT * FROM Archive WHERE arcid = :arcId limit 1")
+    suspend fun findByArcid(arcId: String): Archive
+
 }

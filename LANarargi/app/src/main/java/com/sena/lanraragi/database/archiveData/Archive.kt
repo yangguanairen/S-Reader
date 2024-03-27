@@ -16,4 +16,15 @@ data class Archive(
     val lastreadtime: Long?,
     val title: String?,
     val data_added: Long?
-)
+) {
+    override fun toString(): String {
+        return "arcid: $arcid, title: $title, data_added: $data_added, isnew: $isnew, extension: $extension, pagecount: $pagecount, progress: $progress, tags: $tags, lastereadtime: $lastreadtime, "
+    }
+
+}
+
+
+
+
+
+

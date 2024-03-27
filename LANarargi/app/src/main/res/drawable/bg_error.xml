@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item>
+        <shape>
+            <size
+                android:width="120dp"
+                android:height="150dp" />
+            <solid android:color="?attr/bgColor3" />
+        </shape>
+    </item>
+
+    <item
+        android:width="60dp"
+        android:height="60dp"
+        android:drawable="@drawable/ic_no_happy"
+        android:left="30dp"
+        android:top="40dp" />
+
+
+</layer-list>

@@ -15,6 +15,8 @@ android {
         versionCode 1
         versionName "1.0"
 
+        resConfigs("en", "ja", "zh")
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -70,4 +72,7 @@ dependencies {
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.16.0'
+
+
+    implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper4:4.1.4"
 }

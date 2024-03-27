@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">LANraragi</string>
 
@@ -8,13 +9,9 @@
     // 主页_右Nav
     <string name="main_right_nav_filter" translatable="false">筛选</string>
     <string name="main_right_nav_order" translatable="false">排序方式</string>
-    <string name="main_right_nav_order_title">标题</string>
-    <string name="main_right_nav_order_time">日期</string>
+    <string name="main_right_nav_order_title">標題</string>
+    <string name="main_right_nav_order_time">タイム</string>
     <string name="main_right_nav_sort" translatable="false">顺序</string>
     <string name="main_right_nav_sort_asc" translatable="false">上升</string>
     <string name="main_right_nav_sort_desc" translatable="false">下降</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
-
 </resources>

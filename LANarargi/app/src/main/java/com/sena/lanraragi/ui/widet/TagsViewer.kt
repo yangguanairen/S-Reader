@@ -1,0 +1,104 @@
+package com.sena.lanraragi.ui.widet
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import com.sena.lanraragi.R
+import com.sena.lanraragi.databinding.ItemTagBinding
+import com.sena.lanraragi.databinding.ItemTagLayoutBinding
+import com.sena.lanraragi.databinding.ViewTagsBinding
+import com.sena.lanraragi.utils.getOrNull
+
+
+/**
+ * FileName: ViewTagsViewer
+ * Author: JiaoCan
+ * Date: 2024/3/26
+ */
+
+@SuppressLint("ViewConstructor", "InflateParams")
+class TagsViewer @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyle: Int = 0
+) : FrameLayout(context, attrs, defStyle) {
+
+    private val mContext = context
+
+    private val binding = ViewTagsBinding.inflate(LayoutInflater.from(mContext), this, true)
+
+    private var mTags: String? = null
+    private var mListener: ItemClickListener? = null
+
+    fun setTags(tags: String?) {
+        mTags = tags
+        if (tags.isNullOrBlank()) return
+        redrawTagView(tags)
+    }
+
+    private fun redrawTagView(s: String) {
+
+        parseTagsToMap(s).entries.forEach { entry ->
+            val lB = ItemTagLayoutBinding.inflate(LayoutInflater.from(mContext), binding.tagLayout, true)
+            addHeaderTag(lB.headerLayout, entry.key)
+            addContentTag(lB.contentLayout, entry.key, entry.value, )
+        }
+    }
+
+    private fun addHeaderTag( headerLayout: LinearLayout, s: String) {
+        val tB = ItemTagBinding.inflate(LayoutInflater.from(mContext), headerLayout, true)
+        tB.textView.apply {
+            text = s
+            setBackgroundResource(R.drawable.bg_tag_headers)
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    private fun addContentTag(contentLayout: LinearLayout, header: String, list: List<String>) {
+        list.forEach { s ->
+            val tB = ItemTagBinding.inflate(LayoutInflater.from(mContext), contentLayout, true)
+            tB.textView.apply {
+                text = s
+                setBackgroundResource(R.drawable.bg_tag_content)
+                setOnClickListener {
+                    mListener?.onItemClickListener(header, s)
+                }
+            }
+        }
+    }
+
+
+    private fun parseTagsToMap(tags: String): Map<String, ArrayList<String>> {
+        val result = mutableMapOf<String, ArrayList<String>>()
+        val regex = Regex(",\\s*")
+
+        tags.split(regex).forEach {
+            val itemArr = it.split(Regex(":"), 2)
+            val key = if (itemArr.size == 2) itemArr[0] else "未知"
+            val value = if (itemArr.size == 2) itemArr[1] else it
+
+            val tL = getOrNull { result[key] } ?: arrayListOf()
+            tL.add(value)
+            result[key] = tL
+        }
+
+        return result
+    }
+
+    fun setOnItemClickListener(func: (header: String, content: String) -> Unit) {
+        mListener = object : ItemClickListener {
+            override fun onItemClickListener(header: String, content: String) {
+                func.invoke(header, content)
+            }
+        }
+    }
+
+    private interface ItemClickListener {
+        fun onItemClickListener(header: String, content: String)
+    }
+
+
+
+}
+

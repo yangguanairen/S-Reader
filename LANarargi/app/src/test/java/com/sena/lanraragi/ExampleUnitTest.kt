@@ -33,4 +33,18 @@ class ExampleUnitTest {
 
 
     }
+
+
+    @Test
+    fun testFileUrlRegex() {
+        val regex1 = Regex("api/archives/[a-z0-9]+/page")
+        val regex2 = Regex("path=.*")
+        val s = "http://192.168.0.102:3002/api/archives/ab375397919f1cb1f9caf7fa596a6dd7d2aeecce/page?path=01.jpg"
+
+        val match1 = Regex("api/archives/[a-z0-9]+/page").find(s)?.value?.split(Regex("/"))?.getOrNull(2)
+        val match2 = Regex("path=.*").find(s)?.value?.replace("path=", "")
+
+
+        println("match1: $match1\nmatch2: $match2")
+    }
 }

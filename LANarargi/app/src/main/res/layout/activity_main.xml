@@ -5,7 +5,8 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="?attr/bgColor1"
+    tools:context=".ui.MainActivity">
 
 
     <include
@@ -20,7 +21,18 @@
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:fitsSystemWindows="true"
+        android:background="?attr/bgColor1"
         app:headerLayout="@layout/nav_main_right" />
+
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/leftNav"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        android:background="?attr/bgColor1"
+        app:headerLayout="@layout/nav_main_left" />
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

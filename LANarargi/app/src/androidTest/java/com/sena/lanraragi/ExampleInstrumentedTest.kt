@@ -3,7 +3,6 @@ package com.sena.lanraragi
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sena.lanraragi.database.archiveData.Archive
-import com.sena.lanraragi.utils.OkHttpHelper
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
