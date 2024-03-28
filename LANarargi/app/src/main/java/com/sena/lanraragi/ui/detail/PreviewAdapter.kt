@@ -1,5 +1,6 @@
 package com.sena.lanraragi.ui.detail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -34,8 +35,9 @@ class PreviewAdapter : BaseQuickAdapter<String, PreviewAdapter.VH>() {
 
     class VH(private val binding: ItemPreviewBinding) : RecyclerView.ViewHolder(binding.root) {
 
+        @SuppressLint("SetTextI18n")
         fun bind(context: Context, url: String, pos: Int) {
-            binding.page.text  = pos.toString()
+            binding.page.text  = (pos + 1).toString()
             val id = Regex("api/archives/[a-z0-9]+/page").find(url)?.value?.split(Regex("/"))?.getOrNull(2)
             val path = Regex("path=.*").find(url)?.value?.replace("path=", "")
             if (id.isNullOrBlank() || path.isNullOrBlank()) {

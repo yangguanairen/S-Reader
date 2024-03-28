@@ -63,13 +63,14 @@ class SearchView @JvmOverloads constructor(
 
         binding.input.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
+                DebugLog.d("SearchView 机器人: false")
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.clear.visibility = if (s?.length != 0) View.VISIBLE else View.INVISIBLE
                 DebugLog.d("SearchView 输入: $s")
                 if (s == null) return
+
                 val message = Message()
                 message.what = mWhat
                 message.obj = s
@@ -78,9 +79,7 @@ class SearchView @JvmOverloads constructor(
             }
 
             override fun afterTextChanged(s: Editable?) {
-
             }
-
         })
 
         binding.input.setOnEditorActionListener { v, actionId, _ ->
@@ -119,6 +118,11 @@ class SearchView @JvmOverloads constructor(
                 func.invoke(s)
             }
         }
+    }
+
+    fun setText(s: String) {
+        binding.input.setText(s)
+        binding.clear.visibility = if (s.isNotEmpty()) View.VISIBLE else View.INVISIBLE
     }
 
 

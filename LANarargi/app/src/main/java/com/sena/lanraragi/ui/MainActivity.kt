@@ -4,10 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.RadioButton
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
@@ -50,15 +49,14 @@ class MainActivity : BaseActivity() {
 
 
     private fun initView() {
-        setSupportActionBar(binding.contentMain.toolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_menu_24)
-            title = "LANraragi"
-        }
 
-        binding.contentMain.toolbar.setNavigationOnClickListener {
-            binding.drawerLayout.openDrawer(binding.leftNav)
+        setAppBarText("LANraragi", null)
+        setNavigation(if (queryFromDetail != null) R.drawable.ic_arrow_back_24 else R.drawable.ic_menu_24) {
+            if (queryFromDetail != null) {
+                finish()
+            } else {
+                binding.drawerLayout.openDrawer(binding.leftNav)
+            }
         }
 
         initRightNavigationView()
@@ -74,24 +72,16 @@ class MainActivity : BaseActivity() {
         }
 
         sortTimeButton.setOnClickListener {
-            lifecycleScope.launch {
-                vm.setSort(LanraragiDB.DBHelper.SORT.TIME)
-            }
+            vm.setSort(LanraragiDB.DBHelper.SORT.TIME)
         }
         sortTitleButton.setOnClickListener {
-            lifecycleScope.launch {
-                vm.setSort(LanraragiDB.DBHelper.SORT.TITLE)
-            }
+            vm.setSort(LanraragiDB.DBHelper.SORT.TITLE)
         }
         orderAscButton.setOnClickListener {
-            lifecycleScope.launch {
-                vm.setOrder(LanraragiDB.DBHelper.ORDER.ASC)
-            }
+            vm.setOrder(LanraragiDB.DBHelper.ORDER.ASC)
         }
         orderDescButton.setOnClickListener {
-            lifecycleScope.launch {
-                vm.setOrder(LanraragiDB.DBHelper.ORDER.DESC)
-            }
+            vm.setOrder(LanraragiDB.DBHelper.ORDER.DESC)
         }
     }
 
@@ -99,19 +89,18 @@ class MainActivity : BaseActivity() {
 
         binding.contentMain.searchView.setOnAfterInputFinishListener {
             if (it.isBlank()) return@setOnAfterInputFinishListener
-            lifecycleScope.launch {
-                vm.queryFromServer(it)
-            }
+            vm.setQueryText(it)
         }
         binding.contentMain.searchView.setOnClearTextListener {
-            lifecycleScope.launch {
-                vm.queryFromDB("")
-            }
+            vm.setQueryText("")
         }
         binding.contentMain.searchView.setOnSearchDoneListener {
-            lifecycleScope.launch {
-                vm.queryFromServer(it)
-            }
+            vm.setQueryText(it)
+        }
+
+        if (queryFromDetail != null) {
+            binding.contentMain.isNew.visibility = View.GONE
+            binding.contentMain.random.visibility = View.GONE
         }
 
 
@@ -131,7 +120,7 @@ class MainActivity : BaseActivity() {
             if (itemData != null) {
                 val arcId = itemData.arcid
                 val intent = Intent(this, DetailActivity::class.java)
-                intent.putExtra("arcId", arcId)
+                intent.putExtra("archive", itemData)
                 startActivity(intent)
             }
 
@@ -171,20 +160,16 @@ class MainActivity : BaseActivity() {
         vm.dataList.observe(this) {
             adapter.submitList(it)
         }
+        vm.queryText.observe(this) {
+//            binding.contentMain.searchView.setText(it)
+        }
     }
 
     private fun initData() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                if (!queryFromDetail.isNullOrBlank()) {
-                    vm.queryFromServer(queryFromDetail!!)
-                } else {
-                    vm.initData()
-                    vm.setOrder(LanraragiDB.DBHelper.ORDER.DESC)
-                    vm.setSort(LanraragiDB.DBHelper.SORT.TIME)
-                }
-
-            }
+        if (queryFromDetail != null) {
+            binding.contentMain.searchView.setText(queryFromDetail!!)
+        } else {
+            vm.initData(LanraragiDB.DBHelper.SORT.TIME, LanraragiDB.DBHelper.ORDER.DESC)
         }
     }
 

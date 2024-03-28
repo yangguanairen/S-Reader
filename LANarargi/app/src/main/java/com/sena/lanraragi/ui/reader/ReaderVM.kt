@@ -1,4 +1,4 @@
-package com.sena.lanraragi.ui.detail
+package com.sena.lanraragi.ui.reader
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,26 +10,27 @@ import kotlinx.coroutines.withContext
 
 
 /**
- * FileName: IntroduceVM
+ * FileName: ReaderVM
  * Author: JiaoCan
- * Date: 2024/3/26
+ * Date: 2024/3/28
  */
 
-class IntroduceVM : ViewModel() {
-
+class ReaderVM : ViewModel() {
 
     val archive = MutableLiveData<Archive>()
+    val pages = MutableLiveData<List<String>>()
 
 
     suspend fun initData(arcId: String) {
+
         val result = withContext(Dispatchers.IO) {
             LanraragiDB.findArchiveByArcid(arcId)
         }
-        if (result != null) {
-            archive.value = result!!
+        result?.let { archive.value = it }
+        val tt = withContext(Dispatchers.IO) {
+            HttpHelper.getAllPageName(arcId)
         }
-
+        tt?.let { pages.value = it }
     }
-
 }
 

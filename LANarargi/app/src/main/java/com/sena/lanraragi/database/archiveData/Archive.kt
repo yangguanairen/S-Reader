@@ -2,6 +2,7 @@ package com.sena.lanraragi.database.archiveData
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity(tableName = "Archive")
 data class Archive(
@@ -16,7 +17,7 @@ data class Archive(
     val lastreadtime: Long?,
     val title: String?,
     val data_added: Long?
-) {
+) : Serializable {
     override fun toString(): String {
         return "arcid: $arcid, title: $title, data_added: $data_added, isnew: $isnew, extension: $extension, pagecount: $pagecount, progress: $progress, tags: $tags, lastereadtime: $lastreadtime, "
     }

@@ -2,11 +2,13 @@ package com.sena.lanraragi.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.HttpHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainVM() : ViewModel() {
@@ -15,33 +17,47 @@ class MainVM() : ViewModel() {
     val dataList = MutableLiveData<List<Archive>>()
     val filterSort = MutableLiveData<LanraragiDB.DBHelper.SORT>()
     val filterOrder = MutableLiveData<LanraragiDB.DBHelper.ORDER>()
+    val queryText = MutableLiveData<String>()
 
 
     // 在页面展示前初始化数据库数据
-    suspend fun initData() {
-        val allArchives = HttpHelper.requestAllArchive()
-        if (allArchives == null) {
-            DebugLog.e("请求失败，不更新数据库")
-            return
+    fun initData(sort: LanraragiDB.DBHelper.SORT, order: LanraragiDB.DBHelper.ORDER) {
+        viewModelScope.launch {
+            val allArchives = HttpHelper.requestAllArchive()
+            if (allArchives != null) {
+                serverArchiveCount.value = allArchives.size
+                LanraragiDB.updateArchiveList(allArchives)
+            } else {
+                DebugLog.e("请求失败，不更新数据库")
+            }
+
+            val result = withContext(Dispatchers.IO) {
+                LanraragiDB.DBHelper.filterArchiveList(sort, order)
+            }
+            dataList.value = result
+            filterSort.value = sort
+            filterOrder.value = order
         }
-        serverArchiveCount.value = allArchives.size
-        LanraragiDB.updateArchiveList(allArchives)
+
     }
 
-    suspend fun setSort(sort: LanraragiDB.DBHelper.SORT) {
+    fun setSort(sort: LanraragiDB.DBHelper.SORT) {
         filterSort.value = sort
-        val result = LanraragiDB.DBHelper.filterArchiveList(sort, filterOrder.value ?: LanraragiDB.DBHelper.ORDER.DESC)
-        DebugLog.d("测试: setSort(): ${result.size}")
-//        DebugLog.d("测试: setSort() 详细数据: ${result.subList(0, 5).joinToString("\n")}")
-        dataList.value = result
+        viewModelScope.launch {
+            val result = LanraragiDB.DBHelper.filterArchiveList(sort, filterOrder.value ?: LanraragiDB.DBHelper.ORDER.DESC)
+            DebugLog.d("测试: setSort(): ${result.size}")
+            dataList.value = result
+        }
     }
 
-    suspend fun setOrder(order: LanraragiDB.DBHelper.ORDER) {
+    fun setOrder(order: LanraragiDB.DBHelper.ORDER) {
         filterOrder.value = order
-        val result = LanraragiDB.DBHelper.filterArchiveList(filterSort.value ?: LanraragiDB.DBHelper.SORT.TITLE, order)
-        DebugLog.d("测试: setOrder(): ${result.size}")
+        viewModelScope.launch {
+            val result = LanraragiDB.DBHelper.filterArchiveList(filterSort.value ?: LanraragiDB.DBHelper.SORT.TITLE, order)
+            DebugLog.d("测试: setOrder(): ${result.size}")
 
-        dataList.value = result
+            dataList.value = result
+        }
     }
 
     suspend fun queryFromServer(query: String) {
@@ -68,6 +84,17 @@ class MainVM() : ViewModel() {
 
             dataList.value = result
         }
+    }
+
+    fun setQueryText(s: String) {
+        viewModelScope.launch {
+            if (s.isBlank()) {
+                queryFromDB(s)
+            } else {
+                queryFromServer(s)
+            }
+        }
+        queryText.value = s
     }
 
 }

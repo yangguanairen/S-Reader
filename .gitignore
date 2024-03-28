@@ -1,0 +1,16 @@
+LANraragi/*.iml
+LANraragi/.gradle
+LANraragi//local.properties
+LANraragi//.idea/caches
+LANraragi//.idea/libraries
+LANraragi//.idea/modules.xml
+LANraragi//.idea/workspace.xml
+LANraragi//.idea/navEditor.xml
+LANraragi//.idea/assetWizardSettings.xml
+LANraragi/.DS_Store
+LANraragi//build
+LANraragi//captures
+LANraragi/.externalNativeBuild
+LANraragi/.cxx
+LANraragi/local.properties
+LANraragi/.idea

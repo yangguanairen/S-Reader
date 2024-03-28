@@ -10,50 +10,38 @@ import android.view.ViewGroup
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import com.sena.lanraragi.BaseFragment
+import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.FragmentIntroduceBinding
 import com.sena.lanraragi.ui.MainActivity
+import com.sena.lanraragi.ui.reader.ReaderActivity
 import com.sena.lanraragi.utils.ImageUtils
+import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
 
-private const val ARG_ID = "arcId"
+private const val ARG_ARCHIVE = "arc_archive"
 
 class IntroduceFragment : BaseFragment() {
-    private var arcId: String? = null
+    private var mArchive: Archive? = null
 
     private lateinit var binding: FragmentIntroduceBinding
-    private lateinit var vm: IntroduceVM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            arcId = it.getString(ARG_ID)
+            mArchive = getOrNull { it.getSerializable(ARG_ARCHIVE) as Archive }
         }
 
-        vm = IntroduceVM()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentIntroduceBinding.inflate(inflater)
 
-        initView()
-        initViewModel()
+        mArchive?.let { initView(it) }
         return binding.root
     }
 
-    override fun lazyLoad() {
-        super.lazyLoad()
-        lifecycleScope.launch {
-            arcId?.let { vm.initData(it) }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mListener?.onResumeListener(arrayListOf("详细"))
-    }
-
-    private fun initView() {
+    private fun initView(archive: Archive) {
         // 设置textView字体大小
         // https://blog.csdn.net/mqdxiaoxiao/article/details/884110611
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -68,25 +56,24 @@ class IntroduceFragment : BaseFragment() {
             intent.putExtra("query", query)
             startActivity(intent)
         }
-    }
-
-    private fun initViewModel() {
-        vm.archive.observe(viewLifecycleOwner) {
-            binding.title.text = it.title
-            ImageUtils.loadThumb(requireContext(), it.arcid, binding.cover)
-            it.tags?.let { s ->
-                binding.tageViewer.setTags(s)
-            }
+        binding.startRead.setOnClickListener {
+            val intent = Intent(requireContext(), ReaderActivity::class.java)
+            intent.putExtra("arcId", archive.arcid)
+            startActivity(intent)
         }
 
+        binding.title.text = archive.title
+        ImageUtils.loadThumb(requireContext(), archive.arcid, binding.cover)
+        archive.tags?.let { s ->
+            binding.tageViewer.setTags(s)
+        }
     }
-
 
     companion object {
         @JvmStatic
-        fun newInstance(id: String?) = IntroduceFragment().apply {
+        fun newInstance(archive: Archive) = IntroduceFragment().apply {
             arguments = Bundle().apply {
-                putString(ARG_ID, id)
+                putSerializable(ARG_ARCHIVE, archive)
             }
         }
     }

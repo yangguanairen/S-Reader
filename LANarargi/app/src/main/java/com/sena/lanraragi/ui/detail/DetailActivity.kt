@@ -1,75 +1,68 @@
 package com.sena.lanraragi.ui.detail
 
 import android.os.Bundle
-import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.google.android.material.tabs.TabLayoutMediator
 import com.sena.lanraragi.BaseActivity
-import com.sena.lanraragi.BaseFragment
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ActivityDetailBinding
+import com.sena.lanraragi.utils.getOrNull
 
 class DetailActivity : BaseActivity() {
 
     private lateinit var binding: ActivityDetailBinding
 
-    private var arcId: String? = null
+    private var mArchive: Archive? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        arcId = intent.getStringExtra("arcId")
+        mArchive = getOrNull { intent.getSerializableExtra("archive") as Archive }
 
-       initView()
+        mArchive?.let { initView(it) }
     }
 
-    private fun initView() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_arrow_back_24)
-            title = "详细"
-        }
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
-
+    private fun initView(archive: Archive) {
+        setNavigation(R.drawable.ic_arrow_back_24) { finish() }
 
         val fragments = arrayListOf(
-            IntroduceFragment.newInstance(arcId).apply { setOnResumeListener {
-                binding.toolbar.title = it[0]
-                binding.toolbar.subtitle = null
-            }},
-            PreviewFragment.newInstance(arcId).apply { setOnResumeListener {
-                binding.toolbar.title = it[0]
-                binding.toolbar.subtitle = it[1] + "页"
-            }}
+            IntroduceFragment.newInstance(archive),
+            PreviewFragment.newInstance(archive)
         )
+
         val tabTitles = arrayListOf("详细", "预览图")
         binding.viewPager.currentItem = 1
-        binding.viewPager.adapter = object : FragmentPagerAdapter(supportFragmentManager,
-            BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
-        ) {
-            override fun getCount(): Int {
-                return tabTitles.size
+        binding.viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
+            override fun getItemCount(): Int {
+                return fragments.size
             }
 
-            override fun getItem(position: Int): Fragment {
-
+            override fun createFragment(position: Int): Fragment {
                 return fragments[position]
             }
 
-            override fun getPageTitle(position: Int): CharSequence {
-                return tabTitles[position]
-            }
-
-            override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-
-            }
         }
-        binding.tableLayout.setupWithViewPager(binding.viewPager)
+        binding.viewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                when (position) {
+                    0 -> setAppBarText(tabTitles[position], null)
+                    1 -> {
+                        val subtitle = if (archive.pagecount == null) null else "${archive.pagecount}页"
+                        setAppBarText(tabTitles[position], subtitle)
+                    }
+                }
+            }
+        })
+        // tabLayout和viewPager2联动
+        // https://www.jianshu.com/p/0cde01392eb0
+        TabLayoutMediator(binding.tableLayout, binding.viewPager) {
+            tab, position -> tab.text = tabTitles[position]
+        }.attach()
     }
 }

@@ -6,6 +6,9 @@ import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.github.chrisbanes.photoview.PhotoView
 import com.sena.lanraragi.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +53,10 @@ object ImageUtils {
                 .error(R.drawable.bg_error)
                 .placeholder(R.drawable.bg_placeholder)
                 .transition(withCrossFade(500))
+            if (imageView1.isAttachedToWindow == false || imageView2.isAttachedToWindow == false) {
+                DebugLog.e("loadThumbTo2View() 视图已经从窗口移除")
+                return@launch
+            }
             if (size > 1f) {
                 imageView1.visibility = View.GONE
                 imageView2.visibility = View.VISIBLE
@@ -79,7 +86,10 @@ object ImageUtils {
                 }
             }
             if (!result) return@launch
-
+            if (imageView.isAttachedToWindow == false) {
+                DebugLog.e("loadThumb() 视图已经从窗口移除")
+                return@launch
+            }
             Glide.with(context).load(thumbCachePath)
                 .error(R.drawable.bg_error)
                 .placeholder(R.drawable.bg_placeholder)
@@ -108,6 +118,43 @@ object ImageUtils {
             if (!result) return@launch
 
             val file = dir.absolutePath + "/$path"
+//            if (imageView.isAttachedToWindow == false) {
+//                DebugLog.e("loadPreview() 视图已经从窗口移除")
+//                return@launch
+//            }
+            Glide.with(context).load(file)
+                .error(R.drawable.bg_error)
+                .placeholder(R.drawable.bg_placeholder)
+                .transition(withCrossFade(500))
+                .into(imageView)
+        }
+    }
+
+
+    fun loadPath(context: Context, arcid: String, path: String, imageView: PhotoView) {
+        val dir = File(context.externalCacheDir, "/preview/$arcid")
+        if (!dir.exists()) {
+            val isSuccess = dir.mkdirs()
+            DebugLog.d("loadPreview() isSuccess: $isSuccess")
+        }
+//
+        val isExists = dir.listFiles()?.any { it.name == path } == true
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val result = withContext(Dispatchers.IO) {
+                if (!isExists) {
+                    return@withContext HttpHelper.downloadPath(arcid, path, dir.absolutePath)
+                } else {
+                    return@withContext true
+                }
+            }
+            if (!result) return@launch
+
+            val file = dir.absolutePath + "/$path"
+//            if (imageView.isAttachedToWindow == false) {
+//                DebugLog.e("loadPreview() 视图已经从窗口移除")
+//                return@launch
+//            }
             Glide.with(context).load(file)
                 .error(R.drawable.bg_error)
                 .placeholder(R.drawable.bg_placeholder)

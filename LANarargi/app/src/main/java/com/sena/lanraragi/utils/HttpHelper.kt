@@ -10,6 +10,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URLEncoder
 
 
 /**
@@ -136,9 +137,12 @@ object HttpHelper {
 
     suspend fun search(query: String, order: LanraragiDB.DBHelper.ORDER, sort: LanraragiDB.DBHelper.SORT): List<Archive>? {
 
+        val encodeQuery = withContext(Dispatchers.IO) {
+            URLEncoder.encode(query, "UTF-8")
+        }
         val mOrder = if (order == LanraragiDB.DBHelper.ORDER.ASC) "asc" else "desc"
         val mSort = if (sort == LanraragiDB.DBHelper.SORT.TITLE) "title" else "date_added"
-        val finalUrl = "$searchUrl?filter=$query&order=$mSort&sortby=$mOrder&newonly=false&start=-1"
+        val finalUrl = "$searchUrl?filter=${encodeQuery}&order=$mSort&sortby=$mOrder&newonly=false&start=-1"
 
         val build = Build().url(finalUrl)
         val jsonObject = withContext(Dispatchers.IO) {
@@ -197,7 +201,7 @@ object HttpHelper {
                 .appendLine("ResponseCode: ${response?.code}")
                 .appendLine("请求总耗时: ${eTime - sTime}毫秒")
 
-            DebugLog.d("$sb")
+//            DebugLog.d("$sb")
 
             return response
         }

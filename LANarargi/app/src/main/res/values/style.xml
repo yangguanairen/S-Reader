@@ -5,12 +5,20 @@
 
         <item name="textColor1">#ffffff</item>
         <item name="textColor2">#BDBDBD</item>
+        <item name="textColor3">#82c9c3</item>
         <item name="bgColor1">#303030</item>
         <item name="bgColor2">#212121</item>
         <item name="bgColor3">#424242</item>
         <item name="bgColor4">#5b5b5d</item>
 
 
+    </style>
+
+
+    <style name="base_clickable_layout">
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?android:selectableItemBackground</item>
     </style>
 
 
@@ -26,6 +34,50 @@
         <item name="android:textSize">16sp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+    <style name="reader_nav_fit_method">
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">4dp</item>
+    </style>
+
+    <style name="reader_nav_fit_method_selected" parent="reader_nav_fit_method">
+        <item name="android:textColor">?attr/textColor3</item>
+        <item name="android:background">@drawable/bg_reader_fit_method_selected</item>
+    </style>
+
+    <style name="reader_nav_fit_method_unselect" parent="reader_nav_fit_method">
+        <item name="android:textColor">?attr/textColor2</item>
+        <item name="android:background">@drawable/bg_reader_fit_method_unselect</item>
+    </style>
+
+    <style name="reader_nav_item_layout" parent="base_clickable_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="reader_nav_item_icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="reader_nav_item_text">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:textColor">?attr/textColor3</item>
+    </style>
+
+    <style name="reader_nav_dialog">
+        <item name="bottomSheetDragHandleStyle">@style/reader_nav_dialog_wrapper</item>
+    </style>
+
+    <style name="reader_nav_dialog_wrapper" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 </resources>

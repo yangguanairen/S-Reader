@@ -14,9 +14,6 @@ abstract class BaseFragment : Fragment() {
 
     private var isLoaded = false
 
-    protected var mListener: ResumeListener? = null
-
-
     override fun onResume() {
         super.onResume()
         if (!isLoaded) {
@@ -30,24 +27,10 @@ abstract class BaseFragment : Fragment() {
 
     }
 
-    fun setOnResumeListener(func: (sList: List<String>) -> Unit) {
-        mListener = object : ResumeListener {
-            override fun onResumeListener(sList: List<String>) {
-                func.invoke(sList)
-            }
-        }
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         isLoaded = false
     }
-
-
-    protected interface ResumeListener {
-        fun onResumeListener(sList: List<String>)
-    }
-
 }
 
