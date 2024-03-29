@@ -131,7 +131,7 @@ object ImageUtils {
     }
 
 
-    fun loadPath(context: Context, arcid: String, path: String, imageView: PhotoView) {
+    fun loadPath(context: Context, arcid: String, path: String, imageView: SubsamplingScaleImageView) {
         val dir = File(context.externalCacheDir, "/preview/$arcid")
         if (!dir.exists()) {
             val isSuccess = dir.mkdirs()
@@ -155,13 +155,28 @@ object ImageUtils {
 //                DebugLog.e("loadPreview() 视图已经从窗口移除")
 //                return@launch
 //            }
-            Glide.with(context).load(file)
-                .error(R.drawable.bg_error)
-                .placeholder(R.drawable.bg_placeholder)
-                .transition(withCrossFade(500))
-                .into(imageView)
+            imageView.setImage(ImageSource.uri(file))
+            /**
+             * 适应宽度
+             * SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
+             *
+             * 适应高度
+             * SubsamplingScaleImageView.SCALE_TYPE_START
+             *
+             * 适应页面
+             * SubsamplingScaleImageView.SCALE_TYPE_CUSTOM
+             *
+             */
+            imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+//            Glide.with(context).load(file)
+//                .error(R.drawable.bg_error)
+//                .placeholder(R.drawable.bg_placeholder)
+//                .transition(withCrossFade(500))
+//                .into(imageView)
         }
     }
+
+
 
 }
 

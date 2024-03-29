@@ -23,6 +23,18 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:elevation="12dp"
+        android:maxHeight="2dp"
+        android:minHeight="2dp"
+        android:progressDrawable="@drawable/layer_reader_seekbar_progress"
+        android:thumb="@drawable/layer_reader_seekbar_thumb"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"

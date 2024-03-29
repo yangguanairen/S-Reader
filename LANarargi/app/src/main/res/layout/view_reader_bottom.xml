@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/bgColor2"
     android:padding="4dp">
 
     <LinearLayout
@@ -40,12 +41,12 @@
 
                 <TextView
                     android:id="@+id/fitWidth"
-                    style="@style/reader_nav_fit_method_selected"
+                    style="@style/reader_nav_fit_method"
                     android:text="适应宽度"/>
 
                 <TextView
                     android:id="@+id/fitHeight"
-                    style="@style/reader_nav_fit_method_unselect"
+                    style="@style/reader_nav_fit_method"
                     android:text="适应高度"/>
 
             </LinearLayout>
@@ -57,12 +58,12 @@
 
                 <TextView
                     android:id="@+id/fitPage"
-                    style="@style/reader_nav_fit_method_unselect"
+                    style="@style/reader_nav_fit_method"
                     android:text="适应页面"/>
 
                 <TextView
                     android:id="@+id/fitFlex"
-                    style="@style/reader_nav_fit_method_unselect"
+                    style="@style/reader_nav_fit_method"
                     android:text="流式阅读"/>
 
             </LinearLayout>

@@ -80,4 +80,9 @@ dependencies {
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+
+
+    implementation ('com.github.li-xiaojun:XPopup:2.10.0'){
+        exclude group: "com.davemorrissey.labs", module: "subsampling-scale-image-view-androidx"
+    }
 }

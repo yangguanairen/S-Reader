@@ -1,5 +1,8 @@
 package com.sena.lanraragi.utils
 
+import android.content.Context
+import android.util.TypedValue
+import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
 import org.json.JSONArray
 import org.json.JSONObject
@@ -90,4 +93,11 @@ fun <T> getOrNull(func: () -> T?): T? {
     return runCatching {
         func.invoke()
     }.getOrNull()
+}
+
+
+fun Context.getThemeColor(id: Int): Int? {
+    val typedValue = TypedValue()
+    val isSuccess = theme.resolveAttribute(id, typedValue, true)
+    return if (isSuccess) typedValue.data else null
 }

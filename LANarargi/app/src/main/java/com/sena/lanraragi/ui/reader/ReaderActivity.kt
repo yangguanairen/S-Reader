@@ -4,111 +4,188 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.chad.library.adapter4.BaseQuickAdapter
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ActivityReaderBinding
-import com.sena.lanraragi.databinding.NavReaderBottomBinding
 import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
 class ReaderActivity : BaseActivity() {
 
-    private lateinit var binding: ActivityReaderBinding
+    private var mArchive: Archive? = null
+//    private var mFileNameList: List<String>? = null
 
-    private var arcId: String? = null
-    private lateinit var vm: ReaderVM
+    private val binding: ActivityReaderBinding by lazy { ActivityReaderBinding.inflate(layoutInflater) }
+    private val vm: ReaderVM by lazy { ReaderVM() }
     private lateinit var adapter: ReaderAdapter
+    private lateinit var bottomPopup: BasePopupView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityReaderBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        arcId = intent.getStringExtra("arcId")
-        vm = ReaderVM()
+        mArchive = getOrNull { intent.getSerializableExtra("archive") as Archive }
+//        mFileNameList = getOrNull { intent.getStringArrayListExtra("fileNameList")?.toList() }
+        if (mArchive == null) {
+            DebugLog.e("ReaderActivity.onCreate(): archive is null")
+            return
+        }
+//        val title = mArchive?.title
+//        val pageCount = mFileNameList?.size ?: mArchive?.pagecount
 
         initView()
         initVM()
-        arcId?.let { initData(it) }
+        initData()
     }
 
+
     private fun initView() {
-
-        setNavigation(R.drawable.ic_arrow_back_24) {
-            finish()
-        }
-        setAppBarText("LANraragi", null)
-
+        // 初始Toolbar
+        setNavigation(R.drawable.ic_arrow_back_24) { finish() }
         binding.contentReader.appBar.visibility = View.INVISIBLE
+        binding.contentReader.seekbar.visibility = View.INVISIBLE
 
-        initBottomNavigationView()
-
-
-        // viewPager2详解
-        // https://blog.51cto.com/u_13303/6872084
-        adapter = ReaderAdapter()
-        binding.contentReader.viewPager.adapter = adapter
-        adapter.setOnItemLongClickListener { adapter, view, position ->
-            showBottomDialog()
-            true
+        // 初始popup
+        val customPopup = ReaderBottomPopup(this).apply {
+            setOnScaleTypeChangeListener { scaleType ->
+                when (scaleType) {
+                    ReaderBottomPopup.ScaleType.WEBTOON -> {
+                        binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_LTR
+                        binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_VERTICAL
+                    }
+                    else -> {
+                        binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_RTL
+                        binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+                    }
+                }
+                val list = adapter.items.map { p -> Pair(p.first, scaleType) }
+                adapter.submitList(list)
+            }
         }
-        adapter.addOnItemChildClickListener(R.id.imageView) { adapter, view, position ->
+        bottomPopup = XPopup.Builder(this)
+            .borderRadius(8f)
+            .isDestroyOnDismiss(false)
+            .asCustom(customPopup)
 
-            binding.contentReader.appBar.apply {
-                if (visibility == View.VISIBLE) {
-                    visibility = View.INVISIBLE
+        // 初始ViewPager
+        // 改为从右到左阅读
+        binding.contentReader.viewPager.apply {
+            layoutDirection = View.LAYOUT_DIRECTION_RTL
+            registerOnPageChangeCallback(object : OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    vm.setCurPosition2(position)
+                }
+            })
+        }
+
+        initViewPager()
+
+        binding.contentReader.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+
+            private var isHuman = false
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    vm.setCurPosition1(progress)
                 } else {
-                    val cPos = binding.contentReader.viewPager.currentItem
-                    val count = adapter.itemCount
-                    setAppBarText("fjsdlfjlsdjl", "${count - cPos}/${count}页")
-                    visibility = View.VISIBLE
+                    DebugLog.e("非人类")
                 }
             }
-        }
-        adapter.addOnItemChildLongClickListener(R.id.imageView) { adapter, view, position ->
-            showBottomDialog()
-            true
-        }
 
-        binding.contentReader.viewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                val cPos = binding.contentReader.viewPager.currentItem
-                val count = adapter.itemCount
-                setAppBarText("fjsdlfjlsdjl", "${count - cPos}/${count}页")
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                isHuman = true
             }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                isHuman = false
+            }
+
         })
     }
 
-    private fun initBottomNavigationView() {
 
+    private fun initVM() {
+        vm.fileNameList.observe(this) {
+            binding.contentReader.seekbar.max = it.size
+            adapter.let { a ->
+                // TODO: 默认从右往左读，后续读取设置情况
+                a.submitList(it.map { s -> Pair(s, ReaderBottomPopup.ScaleType.FIT_WIDTH) })
+                val pos = vm.curPos2.value ?: -1
+                val finalPos = if (pos < 0 || pos > it.size - 1) 0 else pos
+                binding.contentReader.viewPager.setCurrentItem(finalPos, false)
+            }
+        }
+        vm.curPos1.observe(this) {
+            binding.contentReader.viewPager.setCurrentItem(it, true)
+        }
+        vm.curPos2.observe(this) {
+            val title = mArchive?.title
+            val subtitle = "${it + 1}/${adapter.itemCount}页"
+            setAppBarText(title, subtitle)
+            // 更改seekbar的progress
+            binding.contentReader.seekbar.progress = it
+        }
 
     }
 
+    private fun initViewPager() {
+        // viewPager2详解
+        // https://blog.51cto.com/u_13303/6872084
+        adapter = ReaderAdapter()
+        adapter.setOnImageClickListener { _, _, _ ->
+            binding.contentReader.appBar.apply {
+                if (visibility == View.VISIBLE) {
+                    visibility = View.INVISIBLE
+                    binding.contentReader.seekbar.visibility = View.INVISIBLE
+                } else {
+                    visibility = View.VISIBLE
+                    binding.contentReader.seekbar.visibility = View.VISIBLE
+                }
+            }
+        }
+        adapter.setOnImageLongClickListener { _, _, _ ->
+            bottomPopup.show()
+            true
+        }
+        binding.contentReader.viewPager.adapter = adapter
+    }
 
-    private fun initData(id: String) {
+
+    private fun initData() {
+
+        val pageCount = mArchive?.pagecount
+        if (pageCount != null) {
+            val emptyList = (0 until pageCount).map { Pair("", ReaderBottomPopup.ScaleType.FIT_WIDTH) }
+            adapter.submitList(emptyList)
+            binding.contentReader.seekbar.max = pageCount
+            vm.setCurPosition1(0)
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.initData(id)
+//                if (mFileNameList != null) {
+//                    vm.setFileNameList(mFileNameList!!)
+//                } else {
+//                    vm.initData(id)
+//                }
+                mArchive?.arcid?.let { vm.initData(it) }
             }
         }
     }
 
-    private fun initVM() {
-        vm.archive.observe(this) {
 
-        }
-        vm.pages.observe(this) {
-            adapter.submitList(it.reversed())
-            binding.contentReader.viewPager.setCurrentItem(it.size - 1, false)
-        }
-    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_reader, menu)
@@ -119,18 +196,11 @@ class ReaderActivity : BaseActivity() {
 
         return when (item.itemId) {
             R.id.setting -> {
-                showBottomDialog()
+                bottomPopup.show()
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun showBottomDialog() {
-        val dialog = BottomSheetDialog(this, R.style.reader_nav_dialog)
-        val view = NavReaderBottomBinding.inflate(layoutInflater).root
-        dialog.setContentView(view)
-        dialog.show()
     }
 }

@@ -58,7 +58,7 @@ class IntroduceFragment : BaseFragment() {
         }
         binding.startRead.setOnClickListener {
             val intent = Intent(requireContext(), ReaderActivity::class.java)
-            intent.putExtra("arcId", archive.arcid)
+            intent.putExtra("archive", archive)
             startActivity(intent)
         }
 

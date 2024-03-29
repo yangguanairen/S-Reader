@@ -17,20 +17,34 @@ import kotlinx.coroutines.withContext
 
 class ReaderVM : ViewModel() {
 
-    val archive = MutableLiveData<Archive>()
-    val pages = MutableLiveData<List<String>>()
+    val fileNameList = MutableLiveData<List<String>>()
+
+    // 除了ViewPager2以外的位置改变
+    val curPos1 = MutableLiveData<Int>()
+    // ViewPager2发生位置改变
+    val curPos2 = MutableLiveData<Int>()
 
 
     suspend fun initData(arcId: String) {
-
         val result = withContext(Dispatchers.IO) {
-            LanraragiDB.findArchiveByArcid(arcId)
-        }
-        result?.let { archive.value = it }
-        val tt = withContext(Dispatchers.IO) {
             HttpHelper.getAllPageName(arcId)
         }
-        tt?.let { pages.value = it }
+        result?.let { fileNameList.value = it }
     }
+
+    fun setCurPosition1(p: Int) {
+        curPos1.value = p
+    }
+
+    fun setCurPosition2(p: Int) {
+        curPos2.value = p
+    }
+
+    fun setFileNameList(list: List<String>) {
+        fileNameList.value = list
+    }
+
+
+
 }
 

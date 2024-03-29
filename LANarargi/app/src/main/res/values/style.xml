@@ -42,17 +42,10 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">4dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:gravity">center</item>
     </style>
 
-    <style name="reader_nav_fit_method_selected" parent="reader_nav_fit_method">
-        <item name="android:textColor">?attr/textColor3</item>
-        <item name="android:background">@drawable/bg_reader_fit_method_selected</item>
-    </style>
-
-    <style name="reader_nav_fit_method_unselect" parent="reader_nav_fit_method">
-        <item name="android:textColor">?attr/textColor2</item>
-        <item name="android:background">@drawable/bg_reader_fit_method_unselect</item>
-    </style>
 
     <style name="reader_nav_item_layout" parent="base_clickable_layout">
         <item name="android:layout_width">match_parent</item>
