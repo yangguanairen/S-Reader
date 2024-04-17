@@ -2,7 +2,6 @@ package com.sena.lanraragi.utils
 
 import android.content.Context
 import android.util.TypedValue
-import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
 import org.json.JSONArray
 import org.json.JSONObject

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/bgColor2"
+    tools:context=".ui.setting.SettingActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include layout="@layout/content_setting_server"
+            android:id="@+id/server" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_cache"
+            android:id="@+id/cache" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_common"
+            android:id="@+id/common" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_reader"
+            android:id="@+id/reader" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_search"
+            android:id="@+id/search" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_random"
+            android:id="@+id/random" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_source"
+            android:id="@+id/source" />
+
+        <View style="@style/setting_item_line" />
+
+        <include layout="@layout/content_setting_debug"
+            android:id="@+id/debug" />
+
+        <View style="@style/setting_item_line" />
+
+    </LinearLayout>
+
+
+</ScrollView>

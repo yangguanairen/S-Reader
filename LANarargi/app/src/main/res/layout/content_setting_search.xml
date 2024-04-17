@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/setting_item_layout">
+
+    <TextView
+        style="@style/setting_item_theme"
+        android:text="@string/setting_search_theme" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/localSearchLayout"
+        style="@style/setting_item_switch_layout">
+
+
+        <LinearLayout
+            android:id="@+id/localSearchText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/localSearchButton"
+            android:orientation="vertical">
+            <TextView
+                style="@style/setting_item_switch_title"
+                android:layout_width="match_parent"
+                android:text="@string/setting_search_local_title" />
+
+            <TextView
+                style="@style/setting_item_text_subtitle"
+                android:layout_width="match_parent"
+                android:text="@string/setting_search_local_subtitle"/>
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/localSearchButton"
+            style="@style/setting_item_switch"
+            app:layout_constraintStart_toEndOf="@id/localSearchText"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/searchDelayLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_search_delay_title" />
+
+        <TextView
+            android:id="@+id/searchDelayText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+</LinearLayout>

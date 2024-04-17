@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/setting_item_layout">
+
+    <TextView
+        style="@style/setting_item_theme"
+        android:text="@string/setting_cache_theme" />
+
+    <LinearLayout
+        android:id="@+id/clearCacheLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_cache_clear_title" />
+
+        <TextView
+            android:id="@+id/cacheText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+</LinearLayout>

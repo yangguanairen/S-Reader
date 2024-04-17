@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/setting_item_layout">
+
+    <TextView
+        style="@style/setting_item_theme"
+        android:text="@string/setting_common_theme" />
+
+    <RelativeLayout
+        android:id="@+id/scrollRefreshLayout"
+        style="@style/setting_item_switch_layout">
+
+        <TextView
+            style="@style/setting_item_switch_title"
+            android:text="@string/setting_common_refresh_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/refreshButton"
+            style="@style/setting_item_switch" />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/themeLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_common_apptheme_title" />
+
+        <TextView
+            android:id="@+id/themeText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/viewMethodLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_common_view_method_title" />
+
+        <TextView
+            android:id="@+id/viewMethodText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/clearPreCacheLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_common_clear_title" />
+
+        <TextView
+            android:text="@string/setting_common_clear_subtitle"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+</LinearLayout>

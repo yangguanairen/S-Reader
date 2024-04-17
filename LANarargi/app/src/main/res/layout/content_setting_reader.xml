@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/setting_item_layout">
+
+    <TextView
+        style="@style/setting_item_theme"
+        android:text="@string/setting_read_theme" />
+
+    <RelativeLayout
+        android:id="@+id/rtlLayout"
+        style="@style/setting_item_switch_layout">
+
+        <TextView
+            style="@style/setting_item_switch_title"
+            android:text="@string/setting_read_rtl_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/rtlButton"
+            style="@style/setting_item_switch" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/voiceLayout"
+        style="@style/setting_item_switch_layout">
+
+        <TextView
+            style="@style/setting_item_switch_title"
+            android:text="@string/setting_read_voice_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/voiceButton"
+            style="@style/setting_item_switch" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/mergeLayout"
+        style="@style/setting_item_switch_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                style="@style/setting_item_switch_title"
+                android:text="@string/setting_read_merge_title" />
+
+            <TextView
+                style="@style/setting_item_text_subtitle"
+                android:text="@string/setting_read_merge_subtitle"/>
+
+        </LinearLayout>
+
+
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/mergerButton"
+            style="@style/setting_item_switch" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/reverseMergeLayout"
+        style="@style/setting_item_switch_layout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                style="@style/setting_item_switch_title"
+                android:text="@string/setting_read_reverse_merge_title" />
+
+            <TextView
+                style="@style/setting_item_text_subtitle"
+                android:text="@string/setting_read_reverse_merge_subtitle"/>
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/reverseMergerButton"
+            style="@style/setting_item_switch" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/mergeMethodLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_read_merge_method_title" />
+
+        <TextView
+            android:id="@+id/mergerMethodText"
+            style="@style/setting_item_text_subtitle" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/scaleLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_read_scale_method_title" />
+
+        <TextView
+            android:id="@+id/scaleText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/overtimeLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_read_overtime_title" />
+
+        <TextView
+            android:id="@+id/overtimeText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+</LinearLayout>

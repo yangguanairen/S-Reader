@@ -9,7 +9,8 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
@@ -29,6 +30,7 @@ class ReaderActivity : BaseActivity() {
     private val binding: ActivityReaderBinding by lazy { ActivityReaderBinding.inflate(layoutInflater) }
     private val vm: ReaderVM by lazy { ReaderVM() }
     private lateinit var adapter: ReaderAdapter
+    private lateinit var webtoonAdapter: WebtoonAdapter
     private lateinit var bottomPopup: BasePopupView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,16 +63,26 @@ class ReaderActivity : BaseActivity() {
             setOnScaleTypeChangeListener { scaleType ->
                 when (scaleType) {
                     ReaderBottomPopup.ScaleType.WEBTOON -> {
-                        binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_LTR
-                        binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_VERTICAL
+                        // binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_LTR
+                        // binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_VERTICAL
+                        binding.contentReader.recyclerView.visibility= View.VISIBLE
+                        binding.contentReader.viewPager.visibility = View.GONE
+                        val list = adapter.items.map { p -> p.first }
+                        webtoonAdapter.submitList(list)
+                        val pos2 = vm.curPos2.value ?: 0
+                        binding.contentReader.recyclerView.scrollToPosition(pos2)
                     }
                     else -> {
-                        binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_RTL
-                        binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+                        // binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_RTL
+                        // binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+                        binding.contentReader.recyclerView.visibility= View.GONE
+                        binding.contentReader.viewPager.visibility = View.VISIBLE
+                        val list = adapter.items.map { p -> Pair(p.first, scaleType) }
+                        adapter.submitList(list)
+                        val pos2 = vm.curPos2.value ?: 0
+                        binding.contentReader.viewPager.setCurrentItem(pos2, true)
                     }
                 }
-                val list = adapter.items.map { p -> Pair(p.first, scaleType) }
-                adapter.submitList(list)
             }
         }
         bottomPopup = XPopup.Builder(this)
@@ -89,8 +101,19 @@ class ReaderActivity : BaseActivity() {
                 }
             })
         }
+        binding.contentReader.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lm = recyclerView.layoutManager as LinearLayoutManager
+                val firstVisiblePos = lm.findFirstVisibleItemPosition()
+                vm.setCurPosition2(firstVisiblePos)
+
+            }
+        })
+
 
         initViewPager()
+        initWebtoon()
 
         binding.contentReader.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
 
@@ -126,9 +149,11 @@ class ReaderActivity : BaseActivity() {
                 val finalPos = if (pos < 0 || pos > it.size - 1) 0 else pos
                 binding.contentReader.viewPager.setCurrentItem(finalPos, false)
             }
+            webtoonAdapter.submitList(it)
         }
         vm.curPos1.observe(this) {
-            binding.contentReader.viewPager.setCurrentItem(it, true)
+             binding.contentReader.viewPager.setCurrentItem(it, true)
+             binding.contentReader.recyclerView.scrollToPosition(it)
         }
         vm.curPos2.observe(this) {
             val title = mArchive?.title
@@ -162,6 +187,27 @@ class ReaderActivity : BaseActivity() {
         binding.contentReader.viewPager.adapter = adapter
     }
 
+    private fun initWebtoon() {
+        webtoonAdapter = WebtoonAdapter()
+        webtoonAdapter.setOnImageClickListener { _, _, _ ->
+            binding.contentReader.appBar.apply {
+                if (visibility == View.VISIBLE) {
+                    visibility = View.INVISIBLE
+                    binding.contentReader.seekbar.visibility = View.INVISIBLE
+                } else {
+                    visibility = View.VISIBLE
+                    binding.contentReader.seekbar.visibility = View.VISIBLE
+                }
+            }
+        }
+        webtoonAdapter.setOnImageLongClickListener { _, _, _ ->
+            bottomPopup.show()
+            true
+        }
+        binding.contentReader.recyclerView.adapter = webtoonAdapter
+        binding.contentReader.recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
 
     private fun initData() {
 
@@ -169,6 +215,7 @@ class ReaderActivity : BaseActivity() {
         if (pageCount != null) {
             val emptyList = (0 until pageCount).map { Pair("", ReaderBottomPopup.ScaleType.FIT_WIDTH) }
             adapter.submitList(emptyList)
+            webtoonAdapter.submitList(emptyList())
             binding.contentReader.seekbar.max = pageCount
             vm.setCurPosition1(0)
         }

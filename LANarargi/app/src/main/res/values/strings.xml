@@ -4,7 +4,9 @@
 
     // 主页
     <string name="main_item_view_tags" translatable="false">长按查看标签</string>
-
+    // 主页_左Nav
+    <string name="main_left_nav_setting" translatable="false">设置</string>
+    <string name="main_left_nav_bookmark" translatable="false">书签</string>
     // 主页_右Nav
     <string name="main_right_nav_filter" translatable="false">筛选</string>
     <string name="main_right_nav_order" translatable="false">排序方式</string>
@@ -13,8 +15,74 @@
     <string name="main_right_nav_sort" translatable="false">顺序</string>
     <string name="main_right_nav_sort_asc" translatable="false">上升</string>
     <string name="main_right_nav_sort_desc" translatable="false">下降</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
+    // 阅读页
+    <string name="read_file_is_not_support" translatable="false">图片不支持</string>
+
+    // 设置页
+    // 设置--服务器
+    <string name="setting_server_theme" translatable="false">服务器</string>
+    <string name="setting_server_host_title" translatable="false">服务器地址</string>
+    <string name="setting_server_key_title" translatable="false">API密钥</string>
+    // 设置--缓存
+    <string name="setting_cache_theme" translatable="false">缓存</string>
+    <string name="setting_cache_clear_title" translatable="false">清除本地缓存</string>
+    <string name="setting_cache_clear_subtitle" translatable="false">%d MB</string>
+    // 设置--通用
+    <string name="setting_common_theme" translatable="false">通用</string>
+    <string name="setting_common_refresh_title" translatable="false">>启用滑动刷新</string>
+    <string name="setting_common_apptheme_title" translatable="false">主题</string>
+    <string name="setting_common_apptheme_select_1" translatable="false">暗</string>
+    <string name="setting_common_apptheme_select_2" translatable="false">黑</string>
+    <string name="setting_common_apptheme_select_3" translatable="false">Material </string>
+    <string name="setting_common_view_method_title" translatable="false">列表显示</string>
+    <string name="setting_common_view_method_select_1" translatable="false">卡片</string>
+    <string name="setting_common_view_method_select_2" translatable="false">封面</string>
+    <string name="setting_common_clear_title" translatable="false">清理预览图缓存</string>
+    <string name="setting_common_clear_subtitle" translatable="false">点击以删除预览图缓存</string>
+    // 设置--阅读
+    <string name="setting_read_theme" translatable="false">阅读</string>
+    <string name="setting_read_rtl_title" translatable="false">从右到左阅读</string>
+    <string name="setting_read_voice_title" translatable="false">音量键翻页</string>
+    <string name="setting_read_merge_title" translatable="false">合并双页</string>
+    <string name="setting_read_merge_subtitle" translatable="false">当设备为横向时合并纵向图像</string>
+    <string name="setting_read_reverse_merge_title" translatable="false">反转合并方向</string>
+    <string name="setting_read_reverse_merge_subtitle" translatable="false">从整体RTL设置反转RTL</string>
+    <string name="setting_read_merge_method_title" translatable="false">合并页面压缩方式</string>
+    <string name="setting_read_merge_method_select_1" translatable="false">JPEG(快速, 一般质量)</string>
+    <string name="setting_read_merge_method_select_2" translatable="false">PNG(慢速, 高质量)</string>
+    <string name="setting_read_scale_method_title" translatable="false">页面缩放</string>
+    <string name="setting_read_scale_method_select_1" translatable="false">适应页面</string>
+    <string name="setting_read_scale_method_select_2" translatable="false">适应高度</string>
+    <string name="setting_read_scale_method_select_3" translatable="false">适应宽度</string>
+    <string name="setting_read_scale_method_select_4" translatable="false">Webtoon</string>
+    <string name="setting_read_overtime_title" translatable="false">屏幕超时</string>
+    <string name="setting_read_overtime_subtitle" translatable="false">屏幕超时时间, 以秒为单位, -1为永远亮屏\n当前: %d 秒</string>
+    // 设置--搜索
+    <string name="setting_search_theme" translatable="false">搜索</string>
+    <string name="setting_search_local_title" translatable="false">本地搜索</string>
+    <string name="setting_search_local_subtitle" translatable="false">使用内置应用程序搜索进行搜索, 而不是向服务器发送请求</string>
+    <string name="setting_search_delay_title" translatable="false">搜索延迟</string>
+    <string name="setting_search_delay_subtitle" translatable="false">"在发出搜索请求之前, 两次按键之间要等待的时间(以毫秒为单位)\n当前 %d 毫秒"</string>
+    // 设置--随机档案
+    <string name="setting_random_theme" translatable="false">随机档案</string>
+    <string name="setting_random_count_title" translatable="false">随机档案计数</string>
+    <string name="setting_random_count_subtitle" translatable="false">"按下随机按钮时应选择的随机档案数量, 当前为: %d"</string>
+    // 设置--源码
+    <string name="setting_source_theme" translatable="false">源码</string>
+    <string name="setting_source_licenses_title" translatable="false">Open Source Licenses</string>
+    <string name="setting_source_licenses_subtitle" translatable="false">Licences used by this app</string>
+    <string name="setting_source_gplv3_title" translatable="false">Licensed under GPLv3</string>
+    <string name="setting_source_gplv3_subtitle" translatable="false">Tap to view</string>
+    <string name="setting_source_github_title" translatable="false">View on GitHub</string>
+    <string name="setting_source_github_subtitle" translatable="false">View source on GitHub</string>
+    // 设置--调试
+    <string name="setting_debug_theme" translatable="false">调试</string>
+    <string name="setting_debug_detail_title" translatable="false">详细信息</string>
+    <string name="setting_debug_detail_subtitle" translatable="false">显示更多的错误消息</string>
+    <string name="setting_debug_crash_title" translatable="false">启用崩溃日志</string>
+    // 设置--弹窗
+    <string name="setting_popup_cancel" translatable="false">取消</string>
+    <string name="setting_popup_confirm" translatable="false">确认</string>
 </resources>

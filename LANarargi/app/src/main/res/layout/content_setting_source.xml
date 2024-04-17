@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/setting_item_layout">
+
+    <TextView
+        style="@style/setting_item_theme"
+        android:text="@string/setting_source_theme" />
+
+    <LinearLayout
+        android:id="@+id/licensesLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_source_licenses_title" />
+
+        <TextView
+            android:text="@string/setting_source_licenses_subtitle"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/gplv3Layout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_source_gplv3_title" />
+
+        <TextView
+            android:text="@string/setting_source_gplv3_subtitle"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/githubLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_source_github_title" />
+
+        <TextView
+            android:text="@string/setting_source_github_subtitle"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+</LinearLayout>

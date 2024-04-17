@@ -18,6 +18,8 @@
     <style name="base_clickable_layout">
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
+        <item name="android:longClickable">true</item>
+        <item name="android:enabled">true</item>
         <item name="android:background">?android:selectableItemBackground</item>
     </style>
 
@@ -72,5 +74,79 @@
     <style name="reader_nav_dialog_wrapper" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>
+
+
+
+
+    <style name="setting_item_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+<!--        <item name="android:padding">8dp</item>-->
+    </style>
+
+    <style name="setting_item_theme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">?attr/textColor3</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="setting_item_text_layout" parent="base_clickable_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+<!--        <item name="android:layout_marginTop">16dp</item>-->
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="setting_item_text_title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">?attr/textColor1</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="setting_item_text_subtitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">?attr/textColor2</item>
+    </style>
+
+    <style name="setting_item_switch_layout" parent="base_clickable_layout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+<!--        <item name="android:layout_marginTop">16dp</item>-->
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="setting_item_switch_title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textColor">?attr/textColor1</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="setting_item_switch">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginStart">12dp</item>
+        <item name="android:clickable">false</item>
+        <item name="android:longClickable">false</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="setting_item_line">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="backgroundColor">?attr/bgColor4</item>
+    </style>
+
+
+
 
 </resources>

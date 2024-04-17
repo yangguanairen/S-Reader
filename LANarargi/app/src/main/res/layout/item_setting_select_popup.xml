@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/radioLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/base_clickable_layout"
+    android:paddingTop="4dp"
+    android:paddingStart="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="4dp">
+
+    <RadioButton
+        android:id="@+id/radioButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/textColor1"
+        android:textSize="16sp"
+        android:paddingStart="16dp"
+        android:paddingEnd="0dp"
+        android:clickable="false"
+        android:longClickable="false"
+        android:focusable="false"/>
+
+</LinearLayout>

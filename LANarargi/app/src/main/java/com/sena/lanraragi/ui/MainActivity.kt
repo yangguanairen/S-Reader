@@ -5,15 +5,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.RadioButton
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.ui.detail.DetailActivity
-import kotlinx.coroutines.launch
+import com.sena.lanraragi.ui.setting.SettingActivity
 
 class MainActivity : BaseActivity() {
 
@@ -22,6 +22,8 @@ class MainActivity : BaseActivity() {
     private lateinit var vm: MainVM
     private lateinit var adapter: MainAdapter
 
+
+    private lateinit var settingLayout: LinearLayout
 
     private lateinit var sortTimeButton: RadioButton
     private lateinit var sortTitleButton: RadioButton
@@ -59,8 +61,19 @@ class MainActivity : BaseActivity() {
             }
         }
 
+        initLeftNavigationView()
         initRightNavigationView()
         initContentView()
+    }
+
+    private fun initLeftNavigationView() {
+        binding.leftNav.getHeaderView(0).apply {
+            settingLayout = findViewById(R.id.settingLayout)
+        }
+        settingLayout.setOnClickListener {
+            val intent = Intent(this, SettingActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun initRightNavigationView() {
@@ -115,10 +128,9 @@ class MainActivity : BaseActivity() {
         adapter = MainAdapter()
         binding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.contentMain.recyclerView.adapter = adapter
-        adapter.setOnItemClickListener { a, v, p ->
+        adapter.setOnItemClickListener { _, _, p ->
             val itemData = adapter.getItem(p)
             if (itemData != null) {
-                val arcId = itemData.arcid
                 val intent = Intent(this, DetailActivity::class.java)
                 intent.putExtra("archive", itemData)
                 startActivity(intent)
@@ -142,6 +154,9 @@ class MainActivity : BaseActivity() {
                     orderAscButton.isChecked = false
                     orderDescButton.isChecked = true
                 }
+                else -> {
+
+                }
             }
 
         }
@@ -154,6 +169,9 @@ class MainActivity : BaseActivity() {
                 LanraragiDB.DBHelper.SORT.TITLE -> {
                     sortTimeButton.isChecked = false
                     sortTitleButton.isChecked = true
+                }
+                else -> {
+
                 }
             }
         }
