@@ -3,10 +3,11 @@ package com.sena.lanraragi.ui
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.utils.DebugLog
-import com.sena.lanraragi.utils.HttpHelper
+import com.sena.lanraragi.utils.NewHttpHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,33 +19,44 @@ class MainVM() : ViewModel() {
     val filterSort = MutableLiveData<LanraragiDB.DBHelper.SORT>()
     val filterOrder = MutableLiveData<LanraragiDB.DBHelper.ORDER>()
     val queryText = MutableLiveData<String>()
+    val isNew = MutableLiveData<Boolean>()
 
-
-    // 在页面展示前初始化数据库数据
-    fun initData(sort: LanraragiDB.DBHelper.SORT, order: LanraragiDB.DBHelper.ORDER) {
+    fun forceRefreshData() {
         viewModelScope.launch {
-            val allArchives = HttpHelper.requestAllArchive()
-            if (allArchives != null) {
-                serverArchiveCount.value = allArchives.size
-                LanraragiDB.updateArchiveList(allArchives)
-            } else {
-                DebugLog.e("请求失败，不更新数据库")
+            withContext(Dispatchers.IO) {
+                NewHttpHelper.queryAllArchive()
             }
-
+            val text = queryText.value ?: ""
             val result = withContext(Dispatchers.IO) {
-                LanraragiDB.DBHelper.filterArchiveList(sort, order)
+                NewHttpHelper.queryArchiveByTag(text)
             }
             dataList.value = result
-            filterSort.value = sort
-            filterOrder.value = order
+            if (serverArchiveCount.value != result.size) {
+                serverArchiveCount.value = result.size
+            }
         }
+    }
 
+    fun setQueryText(query: String) {
+        viewModelScope.launch {
+            queryText.value  = query
+            val result = NewHttpHelper.queryArchiveByTag(query)
+            dataList.value = result
+            if (serverArchiveCount.value != result.size) {
+                serverArchiveCount.value = result.size
+            }
+        }
     }
 
     fun setSort(sort: LanraragiDB.DBHelper.SORT) {
         filterSort.value = sort
+        AppConfig.sort = sort
+        val query = queryText.value ?: ""
+
         viewModelScope.launch {
-            val result = LanraragiDB.DBHelper.filterArchiveList(sort, filterOrder.value ?: LanraragiDB.DBHelper.ORDER.DESC)
+            val result = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchivesWithTag(query)
+            }
             DebugLog.d("测试: setSort(): ${result.size}")
             dataList.value = result
         }
@@ -52,49 +64,35 @@ class MainVM() : ViewModel() {
 
     fun setOrder(order: LanraragiDB.DBHelper.ORDER) {
         filterOrder.value = order
+        AppConfig.order = order
+        val query = queryText.value ?: ""
+
         viewModelScope.launch {
-            val result = LanraragiDB.DBHelper.filterArchiveList(filterSort.value ?: LanraragiDB.DBHelper.SORT.TITLE, order)
-            DebugLog.d("测试: setOrder(): ${result.size}")
-
-            dataList.value = result
-        }
-    }
-
-    suspend fun queryFromServer(query: String) {
-        val order = filterOrder.value ?: LanraragiDB.DBHelper.ORDER.DESC
-        val sort = filterSort.value ?: LanraragiDB.DBHelper.SORT.TIME
-        val result = withContext(Dispatchers.IO) {
-            HttpHelper.search(query, order, sort) ?: emptyList()
-        }
-        DebugLog.d("测试: queryFromServer(): ${result.size}")
-        DebugLog.d(result.joinToString("\n"))
-
-        dataList.value = result
-    }
-
-    suspend fun queryFromDB(query: String) {
-        val order = filterOrder.value ?: LanraragiDB.DBHelper.ORDER.DESC
-        val sort = filterSort.value ?: LanraragiDB.DBHelper.SORT.TIME
-
-        if (query.isBlank()) {
             val result = withContext(Dispatchers.IO) {
-                LanraragiDB.DBHelper.filterArchiveList(sort, order)
+                LanraragiDB.queryArchivesWithTag(query)
             }
-            DebugLog.d("测试: queryFromDB(): ${result.size}")
-
+            DebugLog.d("测试: setOrder(): ${result.size}")
             dataList.value = result
         }
     }
 
-    fun setQueryText(s: String) {
+    fun setNewState(b: Boolean) {
+        isNew.value = b
+        AppConfig.isNew = b
+        val query = queryText.value ?: ""
+
         viewModelScope.launch {
-            if (s.isBlank()) {
-                queryFromDB(s)
-            } else {
-                queryFromServer(s)
+            val result = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchivesWithTag(query)
             }
+            DebugLog.d("测试: setOrder(): ${result.size}")
+            dataList.value = result
         }
-        queryText.value = s
+    }
+
+    suspend fun getSingleRandomArchive(): Archive? {
+        val result = NewHttpHelper.getRandomArchive(1)
+        return result.getOrNull(0)
     }
 
 }

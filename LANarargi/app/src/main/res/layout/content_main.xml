@@ -23,18 +23,36 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <LinearLayout
+        android:id="@+id/errorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="@style/base_clickable_layout"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textColor="?attr/textColor2"
+            android:text="@string/main_content_no_host" />
+
+
+    </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/listLayout"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/appBar"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:padding="16dp">
+        android:padding="8dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp">
 
             <com.sena.lanraragi.ui.widet.SearchView
                 android:id="@+id/searchView"
@@ -49,7 +67,7 @@
                 android:id="@+id/isNew"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="新的"
+                android:text="@string/main_content_is_new"
                 android:textSize="16sp"
                 android:textColor="?attr/textColor1"
                 android:layout_marginEnd="16dp"
@@ -66,7 +84,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:text="随机"
+                android:text="@string/main_content_random"
                 android:textSize="16sp"
                 android:paddingStart="24dp"
                 android:paddingEnd="24dp"

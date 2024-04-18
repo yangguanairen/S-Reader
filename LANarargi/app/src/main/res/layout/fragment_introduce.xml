@@ -21,6 +21,7 @@
             android:layout_height="220dp"
             android:layout_weight="1"
             android:layout_margin="8dp"
+            android:transitionName="text"
             android:src="@drawable/bg_placeholder"
             android:scaleType="fitCenter" />
 
@@ -30,6 +31,7 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:paddingEnd="8dp"
+            android:paddingStart="0dp"
             android:layout_weight="1">
 
             <TextView
@@ -49,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="阅读"
+                android:text="@string/detail_introduce_start_read"
                 android:gravity="center"
                 android:background="@drawable/bg_main_random_button"
                 android:textColor="?attr/textColor1"
@@ -61,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="添加书签"
+                android:text="@string/detail_introduce_add_bookmark"
                 android:gravity="center"
                 android:background="@drawable/bg_main_random_button"
                 android:textColor="?attr/textColor1"

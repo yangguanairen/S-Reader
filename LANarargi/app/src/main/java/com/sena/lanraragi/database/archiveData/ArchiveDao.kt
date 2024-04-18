@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import java.util.concurrent.Flow
 
 
 /**
@@ -26,21 +25,39 @@ interface ArchiveDao {
     @Query("SELECT * FROM Archive")
     suspend fun getAll(): List<Archive>
 
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' ORDER BY title ASC")
+    suspend fun queryArchivesWithTagByTitleAsc(query: String): List<Archive>
 
-    @Query("SELECT * FROM ARCHIVE ORDER BY title ASC")
-    suspend fun getAllOrderByTitleAsc(): List<Archive>
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' ORDER BY title DESC")
+    suspend fun queryArchivesWithTagByTitleDesc(query: String): List<Archive>
 
-    @Query("SELECT * FROM ARCHIVE ORDER BY title DESC")
-    suspend fun getAllOrderByTitleDesc(): List<Archive>
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' ORDER BY data_added ASC")
+    suspend fun queryArchivesWithTagByAddTimeAsc(query: String): List<Archive>
 
-    @Query("SELECT * FROM ARCHIVE ORDER BY data_added ASC")
-    suspend fun getAllOrderByTimeAsc(): List<Archive>
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' ORDER BY data_added DESC")
+    suspend fun queryArchivesWithTagByAddTimeDesc(query: String): List<Archive>
 
-    @Query("SELECT * FROM ARCHIVE ORDER BY data_added DESC")
-    suspend fun getAllOrderByTimeDesc(): List<Archive>
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew = 1 ORDER BY title ASC")
+    suspend fun queryArchivesWithTagByTitleAscNew(query: String): List<Archive>
+
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew = 1 ORDER BY title DESC")
+    suspend fun queryArchivesWithTagByTitleDescNew(query: String): List<Archive>
+
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew = 1 ORDER BY data_added ASC")
+    suspend fun queryArchivesWithTagByAddTimeAscNew(query: String): List<Archive>
+
+    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew = 1 ORDER BY data_added DESC")
+    suspend fun queryArchivesWithTagByAddTimeDescNew(query: String): List<Archive>
+
+    @Query("SELECT * FROM Archive ORDER BY RANDOM() limit :count")
+    suspend fun getRandomArchive(count: Int): List<Archive>
 
 
     @Query("SELECT * FROM Archive WHERE arcid = :arcId limit 1")
     suspend fun findByArcid(arcId: String): Archive
+
+
+
+
 
 }

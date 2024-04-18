@@ -1,7 +1,6 @@
 package com.sena.lanraragi.database
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Database
 import androidx.room.DatabaseConfiguration
 import androidx.room.InvalidationTracker
@@ -9,6 +8,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.database.archiveData.ArchiveDao
 import com.sena.lanraragi.utils.DebugLog
@@ -68,33 +68,43 @@ abstract class LanraragiDB : RoomDatabase() {
             }
         }
 
-        suspend fun filterArchiveList(
-            sort: SORT = SORT.TITLE, order: ORDER = ORDER.ASC,
-            start: Int = 0, limit: Int = 20
-        ): List<Archive> {
+        suspend fun getRandomArchive(count: Int): List<Archive> {
             if (INSTANCE == null) {
                 DebugLog.e("DB 未初始化")
                 return emptyList()
             }
             val dao = INSTANCE!!.archiveDao()
 
-            return when {
-                order == ORDER.ASC && sort == SORT.TITLE -> dao.getAllOrderByTitleAsc()
-                order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.getAllOrderByTitleDesc()
-                order == ORDER.ASC && sort ==  SORT.TIME -> dao.getAllOrderByTimeAsc()
-                order == ORDER.DESC && sort == SORT.TIME -> dao.getAllOrderByTimeDesc()
-                else -> emptyList()
-            }
+            return dao.getRandomArchive(count)
         }
 
-        suspend fun findArchiveByArcid(arcId: String): Archive?  {
+        suspend fun queryArchivesWithTag(query: String): List<Archive> {
             if (INSTANCE == null) {
                 DebugLog.e("DB 未初始化")
-                return null
+                return emptyList()
             }
             val dao = INSTANCE!!.archiveDao()
+            val order = AppConfig.order
+            val sort = AppConfig.sort
+            val isNew = AppConfig.isNew
 
-            return dao.findByArcid(arcId)
+            if (isNew) {
+                return when {
+                    order == ORDER.ASC && sort == SORT.TITLE -> dao.queryArchivesWithTagByTitleAscNew(query)
+                    order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryArchivesWithTagByTitleDescNew(query)
+                    order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryArchivesWithTagByAddTimeAscNew(query)
+                    order == ORDER.DESC && sort == SORT.TIME -> dao.queryArchivesWithTagByAddTimeDescNew(query)
+                    else -> emptyList()
+                }
+            }
+
+            return when {
+                order == ORDER.ASC && sort == SORT.TITLE -> dao.queryArchivesWithTagByTitleAsc(query)
+                order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryArchivesWithTagByTitleDesc(query)
+                order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryArchivesWithTagByAddTimeAsc(query)
+                order == ORDER.DESC && sort == SORT.TIME -> dao.queryArchivesWithTagByAddTimeDesc(query)
+                else -> emptyList()
+            }
         }
     }
 

@@ -4,6 +4,13 @@
 
     // 主页
     <string name="main_item_view_tags" translatable="false">长按查看标签</string>
+    <string name="main_toolbar_title" translatable="false">LANraragi</string>
+    <string name="main_toolbar_subtitle" translatable="false">%d个档案</string>
+    // 主页_menu
+    <string name="main_menu_refresh" translatable="false">强制刷新</string>
+    <string name="main_menu_filter" translatable="false">筛选</string>
+    <string name="main_menu_goto_top" translatable="false">跳转顶部</string>
+    <string name="main_menu_goto_bottom" translatable="false">跳转底部</string>
     // 主页_左Nav
     <string name="main_left_nav_setting" translatable="false">设置</string>
     <string name="main_left_nav_bookmark" translatable="false">书签</string>
@@ -15,12 +22,27 @@
     <string name="main_right_nav_sort" translatable="false">顺序</string>
     <string name="main_right_nav_sort_asc" translatable="false">上升</string>
     <string name="main_right_nav_sort_desc" translatable="false">下降</string>
+    // 主页_contentMain
+    <string name="main_content_no_host" translatable="false">点击设置服务器</string>
+    <string name="main_content_is_new" translatable="false">新的</string>
+    <string name="main_content_random" translatable="false">随机</string>
 
+
+    // 随机页
+    <string name="random_toolbar_title" translatable="false">随机</string>
+    <string name="random_toolbar_subtitle" translatable="false">%d个档案</string>
+    <string name="random_menu_refresh" translatable="false">刷新档案</string>
+    <string name="random_menu_change_random_count" translatable="false">更改计数</string>
+
+    // 详情页
+    <string name="detail_introduce_start_read" translatable="false">阅读</string>
+    <string name="detail_introduce_add_bookmark" translatable="false">添加书签</string>
 
     // 阅读页
     <string name="read_file_is_not_support" translatable="false">图片不支持</string>
 
     // 设置页
+    <string name="setting_toolbar_title" translatable="false">设置</string>
     // 设置--服务器
     <string name="setting_server_theme" translatable="false">服务器</string>
     <string name="setting_server_host_title" translatable="false">服务器地址</string>

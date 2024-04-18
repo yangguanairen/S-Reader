@@ -50,37 +50,35 @@ class SearchView @JvmOverloads constructor(
         }
     }
 
+    private val mTextChangeListener = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            binding.clear.visibility = if (s?.length != 0) View.VISIBLE else View.INVISIBLE
+            DebugLog.d("SearchView 输入: $s")
+            if (s == null) return
+
+            val message = Message()
+            message.what = mWhat
+            message.obj = s
+            mHandler.removeMessages(mWhat)
+            mHandler.sendMessageDelayed(message, delayTime)
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+    }
+
     init {
         initView()
     }
 
 
     private fun initView() {
-
-        binding.input.setOnClickListener {
-
-        }
-
-        binding.input.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                DebugLog.d("SearchView 机器人: false")
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.clear.visibility = if (s?.length != 0) View.VISIBLE else View.INVISIBLE
-                DebugLog.d("SearchView 输入: $s")
-                if (s == null) return
-
-                val message = Message()
-                message.what = mWhat
-                message.obj = s
-                mHandler.removeMessages(mWhat)
-                mHandler.sendMessageDelayed(message, delayTime)
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
+        binding.input.addTextChangedListener(mTextChangeListener)
 
         binding.input.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -121,7 +119,10 @@ class SearchView @JvmOverloads constructor(
     }
 
     fun setText(s: String) {
+        // 设置文本前取消监听, 否则会无限死亡回调
+        binding.input.removeTextChangedListener(mTextChangeListener)
         binding.input.setText(s)
+        binding.input.addTextChangedListener(mTextChangeListener)
         binding.clear.visibility = if (s.isNotEmpty()) View.VISIBLE else View.INVISIBLE
     }
 

@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="LAnraragiBlack" parent="Theme.LANraragi">
 
-        <item name="textColor1">#ffffff</item>
-        <item name="textColor2">#BDBDBD</item>
-        <item name="textColor3">#82c9c3</item>
-        <item name="bgColor1">#303030</item>
-        <item name="bgColor2">#212121</item>
-        <item name="bgColor3">#424242</item>
-        <item name="bgColor4">#5b5b5d</item>
-
-
-    </style>
 
 
     <style name="base_clickable_layout">
@@ -36,6 +25,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">16dp</item>
     </style>
 
 
@@ -89,7 +79,10 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">?attr/textColor3</item>
-        <item name="android:padding">12dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
     </style>
 
     <style name="setting_item_text_layout" parent="base_clickable_layout">
@@ -97,7 +90,10 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
 <!--        <item name="android:layout_marginTop">16dp</item>-->
-        <item name="android:padding">12dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
     </style>
 
     <style name="setting_item_text_title">
@@ -117,7 +113,10 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
 <!--        <item name="android:layout_marginTop">16dp</item>-->
-        <item name="android:padding">12dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
     </style>
 
     <style name="setting_item_switch_title">

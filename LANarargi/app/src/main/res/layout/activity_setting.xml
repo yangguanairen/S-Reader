@@ -1,57 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/bgColor2"
     tools:context=".ui.setting.SettingActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:theme="@style/Theme.LANraragi"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <include layout="@layout/content_setting_server"
-            android:id="@+id/server" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:titleTextColor="?attr/textColor1"
+            app:subtitleTextColor="?attr/textColor2"
+            android:background="?attr/bgColor2"
+            app:popupTheme="@style/Theme.LANraragi" />
 
-        <View style="@style/setting_item_line" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <include layout="@layout/content_setting_cache"
-            android:id="@+id/cache" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/bgColor1">
 
-        <View style="@style/setting_item_line" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <include layout="@layout/content_setting_common"
-            android:id="@+id/common" />
+            <include layout="@layout/content_setting_server"
+                android:id="@+id/server" />
 
-        <View style="@style/setting_item_line" />
+            <View style="@style/setting_item_line" />
 
-        <include layout="@layout/content_setting_reader"
-            android:id="@+id/reader" />
+            <include layout="@layout/content_setting_cache"
+                android:id="@+id/cache" />
 
-        <View style="@style/setting_item_line" />
+            <View style="@style/setting_item_line" />
 
-        <include layout="@layout/content_setting_search"
-            android:id="@+id/search" />
+            <include layout="@layout/content_setting_common"
+                android:id="@+id/common" />
 
-        <View style="@style/setting_item_line" />
+            <View style="@style/setting_item_line" />
 
-        <include layout="@layout/content_setting_random"
-            android:id="@+id/random" />
+            <include layout="@layout/content_setting_reader"
+                android:id="@+id/reader" />
 
-        <View style="@style/setting_item_line" />
+            <View style="@style/setting_item_line" />
 
-        <include layout="@layout/content_setting_source"
-            android:id="@+id/source" />
+            <include layout="@layout/content_setting_search"
+                android:id="@+id/search" />
 
-        <View style="@style/setting_item_line" />
+            <View style="@style/setting_item_line" />
 
-        <include layout="@layout/content_setting_debug"
-            android:id="@+id/debug" />
+            <include layout="@layout/content_setting_random"
+                android:id="@+id/random" />
 
-        <View style="@style/setting_item_line" />
+            <View style="@style/setting_item_line" />
 
-    </LinearLayout>
+            <include layout="@layout/content_setting_source"
+                android:id="@+id/source" />
+
+            <View style="@style/setting_item_line" />
+
+            <include layout="@layout/content_setting_debug"
+                android:id="@+id/debug" />
+
+            <View style="@style/setting_item_line" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 
-</ScrollView>
+
+
+</LinearLayout>

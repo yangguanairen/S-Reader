@@ -1,18 +1,13 @@
 package com.sena.lanraragi
 
-import android.animation.Animator
 import android.animation.LayoutTransition
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
-import android.util.AttributeSet
 import android.view.Menu
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.DrawableRes
@@ -22,9 +17,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.LanguageHelper
-import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
 
@@ -41,7 +34,7 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.LAnraragiBlack)
+        setTheme(R.style.AppTheme)
         LanguageHelper.getAttachBaseContext(this)
         window.statusBarColor = Color.BLACK
     }

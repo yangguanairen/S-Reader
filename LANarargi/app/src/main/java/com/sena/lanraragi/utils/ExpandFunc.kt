@@ -41,7 +41,10 @@ fun InputStream.toJSONArray(): JSONArray? {
 
 
 fun JSONObject.createArchive(): Archive? {
-    val arcId = getOrNull { getString("arcid") }
+    var arcId = getOrNull { getString("arcid") }
+    if (arcId == null) {
+        arcId = getOrNull { getString("id") }
+    }
     if (arcId == null) {
         DebugLog.e("序列化失败，无法找到arcid，对象: ${ toString()}")
         return null
@@ -99,4 +102,9 @@ fun Context.getThemeColor(id: Int): Int? {
     val typedValue = TypedValue()
     val isSuccess = theme.resolveAttribute(id, typedValue, true)
     return if (isSuccess) typedValue.data else null
+}
+
+fun Context.dp2Px(dp: Int): Int {
+    val density = resources.displayMetrics.density
+    return (density * density + 0.5).toInt()
 }

@@ -8,7 +8,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.github.chrisbanes.photoview.PhotoView
 import com.sena.lanraragi.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,10 +52,10 @@ object ImageUtils {
                 .error(R.drawable.bg_error)
                 .placeholder(R.drawable.bg_placeholder)
                 .transition(withCrossFade(500))
-            if (imageView1.isAttachedToWindow == false || imageView2.isAttachedToWindow == false) {
-                DebugLog.e("loadThumbTo2View() 视图已经从窗口移除")
-                return@launch
-            }
+//            if (imageView1.isAttachedToWindow == false || imageView2.isAttachedToWindow == false) {
+//                DebugLog.e("loadThumbTo2View() 视图已经从窗口移除")
+//                return@launch
+//            }
             if (size > 1f) {
                 imageView1.visibility = View.GONE
                 imageView2.visibility = View.VISIBLE
@@ -86,15 +85,19 @@ object ImageUtils {
                 }
             }
             if (!result) return@launch
-            if (imageView.isAttachedToWindow == false) {
-                DebugLog.e("loadThumb() 视图已经从窗口移除")
-                return@launch
-            }
-            Glide.with(context).load(thumbCachePath)
-                .error(R.drawable.bg_error)
-                .placeholder(R.drawable.bg_placeholder)
-                .transition(withCrossFade(500))
-                .into(imageView)
+//            if (imageView.isAttachedToWindow == false) {
+//                DebugLog.e("loadThumb() 视图已经从窗口移除")
+//                return@launch
+//            }
+
+            imageView.setImageBitmap(BitmapFactory.decodeFile(thumbCachePath))
+
+//            Glide.with(context)
+//                .load(thumbCachePath)
+//                .error(R.drawable.bg_error)
+//                .placeholder(R.drawable.bg_placeholder)
+//                .transition(withCrossFade(500))
+//                .into(imageView)
         }
     }
 

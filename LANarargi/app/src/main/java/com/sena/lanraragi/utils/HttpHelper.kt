@@ -1,5 +1,6 @@
 package com.sena.lanraragi.utils
 
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import kotlinx.coroutines.Dispatchers
@@ -28,20 +29,38 @@ object HttpHelper {
     }
 
 
-    private var apiHost = "192.168.0.102:3002"
-    private val allArchiveUrl = "http://${apiHost}/api/archives"
-    // 缩略图链接
-    private val thumbUrl = "http://${apiHost}/api/archives/%s/thumbnail"
-    // 搜索链接
-    private val searchUrl = "http://${apiHost}/api/search"
-    // 获得漫画解压后的图片列表
-    private val filesUrl = "http://$apiHost/api/archives/:id/files"
-    // 漫画解压后的图片链接
-    private val pathUrl = "http://$apiHost/api/archives/:id/page?path=:path"
+    // 主页
+    private const val allArchiveUrl = "%host/api/archives"  // 全部档案
+    private const val randomArchiveUrl = "%host/api/search/random?count=:count"  // 随机档案
 
+
+//    private var apiHost = "192.168.0.102:3002"
+
+    // 缩略图链接
+    private const val thumbUrl = "%host/api/archives/%s/thumbnail"
+    // 搜索链接
+    private const val searchUrl = "%host/api/search"
+    // 获得漫画解压后的图片列表
+    private const val filesUrl = "%host/api/archives/:id/files"
+    // 漫画解压后的图片链接
+    private const val pathUrl = "%host/api/archives/:id/page?path=:path"
+
+
+    /**
+     * 动态更换url的host
+     */
+    private fun convertUrl(url: String): String {
+        val host = AppConfig.serverHost
+        return if (host.startsWith("http://") || host.startsWith("https://")) {
+            url.replace("%host", host)
+        } else {
+            url.replace("%host", "http://$host")
+        }
+    }
 
     suspend fun requestAllArchive(): List<Archive>? {
-        val build = Build().url(allArchiveUrl)
+        val finUrl = convertUrl(allArchiveUrl)
+        val build = Build().url(finUrl)
 
         val result = withContext(Dispatchers.IO) {
             val response = build.execute()
@@ -55,6 +74,23 @@ object HttpHelper {
 
         return result
     }
+
+    suspend fun requestRandomArchive(count: Int): List<Archive>? {
+        val finUrl = convertUrl(randomArchiveUrl).replace(":count", count.toString())
+        val mBuilder = Build().url(finUrl)
+
+        val result = withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            if (response?.code != 200) {
+                null
+            } else {
+                getOrNull { response.body?.byteStream()?.toJSONObject()?.getJSONArray("data")?.createArchiveList() }
+            }
+        }
+        return result
+    }
+
+
 
     /**
      * 下载封面图片和漫画内容图片
@@ -89,7 +125,7 @@ object HttpHelper {
     }
 
     suspend fun getAllPageName(arid: String): List<String>? {
-        val url = filesUrl.replace(":id", arid)
+        val url = convertUrl(filesUrl).replace(":id", arid)
 
         val build = Build().url(url)
         val jsonObject = withContext(Dispatchers.IO) {
@@ -101,7 +137,7 @@ object HttpHelper {
         val result = arrayListOf<String>()
         val pages = getOrNull { jsonObject.getJSONArray("pages") } ?: return null
         for (i in 0 until pages.length()) {
-            result.add((pages.get(i) as String).replace("./", "http://$apiHost/"))
+            result.add((pages.get(i) as String).replace("./", "${AppConfig.serverHost}/"))
         }
 
         DebugLog.d("getAllPageName()\n${result.joinToString("\n")} ")
@@ -116,7 +152,7 @@ object HttpHelper {
         }
 
         val savePath = File(targetDir, path).absolutePath
-        val url = pathUrl.replace(":id", arid).replace(":path", path)
+        val url = convertUrl(pathUrl).replace(":id", arid).replace(":path", path)
 
         DebugLog.d("下载图片: $url")
         return downloadCore(url, savePath)
@@ -130,7 +166,7 @@ object HttpHelper {
         }
 
         val savePath = File(targetDir, arid).absolutePath
-        val url = thumbUrl.replace("%s", arid)
+        val url = convertUrl(thumbUrl).replace("%s", arid)
         return downloadCore(url, savePath)
     }
 
@@ -142,7 +178,7 @@ object HttpHelper {
         }
         val mOrder = if (order == LanraragiDB.DBHelper.ORDER.ASC) "asc" else "desc"
         val mSort = if (sort == LanraragiDB.DBHelper.SORT.TITLE) "title" else "date_added"
-        val finalUrl = "$searchUrl?filter=${encodeQuery}&order=$mSort&sortby=$mOrder&newonly=false&start=-1"
+        val finalUrl = convertUrl(searchUrl) + "?filter=${encodeQuery}&order=$mSort&sortby=$mOrder&newonly=false&start=-1"
 
         val build = Build().url(finalUrl)
         val jsonObject = withContext(Dispatchers.IO) {
@@ -161,7 +197,7 @@ object HttpHelper {
 
 
 
-    private class Build {
+    class Build {
 
         private var url: String? = null
         private val headers: MutableMap<String, String> = mutableMapOf()
@@ -186,6 +222,10 @@ object HttpHelper {
         fun execute(): Response? {
             val mUrl = url ?: throw Exception("url is null")
             val build = Request.Builder().url(mUrl)
+            val secretKey = AppConfig.serverSecretKey
+            if (secretKey.isNotBlank()) {
+                build.addHeader("Authorization ", "Bearer $secretKey")
+            }
             headers.entries.forEach {
                 build.addHeader(it.key, it.value)
             }
@@ -201,7 +241,7 @@ object HttpHelper {
                 .appendLine("ResponseCode: ${response?.code}")
                 .appendLine("请求总耗时: ${eTime - sTime}毫秒")
 
-//            DebugLog.d("$sb")
+            DebugLog.d("$sb")
 
             return response
         }

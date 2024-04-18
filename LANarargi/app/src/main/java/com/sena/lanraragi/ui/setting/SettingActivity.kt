@@ -13,6 +13,10 @@ import com.sena.lanraragi.databinding.ActivitySettingBinding
 import com.sena.lanraragi.utils.DataStoreHelper
 import com.sena.lanraragi.utils.FileUtils
 
+
+const val INTENT_KEY_OPERATE = "operate"
+const val INTENT_OPERATE_VALUE = "openHostPop"
+
 class SettingActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySettingBinding
@@ -45,8 +49,24 @@ class SettingActivity : BaseActivity() {
         binding = ActivitySettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setAppBarText(getString(R.string.setting_toolbar_title), null)
+        setNavigation(R.drawable.ic_arrow_back_24) {
+            finish()
+        }
+
         initPopup()
         initView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val operate = intent.getStringExtra(INTENT_KEY_OPERATE)
+        if (operate == INTENT_OPERATE_VALUE) {
+            serverHostPop.doOnAttach {// 必须在onAttach时, 之前onCreate还未执行, 变量未初始化
+                serverHostCustomPop.setInputContent(AppConfig.serverHost)
+            }
+            serverHostPop.show()
+        }
     }
 
     private fun initView() {
@@ -270,16 +290,21 @@ class SettingActivity : BaseActivity() {
     private fun initServerPop() {
         serverHostCustomPop = SettingInputPopup(this, getString(R.string.setting_server_host_title))
         serverHostCustomPop.setOnConfirmClickListener { t ->
+            var finalText = t
+            if (!t.startsWith("http://") && !t.startsWith("https://")) {
+                finalText = "http://$t"
+            }
             binding.server.hostText.apply {
                 visibility = if (t.isBlank()) View.GONE else View.VISIBLE
-                text = t
+                text = finalText
             }
-            AppConfig.serverHost = t
-            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.SERVER_HOST, t)
+            AppConfig.serverHost = finalText
+            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.SERVER_HOST, finalText)
         }
         serverHostPop = XPopup.Builder(this)
             .autoFocusEditText(true)
             .autoOpenSoftInput(true)
+            .moveUpToKeyboard(true)
             .asCustom(serverHostCustomPop)
 
         serverKeyCustomPop = SettingInputPopup(this, getString(R.string.setting_server_key_title))
@@ -294,6 +319,7 @@ class SettingActivity : BaseActivity() {
         serverKeyPop = XPopup.Builder(this)
             .autoFocusEditText(true)
             .autoOpenSoftInput(true)
+            .moveUpToKeyboard(true)
             .asCustom(serverKeyCustomPop)
     }
 
@@ -365,6 +391,7 @@ class SettingActivity : BaseActivity() {
         readTimePop = XPopup.Builder(this)
             .autoFocusEditText(true)
             .autoOpenSoftInput(true)
+            .moveUpToKeyboard(true)
             .asCustom(readTimeCustomPop)
     }
 
@@ -379,13 +406,15 @@ class SettingActivity : BaseActivity() {
         searchDelayPop = XPopup.Builder(this)
             .autoFocusEditText(true)
             .autoOpenSoftInput(true)
+            .moveUpToKeyboard(true)
             .asCustom(searchDelayCustomPop)
     }
 
     private fun initRandomPop() {
         randomCountCustomPop = SettingInputPopup(this, getString(R.string.setting_random_count_title), true)
         randomCountCustomPop.setOnConfirmClickListener { t ->
-            val number = t.toIntOrNull() ?: return@setOnConfirmClickListener
+            var number = t.toIntOrNull() ?: return@setOnConfirmClickListener
+            if (number <= 0) number = 1
             binding.random.randomCountText.text = String.format(getString(R.string.setting_random_count_subtitle), number)
             AppConfig.randomCount = number
             DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.RANDOM_COUNT, number)
@@ -393,6 +422,7 @@ class SettingActivity : BaseActivity() {
         randomCountPop = XPopup.Builder(this)
             .autoFocusEditText(true)
             .autoOpenSoftInput(true)
+            .moveUpToKeyboard(true)
             .asCustom(randomCountCustomPop)
     }
 

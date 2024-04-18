@@ -1,30 +1,44 @@
 package com.sena.lanraragi.ui
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
 import android.widget.LinearLayout
 import android.widget.RadioButton
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.core.app.ActivityOptionsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.lxj.xpopup.XPopup
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.ui.detail.DetailActivity
+import com.sena.lanraragi.ui.random.RandomActivity
+import com.sena.lanraragi.ui.setting.INTENT_KEY_OPERATE
+import com.sena.lanraragi.ui.setting.INTENT_OPERATE_VALUE
 import com.sena.lanraragi.ui.setting.SettingActivity
+import kotlinx.coroutines.launch
 
-class MainActivity : BaseActivity() {
+
+const val INTENT_KEY_ARCHIVE = "archive"
+const val INTENT_KEY_QUERY = "query"
+
+class MainActivity : BaseActivity(R.menu.menu_main) {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var vm: MainVM
+    private val vm: MainVM by viewModels()
     private lateinit var adapter: MainAdapter
 
-
     private lateinit var settingLayout: LinearLayout
-
     private lateinit var sortTimeButton: RadioButton
     private lateinit var sortTitleButton: RadioButton
     private lateinit var orderAscButton: RadioButton
@@ -38,21 +52,40 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        vm = MainVM()
+        queryFromDetail = intent.getStringExtra(INTENT_KEY_QUERY)
 
-        queryFromDetail = intent.getStringExtra("query")
-
-        initView()
         initViewModel()
-        initData()
-
-
+        initView()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (AppConfig.serverHost.isBlank()) {
+            binding.contentMain.errorLayout.visibility = View.VISIBLE
+            binding.contentMain.listLayout.visibility = View.INVISIBLE
+        } else {
+            binding.contentMain.errorLayout.visibility = View.INVISIBLE
+            binding.contentMain.listLayout.visibility = View.VISIBLE
+            initData()
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        binding.contentMain.recyclerView.apply {
+            var cPos = (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            if (cPos < 0) cPos = 0
+            layoutManager = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                GridLayoutManager(this@MainActivity, 2)
+            } else {
+                LinearLayoutManager(this@MainActivity)
+            }
+            layoutManager?.scrollToPosition(cPos)
+        }
+    }
 
     private fun initView() {
-
-        setAppBarText("LANraragi", null)
+        setAppBarText(getString(R.string.main_toolbar_title), null)
         setNavigation(if (queryFromDetail != null) R.drawable.ic_arrow_back_24 else R.drawable.ic_menu_24) {
             if (queryFromDetail != null) {
                 finish()
@@ -83,6 +116,10 @@ class MainActivity : BaseActivity() {
             orderAscButton = findViewById(R.id.orderAsc)
             orderDescButton = findViewById(R.id.orderDesc)
         }
+        sortTimeButton.isChecked = AppConfig.sort == LanraragiDB.DBHelper.SORT.TIME
+        sortTitleButton.isChecked = AppConfig.sort == LanraragiDB.DBHelper.SORT.TITLE
+        orderAscButton.isChecked = AppConfig.order == LanraragiDB.DBHelper.ORDER.ASC
+        orderDescButton.isChecked = AppConfig.order == LanraragiDB.DBHelper.ORDER.DESC
 
         sortTimeButton.setOnClickListener {
             vm.setSort(LanraragiDB.DBHelper.SORT.TIME)
@@ -99,9 +136,13 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initContentView() {
+        binding.contentMain.errorLayout.setOnClickListener {
+            val intent = Intent(this, SettingActivity::class.java)
+            intent.putExtra(INTENT_KEY_OPERATE, INTENT_OPERATE_VALUE)
+            startActivity(intent)
+        }
 
         binding.contentMain.searchView.setOnAfterInputFinishListener {
-            if (it.isBlank()) return@setOnAfterInputFinishListener
             vm.setQueryText(it)
         }
         binding.contentMain.searchView.setOnClearTextListener {
@@ -116,32 +157,68 @@ class MainActivity : BaseActivity() {
             binding.contentMain.random.visibility = View.GONE
         }
 
-
         binding.contentMain.isNew.setOnClickListener {
-
+            vm.setNewState(binding.contentMain.isNew.isChecked)
         }
         binding.contentMain.random.setOnClickListener {
-
+            val count = AppConfig.randomCount
+            if (count == 1) {
+                lifecycleScope.launch {
+                    val result = vm.getSingleRandomArchive()
+                    if (result != null) {
+                        val i = Intent(this@MainActivity, DetailActivity::class.java)
+                        i.putExtra(INTENT_KEY_ARCHIVE, result)
+                        startActivity(i)
+                    } else {
+                        Toast.makeText(this@MainActivity, "无法获取随机档案", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                val intent = Intent(this, RandomActivity::class.java)
+                startActivity(intent)
+            }
         }
 
 
         adapter = MainAdapter()
-        binding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            binding.contentMain.recyclerView.layoutManager = GridLayoutManager(this, 2)
+        } else {
+            binding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
+        }
         binding.contentMain.recyclerView.adapter = adapter
-        adapter.setOnItemClickListener { _, _, p ->
+        adapter.setOnItemClickListener { _, v, p ->
             val itemData = adapter.getItem(p)
             if (itemData != null) {
                 val intent = Intent(this, DetailActivity::class.java)
-                intent.putExtra("archive", itemData)
-                startActivity(intent)
+                intent.putExtra(INTENT_KEY_ARCHIVE, itemData)
+                val coverView = v.findViewById<View>(R.id.cover)
+                val statusBar = findViewById<View>(android.R.id.statusBarBackground)
+                val coverPair = androidx.core.util.Pair.create(coverView, "text")
+                val statusPair = androidx.core.util.Pair.create(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
+                startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(this, coverPair, statusPair).toBundle())
+
+            }
+        }
+        adapter.setOnItemLongClickListener { a, _, p ->
+            a.getItem(p)?.tags?.let {
+                val pop = MainTagsViewerPopup(this, it)
+                pop.setOnItemClickListener { q ->
+                    vm.setQueryText(q)
+                }
+                XPopup.Builder(this)
+                    .borderRadius(16f)
+                    .asCustom(pop)
+                    .show()
             }
 
+            true
         }
     }
 
     private fun initViewModel() {
         vm.serverArchiveCount.observe(this) { n: Int? ->
-            binding.contentMain.toolbar.subtitle = "${n ?: 0}个档案"
+            binding.contentMain.toolbar.subtitle = String.format(getString(R.string.main_toolbar_subtitle), n ?: 0)
         }
         vm.filterOrder.observe(this) {
             when (it) {
@@ -179,34 +256,44 @@ class MainActivity : BaseActivity() {
             adapter.submitList(it)
         }
         vm.queryText.observe(this) {
-//            binding.contentMain.searchView.setText(it)
+            binding.contentMain.searchView.setText(it)
+        }
+        vm.isNew.observe(this) {
+            binding.contentMain.isNew.isChecked = it
         }
     }
 
     private fun initData() {
-        if (queryFromDetail != null) {
-            binding.contentMain.searchView.setText(queryFromDetail!!)
-        } else {
-            vm.initData(LanraragiDB.DBHelper.SORT.TIME, LanraragiDB.DBHelper.ORDER.DESC)
+        queryFromDetail?.let {
+            vm.setQueryText(it)
+        }
+        queryFromDetail?:let{
+            vm.forceRefreshData()
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
+                vm.forceRefreshData()
                 true
             }
-
             R.id.filter -> {
                 binding.drawerLayout.openDrawer(binding.rightNav)
                 true
             }
-            R.id.more -> {
+            R.id.gotoTop -> {
+                binding.contentMain.recyclerView.apply {
+                    layoutManager?.scrollToPosition(0)
+                }
+                true
+            }
+            R.id.gotoBottom -> {
+                val pos = adapter.items.size
+                binding.contentMain.recyclerView.apply {
+                    layoutManager?.scrollToPosition(pos - 1)
+                }
                 true
             }
 

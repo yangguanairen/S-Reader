@@ -41,7 +41,7 @@ class MainAdapter : BaseQuickAdapter<Archive, MainAdapter.VH>() {
         fun bind(context: Context, archive: Archive) {
             binding.apply {
                 binding.title.text = archive.title
-                ImageUtils.loadThumbTo2View(context, archive.arcid, binding.cover, binding.cover2)
+                ImageUtils.loadThumb(context, archive.arcid, binding.cover)
 
             }
         }
