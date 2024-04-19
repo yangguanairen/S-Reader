@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/random"
+        android:title="@string/detail_toolbar_random"/>
+
+    <item
+        android:id="@+id/gotoTop"
+        android:title="@string/main_menu_goto_top"/>
+
+    <item
+        android:id="@+id/gotoBottom"
+        android:title="@string/main_menu_goto_bottom"/>
+
+</menu>

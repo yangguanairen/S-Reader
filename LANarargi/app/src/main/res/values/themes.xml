@@ -1,19 +1,4 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.LANraragi" parent="Theme.MaterialComponents.NoActionBar.Bridge">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-    </style>
-
 
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
         <item name="textColor1">#ffffff</item>
@@ -26,6 +11,10 @@
 
         <item name="android:windowContentTransitions">true</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+<!--        <item name="android:windowEnterTransition">true</item>-->
+<!--        <item name="android:windowExitTransition">true</item>-->
     </style>
 
 

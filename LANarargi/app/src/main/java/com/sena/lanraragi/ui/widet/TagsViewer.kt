@@ -11,6 +11,7 @@ import com.sena.lanraragi.databinding.ItemTagBinding
 import com.sena.lanraragi.databinding.ItemTagLayoutBinding
 import com.sena.lanraragi.databinding.ViewTagsBinding
 import com.sena.lanraragi.utils.getOrNull
+import java.util.Calendar
 
 
 /**
@@ -59,13 +60,24 @@ class TagsViewer @JvmOverloads constructor(
         list.forEach { s ->
             val tB = ItemTagBinding.inflate(LayoutInflater.from(mContext), contentLayout, true)
             tB.textView.apply {
-                text = s
+                text = if (header == "data_added") timeStamp2String(s.toLong()) else s
                 setBackgroundResource(R.drawable.bg_tag_content)
                 setOnClickListener {
                     mListener?.onItemClickListener(header, s)
                 }
             }
         }
+    }
+
+    private fun timeStamp2String(time: Long): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = time * 1000L
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val format = "%04d/$02d%02d"
+        return String.format(format, year, month, day)
     }
 
 

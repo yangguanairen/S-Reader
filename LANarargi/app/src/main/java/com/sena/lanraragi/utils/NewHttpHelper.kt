@@ -41,19 +41,22 @@ object NewHttpHelper {
     }
 
     suspend fun getRandomArchive(specifyCount: Int = -1): List<Archive> {
-        val isUseLocalSearch = AppConfig.enableLocalSearch
+        // val isUseLocalSearch = AppConfig.enableLocalSearch
         var count = AppConfig.randomCount
         if (count <= 0) count = 1
         if (specifyCount > 0) count = specifyCount
 
-        var result: List<Archive>? = null
-        if (!isUseLocalSearch) {
-            getRandomArchiveFromServer(count)?.let { result = it }
-        }
-        if (result == null || isUseLocalSearch) {
-            result = LanraragiDB.getRandomArchive(count)
-        }
-        return result ?: arrayListOf()
+        // var result: List<Archive>? = null
+        // if (!isUseLocalSearch) {
+        //     getRandomArchiveFromServer(count)?.let { result = it }
+        // }
+        // if (result == null || isUseLocalSearch) {
+        //     result = LanraragiDB.getRandomArchive(count)
+        // }
+        // 2024.04.19 随机档案改为只从本地数据库获取
+        // 避免获取时间过长
+        val result = LanraragiDB.getRandomArchive(count)
+        return result
     }
 
     private suspend fun queryAllArchiveFromServer(): List<Archive>? {

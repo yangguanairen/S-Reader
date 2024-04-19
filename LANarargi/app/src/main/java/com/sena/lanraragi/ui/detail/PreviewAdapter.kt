@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter4.BaseQuickAdapter
 import com.sena.lanraragi.databinding.ItemPreviewBinding
-import com.sena.lanraragi.utils.ImageUtils
+import com.sena.lanraragi.utils.NewImageUtils
 
 
 /**
@@ -43,7 +43,8 @@ class PreviewAdapter : BaseQuickAdapter<String, PreviewAdapter.VH>() {
             if (id.isNullOrBlank() || path.isNullOrBlank()) {
                 return
             }
-            ImageUtils.loadPreview(context, id, path, binding.image)
+//            ImageUtils.loadPreview(context, id, path, binding.image)
+            NewImageUtils.loadPre(context, id, path, binding.image)
         }
 
     }

@@ -12,10 +12,8 @@ import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ActivitySettingBinding
 import com.sena.lanraragi.utils.DataStoreHelper
 import com.sena.lanraragi.utils.FileUtils
-
-
-const val INTENT_KEY_OPERATE = "operate"
-const val INTENT_OPERATE_VALUE = "openHostPop"
+import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
 
 class SettingActivity : BaseActivity() {
 
@@ -60,8 +58,8 @@ class SettingActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        val operate = intent.getStringExtra(INTENT_KEY_OPERATE)
-        if (operate == INTENT_OPERATE_VALUE) {
+        val operate = intent.getStringExtra(INTENT_KEY_ARCHIVE)
+        if (operate == OPERATE_KEY_VALUE1) {
             serverHostPop.doOnAttach {// 必须在onAttach时, 之前onCreate还未执行, 变量未初始化
                 serverHostCustomPop.setInputContent(AppConfig.serverHost)
             }

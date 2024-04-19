@@ -19,6 +19,7 @@ import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ActivityReaderBinding
 import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
@@ -37,7 +38,7 @@ class ReaderActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        mArchive = getOrNull { intent.getSerializableExtra("archive") as Archive }
+        mArchive = getOrNull { intent.getSerializableExtra(INTENT_KEY_ARCHIVE) as Archive }
 //        mFileNameList = getOrNull { intent.getStringArrayListExtra("fileNameList")?.toList() }
         if (mArchive == null) {
             DebugLog.e("ReaderActivity.onCreate(): archive is null")
@@ -107,7 +108,6 @@ class ReaderActivity : BaseActivity() {
                 val lm = recyclerView.layoutManager as LinearLayoutManager
                 val firstVisiblePos = lm.findFirstVisibleItemPosition()
                 vm.setCurPosition2(firstVisiblePos)
-
             }
         })
 
@@ -123,7 +123,7 @@ class ReaderActivity : BaseActivity() {
                 if (fromUser) {
                     vm.setCurPosition1(progress)
                 } else {
-                    DebugLog.e("非人类")
+//                    DebugLog.e("非人类")
                 }
             }
 
@@ -219,6 +219,10 @@ class ReaderActivity : BaseActivity() {
             binding.contentReader.seekbar.max = pageCount
             vm.setCurPosition1(0)
         }
+
+        // 临时测试用
+        binding.contentReader.viewPager.visibility = View.VISIBLE
+        binding.contentReader.recyclerView.visibility = View.GONE
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

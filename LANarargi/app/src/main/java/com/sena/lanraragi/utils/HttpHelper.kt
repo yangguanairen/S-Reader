@@ -95,7 +95,7 @@ object HttpHelper {
     /**
      * 下载封面图片和漫画内容图片
      */
-    private suspend fun downloadCore(url: String, savePath: String): Boolean {
+    suspend fun downloadCore(url: String, savePath: String): Boolean {
         val build = Build().url(url)
 
         val result = withContext(Dispatchers.IO) {

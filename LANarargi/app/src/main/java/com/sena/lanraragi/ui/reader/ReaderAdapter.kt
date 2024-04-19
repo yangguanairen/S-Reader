@@ -2,6 +2,7 @@ package com.sena.lanraragi.ui.reader
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.os.Build.VERSION.SDK_INT
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,17 +11,12 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.gifdecoder.GifDecoder
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.load.resource.gif.GifDrawable
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import coil.ImageLoader
+import coil.decode.ImageDecoderDecoder
+import coil.load
 import com.chad.library.adapter4.BaseDifferAdapter
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.OnImageEventListener
 import com.sena.lanraragi.databinding.ItemReaderBinding
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.HttpHelper
@@ -29,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.lang.Exception
 
 
 /**
@@ -56,19 +51,21 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
 
         val id = Regex("api/archives/[a-z0-9]+/page").find(url)?.value?.split(Regex("/"))?.getOrNull(2)
         val path = Regex("path=.*").find(url)?.value?.replace("path=", "")
+        val finFileName = path?.replace("/", "_")
         if (id == null || path == null) {
             DebugLog.e("ReaderAdapter.onBindViewHolder(): 无效图链\nurl:$url")
             return
         }
-        val dir = File(context.externalCacheDir, "/preview/$id")
+        val dir = File(context.externalCacheDir, "/archive/$id")
         if (!dir.exists()) { dir.mkdirs() }
-        val isExists = dir.listFiles()?.any { it.name == path } == true
+        val isExists = dir.listFiles()?.any { it.name == finFileName } == true
 
         // (http://192.168.0.102:3002/api/archives/640c73e21160a84068fbaacc466d1f2f3df54bfc/page?path=bigPicTest/SDCF04.jpg, FIT_WIDTH)
+        val filePath = dir.absolutePath + "/$finFileName"
         CoroutineScope(Dispatchers.Main).launch {
             val isSuccess = withContext(Dispatchers.IO) {
                 if (!isExists) {
-                    return@withContext HttpHelper.downloadPath(id, path, dir.absolutePath)
+                    return@withContext HttpHelper.downloadCore(url, dir.absolutePath + "/$finFileName")
                 } else {
                     return@withContext true
                 }
@@ -78,13 +75,13 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
                 return@launch
             }
 
-            val filePath = dir.absolutePath + "/$path"
+
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeFile(filePath, options)
             val mimeType = options.outMimeType
 
             when (mimeType.lowercase()) {
-                "image/png", "image/jpeg", "image/jpg" -> {
+                "image/png", "image/jpeg", "image/jpg", "image/webp" -> {
                     holder.bindScaleView(filePath, scaleType, position)
                 }
                 "image/gif" -> {
@@ -118,7 +115,6 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
                 ReaderBottomPopup.ScaleType.FIT_HEIGHT -> ImageView.ScaleType.FIT_START
                 ReaderBottomPopup.ScaleType.FIT_PAGE -> ImageView.ScaleType.CENTER
                 ReaderBottomPopup.ScaleType.WEBTOON -> ImageView.ScaleType.FIT_CENTER
-                else -> ImageView.ScaleType.FIT_CENTER
             }
             binding.photoView.apply {
                 this.scaleType = realScaleType
@@ -128,26 +124,25 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
                     true
                 }
             }
-            Glide.with(context)
-                .asGif()
-                .load(filePath)
-                .addListener(object : RequestListener<GifDrawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<GifDrawable>, isFirstResource: Boolean): Boolean {
-                        return false
+
+            val imageLoader = ImageLoader.Builder(context)
+                .components {
+                    if (SDK_INT >= 28) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(coil.decode.GifDecoder.Factory())
                     }
-
-                    override fun onResourceReady(resource: GifDrawable, model: Any, target: Target<GifDrawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
-                        binding.imageLayout.removeView(binding.progressBar)
-                        binding.errorView.visibility = View.GONE
-                        binding.photoView.visibility = View.VISIBLE
-                        binding.scaleView.visibility = View.GONE
-                        return true
-                    }
-
-                })
-                .into(binding.photoView)
-
-
+                }
+                .build()
+            binding.photoView.load(filePath, imageLoader = imageLoader) {
+                listener { request, result ->
+                    DebugLog.e("测试： gif加载完成: $filePath")
+                    binding.imageLayout.removeView(binding.progressBar)
+                    binding.errorView.visibility = View.GONE
+                    binding.photoView.visibility = View.VISIBLE
+                    binding.scaleView.visibility = View.GONE
+                }
+            }
         }
 
         fun bindScaleView(filePath: String, scaleType: ReaderBottomPopup.ScaleType, pos: Int) {
@@ -157,18 +152,15 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
                 ReaderBottomPopup.ScaleType.FIT_HEIGHT -> SubsamplingScaleImageView.SCALE_TYPE_START
                 ReaderBottomPopup.ScaleType.FIT_PAGE -> SubsamplingScaleImageView.SCALE_TYPE_CUSTOM
                 ReaderBottomPopup.ScaleType.WEBTOON -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
-                else -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
             }
 
             binding.scaleView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
                 override fun onReady() {
-                    DebugLog.e("测试: onReady")
                     binding.scaleView.visibility = View.INVISIBLE
 
                 }
 
                 override fun onImageLoaded() {
-                    DebugLog.e("测试: onImageLoaded")
                     val fadeIn = AlphaAnimation(1f, 0f).apply { duration = 300L }
                     fadeIn.setAnimationListener(object : Animation.AnimationListener {
                         override fun onAnimationStart(animation: Animation?) {

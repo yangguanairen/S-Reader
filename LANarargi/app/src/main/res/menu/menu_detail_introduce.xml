@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/random"
+        android:title="@string/detail_toolbar_random"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/refresh"
+        android:title="@string/detail_toolbar_refresh"
+        app:showAsAction="never" />
+
+</menu>

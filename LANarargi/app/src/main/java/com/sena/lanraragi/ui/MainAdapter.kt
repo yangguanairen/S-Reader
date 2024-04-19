@@ -3,11 +3,13 @@ package com.sena.lanraragi.ui
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter4.BaseQuickAdapter
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ItemArchiveBinding
-import com.sena.lanraragi.utils.ImageUtils
+import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
+import com.sena.lanraragi.utils.NewImageUtils
 
 
 /**
@@ -41,8 +43,9 @@ class MainAdapter : BaseQuickAdapter<Archive, MainAdapter.VH>() {
         fun bind(context: Context, archive: Archive) {
             binding.apply {
                 binding.title.text = archive.title
-                ImageUtils.loadThumb(context, archive.arcid, binding.cover)
-
+                ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
+//                ImageUtils.loadThumb(context, archive.arcid, binding.cover)
+                NewImageUtils.loadThumb(context, archive.arcid, binding.cover)
             }
         }
     }

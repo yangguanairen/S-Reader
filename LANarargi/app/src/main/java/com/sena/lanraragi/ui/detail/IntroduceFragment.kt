@@ -5,16 +5,26 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.ViewCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import com.sena.lanraragi.BaseFragment
+import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.FragmentIntroduceBinding
 import com.sena.lanraragi.ui.MainActivity
 import com.sena.lanraragi.ui.reader.ReaderActivity
-import com.sena.lanraragi.utils.ImageUtils
+import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
+import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.INTENT_KEY_QUERY
+import com.sena.lanraragi.utils.NewHttpHelper
+import com.sena.lanraragi.utils.NewImageUtils
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
@@ -28,6 +38,7 @@ class IntroduceFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         arguments?.let {
             mArchive = getOrNull { it.getSerializable(ARG_ARCHIVE) as Archive }
         }
@@ -53,17 +64,20 @@ class IntroduceFragment : BaseFragment() {
         binding.tageViewer.setOnItemClickListener { header, content ->
             val query = if (header.isBlank()) content else "$header:$content"
             val intent = Intent(requireContext(), MainActivity::class.java)
-            intent.putExtra("query", query)
+            intent.putExtra(INTENT_KEY_QUERY, query)
             startActivity(intent)
         }
         binding.startRead.setOnClickListener {
             val intent = Intent(requireContext(), ReaderActivity::class.java)
-            intent.putExtra("archive", archive)
+            intent.putExtra(INTENT_KEY_ARCHIVE, archive)
             startActivity(intent)
         }
 
         binding.title.text = archive.title
-        ImageUtils.loadThumb(requireContext(), archive.arcid, binding.cover)
+        ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
+        NewImageUtils.loadThumb(requireContext(), archive.arcid, binding.cover) {
+            requireActivity().supportStartPostponedEnterTransition()
+        }
         archive.tags?.let { s ->
             binding.tageViewer.setTags(s)
         }
@@ -76,5 +90,33 @@ class IntroduceFragment : BaseFragment() {
                 putSerializable(ARG_ARCHIVE, archive)
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_detail_introduce, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.random -> {
+                lifecycleScope.launch {
+                    val randomArchive = NewHttpHelper.getRandomArchive(1).getOrNull(0)
+                    if (randomArchive != null) {
+                        mNewArchiveListener?.onGenerateArchive(randomArchive)
+                    } else {
+                        Toast.makeText(requireContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            R.id.refresh -> {
+                mArchive?.arcid?.let {
+                    NewImageUtils.refreshThumb(requireContext(), it, binding.cover)
+                }
+
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 }

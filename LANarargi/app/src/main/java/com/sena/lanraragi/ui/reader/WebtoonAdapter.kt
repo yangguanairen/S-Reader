@@ -2,17 +2,15 @@ package com.sena.lanraragi.ui.reader
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.load.resource.gif.GifDrawable
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import coil.ImageLoader
+import coil.decode.ImageDecoderDecoder
+import coil.load
 import com.chad.library.adapter4.BaseQuickAdapter
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -50,11 +48,12 @@ class WebtoonAdapter : BaseQuickAdapter<String, WebtoonAdapter.VH>() {
 
         val id = Regex("api/archives/[a-z0-9]+/page").find(url)?.value?.split(Regex("/"))?.getOrNull(2)
         val path = Regex("path=.*").find(url)?.value?.replace("path=", "")
+        val finFileName = path?.replace("/", "_")
         if (id == null || path == null) {
             DebugLog.e("ReaderAdapter.onBindViewHolder(): 无效图链\nurl:$url")
             return
         }
-        val dir = File(context.externalCacheDir, "/preview/$id")
+        val dir = File(context.externalCacheDir, "/archive/$id")
         if (!dir.exists()) { dir.mkdirs() }
         val isExists = dir.listFiles()?.any { it.name == path } == true
 
@@ -62,7 +61,7 @@ class WebtoonAdapter : BaseQuickAdapter<String, WebtoonAdapter.VH>() {
         CoroutineScope(Dispatchers.Main).launch {
             val isSuccess = withContext(Dispatchers.IO) {
                 if (!isExists) {
-                    return@withContext HttpHelper.downloadPath(id, path, dir.absolutePath)
+                    return@withContext HttpHelper.downloadCore(url, dir.absolutePath + "/$finFileName")
                 } else {
                     return@withContext true
                 }
@@ -72,13 +71,13 @@ class WebtoonAdapter : BaseQuickAdapter<String, WebtoonAdapter.VH>() {
                 return@launch
             }
 
-            val filePath = dir.absolutePath + "/$path"
+            val filePath = dir.absolutePath + "/$finFileName"
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             BitmapFactory.decodeFile(filePath, options)
             val mimeType = options.outMimeType
 
             when (mimeType.lowercase()) {
-                "image/png", "image/jpeg", "image/jpg" -> {
+                "image/png", "image/jpeg", "image/jpg", "image/webp" -> {
                     holder.bindScaleView(filePath, position)
                 }
                 "image/gif" -> {
@@ -111,24 +110,24 @@ class WebtoonAdapter : BaseQuickAdapter<String, WebtoonAdapter.VH>() {
                     true
                 }
             }
-            Glide.with(context)
-                .asGif()
-                .load(filePath)
-                .addListener(object : RequestListener<GifDrawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<GifDrawable>, isFirstResource: Boolean): Boolean {
-                        return false
+            val imageLoader = ImageLoader.Builder(context)
+                .components {
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(coil.decode.GifDecoder.Factory())
                     }
-
-                    override fun onResourceReady(resource: GifDrawable, model: Any, target: Target<GifDrawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
-                        binding.imageLayout.removeView(binding.progressBar)
-                        binding.errorView.visibility = View.GONE
-                        binding.photoView.visibility = View.VISIBLE
-                        binding.scaleView.visibility = View.GONE
-                        return true
-                    }
-
-                })
-                .into(binding.photoView)
+                }
+                .build()
+            binding.photoView.load(filePath, imageLoader = imageLoader) {
+                listener { request, result ->
+                    DebugLog.e("测试： gif加载完成: $filePath")
+                    binding.imageLayout.removeView(binding.progressBar)
+                    binding.errorView.visibility = View.GONE
+                    binding.photoView.visibility = View.VISIBLE
+                    binding.scaleView.visibility = View.GONE
+                }
+            }
         }
 
 

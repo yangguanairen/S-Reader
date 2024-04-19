@@ -1,42 +1,33 @@
 package com.sena.lanraragi.ui
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.view.Window
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.lxj.xpopup.XPopup
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
-import com.sena.lanraragi.BaseActivity
+import com.sena.lanraragi.BaseArchiveListActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.ui.detail.DetailActivity
 import com.sena.lanraragi.ui.random.RandomActivity
-import com.sena.lanraragi.ui.setting.INTENT_KEY_OPERATE
-import com.sena.lanraragi.ui.setting.INTENT_OPERATE_VALUE
 import com.sena.lanraragi.ui.setting.SettingActivity
+import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
+import com.sena.lanraragi.utils.INTENT_KEY_QUERY
+import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
 import kotlinx.coroutines.launch
 
-
-const val INTENT_KEY_ARCHIVE = "archive"
-const val INTENT_KEY_QUERY = "query"
-
-class MainActivity : BaseActivity(R.menu.menu_main) {
+class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
 
     private lateinit var binding: ActivityMainBinding
 
     private val vm: MainVM by viewModels()
-    private lateinit var adapter: MainAdapter
 
     private lateinit var settingLayout: LinearLayout
     private lateinit var sortTimeButton: RadioButton
@@ -67,20 +58,6 @@ class MainActivity : BaseActivity(R.menu.menu_main) {
             binding.contentMain.errorLayout.visibility = View.INVISIBLE
             binding.contentMain.listLayout.visibility = View.VISIBLE
             initData()
-        }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        binding.contentMain.recyclerView.apply {
-            var cPos = (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-            if (cPos < 0) cPos = 0
-            layoutManager = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                GridLayoutManager(this@MainActivity, 2)
-            } else {
-                LinearLayoutManager(this@MainActivity)
-            }
-            layoutManager?.scrollToPosition(cPos)
         }
     }
 
@@ -138,7 +115,7 @@ class MainActivity : BaseActivity(R.menu.menu_main) {
     private fun initContentView() {
         binding.contentMain.errorLayout.setOnClickListener {
             val intent = Intent(this, SettingActivity::class.java)
-            intent.putExtra(INTENT_KEY_OPERATE, INTENT_OPERATE_VALUE)
+            intent.putExtra(INTENT_KEY_OPERATE, OPERATE_KEY_VALUE1)
             startActivity(intent)
         }
 
@@ -177,42 +154,6 @@ class MainActivity : BaseActivity(R.menu.menu_main) {
                 val intent = Intent(this, RandomActivity::class.java)
                 startActivity(intent)
             }
-        }
-
-
-        adapter = MainAdapter()
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            binding.contentMain.recyclerView.layoutManager = GridLayoutManager(this, 2)
-        } else {
-            binding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
-        }
-        binding.contentMain.recyclerView.adapter = adapter
-        adapter.setOnItemClickListener { _, v, p ->
-            val itemData = adapter.getItem(p)
-            if (itemData != null) {
-                val intent = Intent(this, DetailActivity::class.java)
-                intent.putExtra(INTENT_KEY_ARCHIVE, itemData)
-                val coverView = v.findViewById<View>(R.id.cover)
-                val statusBar = findViewById<View>(android.R.id.statusBarBackground)
-                val coverPair = androidx.core.util.Pair.create(coverView, "text")
-                val statusPair = androidx.core.util.Pair.create(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME)
-                startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(this, coverPair, statusPair).toBundle())
-
-            }
-        }
-        adapter.setOnItemLongClickListener { a, _, p ->
-            a.getItem(p)?.tags?.let {
-                val pop = MainTagsViewerPopup(this, it)
-                pop.setOnItemClickListener { q ->
-                    vm.setQueryText(q)
-                }
-                XPopup.Builder(this)
-                    .borderRadius(16f)
-                    .asCustom(pop)
-                    .show()
-            }
-
-            true
         }
     }
 
@@ -253,7 +194,7 @@ class MainActivity : BaseActivity(R.menu.menu_main) {
             }
         }
         vm.dataList.observe(this) {
-            adapter.submitList(it)
+            mAdapter.submitList(it)
         }
         vm.queryText.observe(this) {
             binding.contentMain.searchView.setText(it)
@@ -272,33 +213,31 @@ class MainActivity : BaseActivity(R.menu.menu_main) {
         }
     }
 
+    override fun onTagSelected(s: String) {
+        super.onTagSelected(s)
+        vm.setQueryText(s)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+         when (item.itemId) {
             R.id.refresh -> {
                 vm.forceRefreshData()
-                true
-            }
-            R.id.filter -> {
-                binding.drawerLayout.openDrawer(binding.rightNav)
-                true
-            }
-            R.id.gotoTop -> {
-                binding.contentMain.recyclerView.apply {
-                    layoutManager?.scrollToPosition(0)
-                }
-                true
-            }
-            R.id.gotoBottom -> {
-                val pos = adapter.items.size
-                binding.contentMain.recyclerView.apply {
-                    layoutManager?.scrollToPosition(pos - 1)
-                }
-                true
             }
 
-            else -> super.onOptionsItemSelected(item)
+            R.id.filter -> {
+                binding.drawerLayout.openDrawer(binding.rightNav)
+            }
+
+            R.id.gotoTop -> {
+                mRecyclerView?.layoutManager?.scrollToPosition(0)
+            }
+
+            R.id.gotoBottom -> {
+                mRecyclerView?.layoutManager?.scrollToPosition(mAdapter.items.size - 1)
+            }
         }
+        return super.onOptionsItemSelected(item)
 
     }
 }

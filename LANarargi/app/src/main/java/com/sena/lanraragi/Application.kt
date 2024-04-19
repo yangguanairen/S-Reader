@@ -53,7 +53,8 @@ class Application : Application() {
             order = DataStoreHelper.getValue(context, DataStoreHelper.KEY.FILTER_ORDER, LanraragiDB.DBHelper.ORDER.DESC)
 
             // 测试使用
-            serverHost = "http://192.168.0.102:3002"
+            serverHost = "http://192.168.0.102:3003"
+            randomCount = 10
         }
     }
 }

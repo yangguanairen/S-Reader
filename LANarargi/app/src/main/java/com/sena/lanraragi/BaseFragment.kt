@@ -1,6 +1,7 @@
 package com.sena.lanraragi
 
 import androidx.fragment.app.Fragment
+import com.sena.lanraragi.database.archiveData.Archive
 
 
 /**
@@ -13,6 +14,8 @@ abstract class BaseFragment : Fragment() {
 
 
     private var isLoaded = false
+
+    protected var mNewArchiveListener: OnGenerateArchiveListener? = null
 
     override fun onResume() {
         super.onResume()
@@ -31,6 +34,20 @@ abstract class BaseFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         isLoaded = false
+    }
+
+
+
+    fun setOnGenerateArchiveListener(func: (archive: Archive) -> Unit) {
+        mNewArchiveListener = object : OnGenerateArchiveListener {
+            override fun onGenerateArchive(archive: Archive) {
+                func.invoke(archive)
+            }
+        }
+    }
+
+    protected interface OnGenerateArchiveListener {
+        fun onGenerateArchive(archive: Archive)
     }
 }
 

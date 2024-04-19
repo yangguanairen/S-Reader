@@ -37,6 +37,10 @@
     // 详情页
     <string name="detail_introduce_start_read" translatable="false">阅读</string>
     <string name="detail_introduce_add_bookmark" translatable="false">添加书签</string>
+    <string name="detail_toolbar_random" translatable="false">查看随机档案</string>
+    <string name="detail_toolbar_refresh" translatable="false">强制刷新缩略图</string>
+    <string name="detail_toolbar_goto_top" translatable="false">跳转顶部</string>
+    <string name="detail_toolbar_goto_bottom" translatable="false">跳转底部</string>
 
     // 阅读页
     <string name="read_file_is_not_support" translatable="false">图片不支持</string>
