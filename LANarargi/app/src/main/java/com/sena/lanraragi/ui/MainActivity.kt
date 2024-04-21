@@ -194,7 +194,9 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             }
         }
         vm.dataList.observe(this) {
-            mAdapter.submitList(it)
+            mAdapter.submitList(it) {
+//                mRecyclerView?.layoutManager?.scrollToPosition(0)
+            }
         }
         vm.queryText.observe(this) {
             binding.contentMain.searchView.setText(it)

@@ -23,8 +23,8 @@ import com.sena.lanraragi.ui.reader.ReaderActivity
 import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
+import com.sena.lanraragi.utils.ImageLoad
 import com.sena.lanraragi.utils.NewHttpHelper
-import com.sena.lanraragi.utils.NewImageUtils
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
@@ -75,9 +75,13 @@ class IntroduceFragment : BaseFragment() {
 
         binding.title.text = archive.title
         ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
-        NewImageUtils.loadThumb(requireContext(), archive.arcid, binding.cover) {
-            requireActivity().supportStartPostponedEnterTransition()
-        }
+        ImageLoad.Builder(requireContext())
+            .loadThumb(archive.arcid)
+            .doOnFinish {
+                requireActivity().supportStartPostponedEnterTransition()
+            }
+            .into(binding.cover)
+            .execute()
         archive.tags?.let { s ->
             binding.tageViewer.setTags(s)
         }
@@ -111,7 +115,11 @@ class IntroduceFragment : BaseFragment() {
             }
             R.id.refresh -> {
                 mArchive?.arcid?.let {
-                    NewImageUtils.refreshThumb(requireContext(), it, binding.cover)
+                    ImageLoad.Builder(requireContext())
+                        .loadThumb(it)
+                        .isIgnoreDiskCache(true)
+                        .into(binding.cover)
+                        .execute()
                 }
 
             }

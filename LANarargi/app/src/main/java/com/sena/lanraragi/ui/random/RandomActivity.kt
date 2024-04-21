@@ -68,9 +68,11 @@ class RandomActivity : BaseArchiveListActivity(R.menu.menu_random) {
             val result = withContext(Dispatchers.IO) {
                 NewHttpHelper.getRandomArchive()
             }
-            mAdapter.submitList(result)
+            mAdapter.submitList(result) {
+                binding.recyclerView.layoutManager?.scrollToPosition(0)
+            }
             setAppBarText(getString(R.string.random_toolbar_title), String.format(getString(R.string.random_toolbar_subtitle), result.size))
-            binding.recyclerView.layoutManager?.scrollToPosition(0)
+
         }
     }
 

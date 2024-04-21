@@ -2,6 +2,7 @@
     <string name="app_name">LANraragi</string>
 
 
+    <!-- ******************************************** 主页(MainActivity) ******************************************** -->
     // 主页
     <string name="main_item_view_tags" translatable="false">长按查看标签</string>
     <string name="main_toolbar_title" translatable="false">LANraragi</string>
@@ -26,14 +27,21 @@
     <string name="main_content_no_host" translatable="false">点击设置服务器</string>
     <string name="main_content_is_new" translatable="false">新的</string>
     <string name="main_content_random" translatable="false">随机</string>
+    <!-- ******************************************** 主页(MainActivity) ******************************************** -->
 
 
+
+    <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
     // 随机页
     <string name="random_toolbar_title" translatable="false">随机</string>
     <string name="random_toolbar_subtitle" translatable="false">%d个档案</string>
     <string name="random_menu_refresh" translatable="false">刷新档案</string>
     <string name="random_menu_change_random_count" translatable="false">更改计数</string>
+    <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
 
+
+
+    <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
     // 详情页
     <string name="detail_introduce_start_read" translatable="false">阅读</string>
     <string name="detail_introduce_add_bookmark" translatable="false">添加书签</string>
@@ -41,10 +49,18 @@
     <string name="detail_toolbar_refresh" translatable="false">强制刷新缩略图</string>
     <string name="detail_toolbar_goto_top" translatable="false">跳转顶部</string>
     <string name="detail_toolbar_goto_bottom" translatable="false">跳转底部</string>
+    <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
 
+
+
+    <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
     // 阅读页
     <string name="read_file_is_not_support" translatable="false">图片不支持</string>
+    <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
 
+
+
+    <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
     // 设置页
     <string name="setting_toolbar_title" translatable="false">设置</string>
     // 设置--服务器
@@ -79,10 +95,12 @@
     <string name="setting_read_merge_method_select_1" translatable="false">JPEG(快速, 一般质量)</string>
     <string name="setting_read_merge_method_select_2" translatable="false">PNG(慢速, 高质量)</string>
     <string name="setting_read_scale_method_title" translatable="false">页面缩放</string>
-    <string name="setting_read_scale_method_select_1" translatable="false">适应页面</string>
-    <string name="setting_read_scale_method_select_2" translatable="false">适应高度</string>
-    <string name="setting_read_scale_method_select_3" translatable="false">适应宽度</string>
-    <string name="setting_read_scale_method_select_4" translatable="false">Webtoon</string>
+    <string-array name="setting_read_scale_select" translatable="false">
+        <item>适应页面</item>
+        <item>适应宽度</item>
+        <item>适应高度</item>
+        <item>Webtoon</item>
+    </string-array>
     <string name="setting_read_overtime_title" translatable="false">屏幕超时</string>
     <string name="setting_read_overtime_subtitle" translatable="false">屏幕超时时间, 以秒为单位, -1为永远亮屏\n当前: %d 秒</string>
     // 设置--搜索
@@ -111,4 +129,17 @@
     // 设置--弹窗
     <string name="setting_popup_cancel" translatable="false">取消</string>
     <string name="setting_popup_confirm" translatable="false">确认</string>
+    <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
+
+
+
+
+
+    <!-- ******************************************** 自定义组件 ******************************************** -->
+    // 标签查看器
+    <string name="tag_viewer_goto_detail" translatable="false">回到详情页</string>
+    <string name="tag_viewer_select_page" translatable="false">跳转页面</string>
+    <string name="tag_viewer_display_bookmark" translatable="false">查看书签</string>
+    <!-- ******************************************** 自定义组件 ******************************************** -->
+
 </resources>

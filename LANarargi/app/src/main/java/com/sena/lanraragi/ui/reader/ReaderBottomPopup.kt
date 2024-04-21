@@ -1,14 +1,14 @@
 package com.sena.lanraragi.ui.reader
 
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
+import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.lxj.xpopup.core.BottomPopupView
-import com.lxj.xpopup.core.PositionPopupView
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.R
-import com.sena.lanraragi.databinding.ViewReaderBottomBinding
-import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.DataStoreHelper
+import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getThemeColor
 
 
@@ -23,11 +23,28 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
     private val mContext = context
 
     private var mScaleTypeChangeListener: ScaleTypeChange? = null
+    private var mOnPageSelectedListener: OnPageSelectedListener? = null
+//    private var mOnGoToDetailClickListener: OnClickListener? = null
+//    private var mOnSelectPageClickListener: OnClickListener? = null
+//    private var mOnShowBookmarkClickListener: OnClickListener? = null
 
     private var fitWidthButton: TextView? = null
     private var fitHeightButton: TextView? = null
     private var fitPageButton: TextView? = null
     private var fitFlexButton: TextView? = null
+    private var gotoDetailLayout: RelativeLayout? = null
+    private var selectPageLayout: RelativeLayout? = null
+    private var showBookmarkLayout: RelativeLayout? = null
+
+
+    private val mMap by lazy {
+        mapOf(
+            fitWidthButton to ScaleType.FIT_WIDTH,
+            fitHeightButton to ScaleType.FIT_HEIGHT,
+            fitPageButton to ScaleType.FIT_PAGE,
+            fitFlexButton to ScaleType.WEBTOON
+        )
+    }
 
     override fun getImplLayoutId(): Int {
         return R.layout.view_reader_bottom
@@ -37,44 +54,61 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
     override fun onCreate() {
         super.onCreate()
 
-        fitWidthButton = findViewById<TextView?>(R.id.fitWidth)?.apply { setOnClickListener { changeFitStatus(ScaleType.FIT_WIDTH) } }
-        fitHeightButton = findViewById<TextView?>(R.id.fitHeight)?.apply { setOnClickListener { changeFitStatus(ScaleType.FIT_HEIGHT) } }
-        fitPageButton = findViewById<TextView?>(R.id.fitPage)?.apply { setOnClickListener { changeFitStatus(ScaleType.FIT_PAGE) } }
-        fitFlexButton = findViewById<TextView?>(R.id.fitFlex)?.apply { setOnClickListener { changeFitStatus(ScaleType.WEBTOON) } }
+        val textArray = context.resources.getStringArray(R.array.setting_read_scale_select)
+        fitPageButton = findViewById<TextView?>(R.id.fitPage)?.apply {
+            text = textArray[0]
+            setOnClickListener { changeFitStatus(ScaleType.FIT_PAGE) }
+        }
+        fitWidthButton = findViewById<TextView?>(R.id.fitWidth)?.apply {
+            text = textArray[1]
+            setOnClickListener { changeFitStatus(ScaleType.FIT_WIDTH) }
+        }
+        fitHeightButton = findViewById<TextView?>(R.id.fitHeight)?.apply {
+            text = textArray[2]
+            setOnClickListener { changeFitStatus(ScaleType.FIT_HEIGHT) }
+        }
+        fitFlexButton = findViewById<TextView?>(R.id.fitFlex)?.apply {
+            text = textArray[3]
+            setOnClickListener { changeFitStatus(ScaleType.WEBTOON) }
+        }
 
+        gotoDetailLayout = findViewById<RelativeLayout?>(R.id.goToDetail).apply {
+            setOnClickListener { (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed() }
+        }
+        selectPageLayout = findViewById<RelativeLayout?>(R.id.selectPage).apply {
+            setOnClickListener {  }
+        }
+        showBookmarkLayout = findViewById<RelativeLayout?>(R.id.showBookmark).apply {
+            setOnClickListener {  }
+        }
 
         initScaleType()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     private fun initScaleType() {
-        // TODO: 从设置中读取当前scaleType
-        changeFitStatus(ScaleType.FIT_WIDTH, false)
+        changeFitStatus(AppConfig.scaleMethod, false)
     }
 
     private fun changeFitStatus(scaleType: ScaleType, needCallback: Boolean = true) {
 
-        val values = ScaleType.values()
-        val list = arrayListOf(
-            fitWidthButton, fitHeightButton, fitPageButton, fitFlexButton
-        )
-        values.forEachIndexed { index, type ->
-            val view = list[index]
+        mMap.forEach {
+            val view = it.key
+            val type = it.value
             view?.apply {
                 if (scaleType == type) {
-                    mContext.getThemeColor(R.attr.textColor3)?.let { color -> view.setTextColor(color) }
-                    view.setBackgroundResource(R.drawable.bg_reader_fit_method_selected)
+                    mContext.getThemeColor(R.attr.textColor3)?.let { color -> setTextColor(color) }
+                    setBackgroundResource(R.drawable.bg_reader_fit_method_selected)
                 } else {
-                    mContext.getThemeColor(R.attr.textColor2)?.let { color -> view.setTextColor(color) }
-                    view.setBackgroundResource(R.drawable.bg_reader_fit_method_unselect)
+                    mContext.getThemeColor(R.attr.textColor2)?.let { color -> setTextColor(color) }
+                    setBackgroundResource(R.drawable.bg_reader_fit_method_unselect)
                 }
             }
+
         }
 
-        // TODO: scaleType写回到设置中
+        AppConfig.scaleMethod = scaleType
+        DataStoreHelper.updateValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, scaleType)
+
         if (needCallback) {
             mScaleTypeChangeListener?.onScaleTypeChangeListener(scaleType)
         }
@@ -88,18 +122,20 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
         }
     }
 
+    fun setOnPageSelectedListener(func: (page: Int) -> Unit) {
+        mOnPageSelectedListener = object : OnPageSelectedListener {
+            override fun onPageSelected(page: Int) {
+                func.invoke(page)
+            }
+        }
+    }
+
+    private interface OnPageSelectedListener {
+        fun onPageSelected(page: Int)
+    }
 
     private interface ScaleTypeChange {
         fun onScaleTypeChangeListener(scaleType: ScaleType)
     }
-
-    enum class ScaleType {
-        FIT_WIDTH,
-        FIT_HEIGHT,
-        FIT_PAGE,
-        WEBTOON
-    }
-
-
 }
 

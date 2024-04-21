@@ -1,30 +1,24 @@
 package com.sena.lanraragi.ui.reader
 
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.os.Build.VERSION.SDK_INT
+import android.view.GestureDetector.OnDoubleTapListener
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import coil.ImageLoader
-import coil.decode.ImageDecoderDecoder
-import coil.load
 import com.chad.library.adapter4.BaseDifferAdapter
-import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.sena.lanraragi.databinding.ItemReaderBinding
+import com.github.chrisbanes.photoview.PhotoView
+import com.sena.lanraragi.R
 import com.sena.lanraragi.utils.DebugLog
-import com.sena.lanraragi.utils.HttpHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
+import com.sena.lanraragi.utils.ImageLoad
+import com.sena.lanraragi.utils.ScaleType
 
 
 /**
@@ -33,220 +27,174 @@ import java.io.File
  * Date: 2024/3/28
  */
 
-class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType>, ReaderAdapter.VH>(DiffCallback()) {
+class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.VH>(DiffCallback()) {
 
     private  var mOnClickListener: OnClickListener? = null
     private var mOnLongClickListener: OnLongClickListener? = null
 
-    override fun onBindViewHolder(holder: VH, position: Int, item: Pair<String, ReaderBottomPopup.ScaleType>?) {
+    private val scaleImageSupportList= arrayListOf(
+        ".png", ".jpeg", ".jpg", ".webp"
+    )
+    private val photoImageSupportList = arrayListOf(
+        ".gif"
+    )
+
+    override fun onBindViewHolder(holder: VH, position: Int, item: Pair<String, ScaleType>?) {
         if (item == null) return
         val url = item.first
         val scaleType = item.second
-
-        if (url.isBlank()) {
-            holder.bindEmptyView(position)
-            return
-        }
-
-
-        val id = Regex("api/archives/[a-z0-9]+/page").find(url)?.value?.split(Regex("/"))?.getOrNull(2)
-        val path = Regex("path=.*").find(url)?.value?.replace("path=", "")
-        val finFileName = path?.replace("/", "_")
-        if (id == null || path == null) {
-            DebugLog.e("ReaderAdapter.onBindViewHolder(): 无效图链\nurl:$url")
-            return
-        }
-        val dir = File(context.externalCacheDir, "/archive/$id")
-        if (!dir.exists()) { dir.mkdirs() }
-        val isExists = dir.listFiles()?.any { it.name == finFileName } == true
-
-        // (http://192.168.0.102:3002/api/archives/640c73e21160a84068fbaacc466d1f2f3df54bfc/page?path=bigPicTest/SDCF04.jpg, FIT_WIDTH)
-        val filePath = dir.absolutePath + "/$finFileName"
-        CoroutineScope(Dispatchers.Main).launch {
-            val isSuccess = withContext(Dispatchers.IO) {
-                if (!isExists) {
-                    return@withContext HttpHelper.downloadCore(url, dir.absolutePath + "/$finFileName")
-                } else {
-                    return@withContext true
-                }
+        
+        when {
+            scaleImageSupportList.any { url.lowercase().endsWith(it) } -> {
+                holder.bindScaleView(url, scaleType, position)
             }
-            if (!isSuccess) {
-                DebugLog.e("ReaderAdapter.onBindViewHolder(): 下载资源失败\nurl:$item")
-                return@launch
+            photoImageSupportList.any { url.lowercase().endsWith(it) } -> {
+                holder.bindPhotoView(url, scaleType, position)
             }
-
-
-            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            BitmapFactory.decodeFile(filePath, options)
-            val mimeType = options.outMimeType
-
-            when (mimeType.lowercase()) {
-                "image/png", "image/jpeg", "image/jpg", "image/webp" -> {
-                    holder.bindScaleView(filePath, scaleType, position)
-                }
-                "image/gif" -> {
-                    holder.bindPhotoView(filePath, scaleType, position)
-                }
-                else -> {
-                    holder.bindErrorView(filePath, scaleType, position)
-                }
+            url.isBlank() -> {
+                holder.bindEmptyView(position)
             }
-
+            else -> {
+                holder.bindErrorView(url, scaleType, position)
+            }
         }
     }
-
-
 
     override fun onCreateViewHolder(context: Context, parent: ViewGroup, viewType: Int): VH {
-        return VH(ItemReaderBinding.inflate(LayoutInflater.from(context), parent, false))
+        val firstItemScaleType = items.getOrNull(0)?.second
+        return if (firstItemScaleType == ScaleType.WEBTOON) {
+            VH(LayoutInflater.from(context).inflate(R.layout.item_reader_webtoon, parent, false))
+        } else {
+            VH(LayoutInflater.from(context).inflate(R.layout.item_reader, parent, false))
+        }
     }
 
-    override fun getItemViewType(position: Int, list: List<Pair<String, ReaderBottomPopup.ScaleType>>): Int {
+    override fun getItemViewType(position: Int, list: List<Pair<String, ScaleType>>): Int {
         return position
     }
 
 
-    inner class VH(private val binding: ItemReaderBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class VH(rootView: View) : RecyclerView.ViewHolder(rootView) {
 
-        fun bindPhotoView(filePath: String, scaleType: ReaderBottomPopup.ScaleType, pos: Int) {
-            DebugLog.i("ReaderAdapter.VH.bindPhotoView(): 加载资源:$filePath, scaleType:${scaleType.name}")
-            val realScaleType = when (scaleType) {
-                ReaderBottomPopup.ScaleType.FIT_WIDTH -> ImageView.ScaleType.FIT_CENTER
-                ReaderBottomPopup.ScaleType.FIT_HEIGHT -> ImageView.ScaleType.FIT_START
-                ReaderBottomPopup.ScaleType.FIT_PAGE -> ImageView.ScaleType.CENTER
-                ReaderBottomPopup.ScaleType.WEBTOON -> ImageView.ScaleType.FIT_CENTER
+        private val imageLayout: RelativeLayout = rootView.findViewById(R.id.imageLayout)
+        private val photoView: PhotoView = rootView.findViewById(R.id.photoView)
+        private val scaleView: SubsamplingScaleImageView = rootView.findViewById(R.id.scaleView)
+        private val errorView: TextView = rootView.findViewById(R.id.errorView)
+        private val progressBar: ProgressBar = rootView.findViewById(R.id.progressBar)
+        
+        fun bindPhotoView(url: String, type: ScaleType, pos: Int) {
+            DebugLog.i("ReaderAdapter.VH.bindPhotoView():\n 加载资源:$url\n scaleType:${type.name}")
+            val realScaleType = when (type) {
+                ScaleType.FIT_WIDTH -> ImageView.ScaleType.FIT_CENTER
+                ScaleType.FIT_HEIGHT -> ImageView.ScaleType.FIT_START
+                ScaleType.FIT_PAGE -> ImageView.ScaleType.CENTER
+                ScaleType.WEBTOON -> ImageView.ScaleType.FIT_CENTER
             }
-            binding.photoView.apply {
-                this.scaleType = realScaleType
+            photoView.apply {
+                scaleType = realScaleType
                 setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
                 setOnLongClickListener {
                     mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
                     true
                 }
-            }
+                if (type == ScaleType.WEBTOON) {
+                    setOnDoubleTapListener(object : OnDoubleTapListener {
+                        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                            mOnClickListener?.onClick(this@ReaderAdapter, this@apply, pos)
+                            return true
+                        }
 
-            val imageLoader = ImageLoader.Builder(context)
-                .components {
-                    if (SDK_INT >= 28) {
-                        add(ImageDecoderDecoder.Factory())
-                    } else {
-                        add(coil.decode.GifDecoder.Factory())
-                    }
-                }
-                .build()
-            binding.photoView.load(filePath, imageLoader = imageLoader) {
-                listener { request, result ->
-                    DebugLog.e("测试： gif加载完成: $filePath")
-                    binding.imageLayout.removeView(binding.progressBar)
-                    binding.errorView.visibility = View.GONE
-                    binding.photoView.visibility = View.VISIBLE
-                    binding.scaleView.visibility = View.GONE
+                        override fun onDoubleTap(e: MotionEvent): Boolean {
+                            mOnClickListener?.onClick(this@ReaderAdapter, this@apply, pos)
+                            return true
+                        }
+
+                        override fun onDoubleTapEvent(e: MotionEvent): Boolean {
+                            return true
+                        }
+
+                    })
+                    setOnScaleChangeListener(null)
                 }
             }
+            ImageLoad.Builder(context)
+                .loadPic(url)
+                .doOnStart {
+                    photoView.visibility = View.VISIBLE
+                }
+                .doOnSuccess {
+                    progressBar.visibility = View.INVISIBLE
+                    errorView.visibility = View.INVISIBLE
+                    photoView.visibility = View.VISIBLE
+                    scaleView.visibility = View.INVISIBLE
+                }
+                .doOnError {
+                    bindErrorView(url, type, pos)
+                }
+                .into(photoView)
+                .execute()
         }
 
-        fun bindScaleView(filePath: String, scaleType: ReaderBottomPopup.ScaleType, pos: Int) {
-            DebugLog.i("ReaderAdapter.VH.bindScaleView(): 加载资源:$filePath, scaleType:${scaleType.name}")
+        fun bindScaleView(url: String, scaleType: ScaleType, pos: Int) {
+            DebugLog.i("ReaderAdapter.VH.bindScaleView(): 加载资源:$url, scaleType:${scaleType.name}")
             val realScaleType = when (scaleType) {
-                ReaderBottomPopup.ScaleType.FIT_WIDTH -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
-                ReaderBottomPopup.ScaleType.FIT_HEIGHT -> SubsamplingScaleImageView.SCALE_TYPE_START
-                ReaderBottomPopup.ScaleType.FIT_PAGE -> SubsamplingScaleImageView.SCALE_TYPE_CUSTOM
-                ReaderBottomPopup.ScaleType.WEBTOON -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
+                ScaleType.FIT_WIDTH -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
+                ScaleType.FIT_HEIGHT -> SubsamplingScaleImageView.SCALE_TYPE_START
+                ScaleType.FIT_PAGE -> SubsamplingScaleImageView.SCALE_TYPE_CUSTOM
+                ScaleType.WEBTOON -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
             }
-
-            binding.scaleView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
-                override fun onReady() {
-                    binding.scaleView.visibility = View.INVISIBLE
-
-                }
-
-                override fun onImageLoaded() {
-                    val fadeIn = AlphaAnimation(1f, 0f).apply { duration = 300L }
-                    fadeIn.setAnimationListener(object : Animation.AnimationListener {
-                        override fun onAnimationStart(animation: Animation?) {
-
-                        }
-
-                        override fun onAnimationEnd(animation: Animation?) {
-                            val fadeOut = AlphaAnimation(0f, 1f).apply { duration = 300L }
-                            binding.imageLayout.removeView(binding.progressBar)
-                            fadeOut.setAnimationListener(object : Animation.AnimationListener {
-                                override fun onAnimationStart(animation: Animation?) {
-                                    binding.scaleView.visibility = View.VISIBLE
-                                }
-
-                                override fun onAnimationEnd(animation: Animation?) {
-                                }
-
-                                override fun onAnimationRepeat(animation: Animation?) {
-                                }
-
-                            })
-                            binding.scaleView.startAnimation(fadeOut)
-                        }
-
-                        override fun onAnimationRepeat(animation: Animation?) {
-
-                        }
-                    })
-                    binding.progressBar.startAnimation(fadeIn)
-                }
-            })
-            binding.scaleView.apply {
+//
+//            scaleView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
+//                override fun onReady() {
+//                    super.onReady()
+//                    DebugLog.e("测试: onReady")
+//                    val fadeIn = AlphaAnimation(1f, 0f).apply { duration = 300L }
+//                    fadeIn.setAnimationListener(object : Animation.AnimationListener {
+//                        override fun onAnimationStart(animation: Animation?) {}
+//                        override fun onAnimationEnd(animation: Animation?) {
+//                            DebugLog.e("测试: onAnimationEnd")
+//
+//
+//
+//                        }
+//                        override fun onAnimationRepeat(animation: Animation?) {}
+//                    })
+//                    progressBar.startAnimation(fadeIn)
+//                }
+//                override fun onImageLoaded() {
+//                    DebugLog.e("测试: onImageLoaded")
+//                }
+//            })
+            scaleView.apply {
                 setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
                 setOnLongClickListener {
                     mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
                     true
                 }
                 setMinimumScaleType(realScaleType)
-                binding.scaleView.visibility = View.VISIBLE
-                binding.errorView.visibility = View.GONE
-                binding.photoView.visibility = View.GONE
-                setImage(ImageSource.uri(filePath))
             }
 
-
-//            binding.scaleView.apply {
-//                setMinimumScaleType(realScaleType)
-//                setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
-//                setOnLongClickListener {
-//                    mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
-//                    true
-//                }
-//
-//                val fadeIn = AlphaAnimation(1f, 0f)
-//                fadeIn.duration = 300L
-//                fadeIn.setAnimationListener(object : Animation.AnimationListener {
-//                    override fun onAnimationStart(animation: Animation?) {
-//                    }
-//
-//                    override fun onAnimationEnd(animation: Animation?) {
-//                        val fadeOut = AlphaAnimation(0f, 1f)
-//                        fadeOut.duration = 300L
-//                        binding.imageLayout.removeView(binding.progressBar)
-//                        binding.errorView.visibility = View.GONE
-//                        binding.photoView.visibility = View.GONE
-//                        binding.scaleView.visibility = View.VISIBLE
-//                        setImage(ImageSource.uri(filePath))
-//                        binding.scaleView.startAnimation(fadeOut)
-//                    }
-//
-//                    override fun onAnimationRepeat(animation: Animation?) {
-//                    }
-//
-//                })
-//                binding.progressBar.startAnimation(fadeIn)
-//
-//
-//
-//            }
-
-
+            ImageLoad.Builder(context)
+                .loadPic(url)
+                .doOnStart {
+                    scaleView.visibility = View.VISIBLE
+                }
+                .doOnSuccess {
+                    progressBar.visibility = View.INVISIBLE
+                    errorView.visibility = View.INVISIBLE
+                    photoView.visibility = View.INVISIBLE
+                    scaleView.visibility = View.VISIBLE
+                }
+                .doOnError {
+                    bindErrorView(url, scaleType, pos)
+                }
+                .into(scaleView)
+                .execute()
         }
 
-        fun bindErrorView(filePath: String, scaleType: ReaderBottomPopup.ScaleType, pos: Int) {
-            DebugLog.e("ReaderAdapter.VH.bindScaleView(): 不支持的资源:$filePath, scaleType:${scaleType.name}")
-            binding.errorView.apply {
+        fun bindErrorView(url: String, scaleType: ScaleType, pos: Int) {
+            DebugLog.e("ReaderAdapter.VH.bindScaleView(): 不支持的资源:$url, scaleType:${scaleType.name}")
+            errorView.apply {
                 setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
                 setOnLongClickListener {
                     mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
@@ -254,14 +202,14 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
                 }
             }
 
-            binding.imageLayout.removeView(binding.progressBar)
-            binding.errorView.visibility = View.VISIBLE
-            binding.photoView.visibility = View.GONE
-            binding.scaleView.visibility = View.GONE
+            progressBar.visibility = View.INVISIBLE
+            errorView.visibility = View.VISIBLE
+            photoView.visibility = View.INVISIBLE
+            scaleView.visibility = View.INVISIBLE
         }
 
         fun bindEmptyView(pos: Int) {
-            binding.imageLayout.apply {
+            imageLayout.apply {
                 setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
                 setOnLongClickListener {
                     mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
@@ -269,19 +217,19 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ReaderBottomPopup.ScaleType
                 }
             }
 
-            binding.progressBar.visibility = View.VISIBLE
-            binding.errorView.visibility = View.GONE
-            binding.photoView.visibility = View.GONE
-            binding.scaleView.visibility = View.GONE
+            progressBar.visibility = View.VISIBLE
+            errorView.visibility = View.INVISIBLE
+            photoView.visibility = View.INVISIBLE
+            scaleView.visibility = View.INVISIBLE
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<Pair<String, ReaderBottomPopup.ScaleType>>() {
-        override fun areItemsTheSame(oldItem: Pair<String, ReaderBottomPopup.ScaleType>, newItem: Pair<String, ReaderBottomPopup.ScaleType>): Boolean {
+    class DiffCallback : DiffUtil.ItemCallback<Pair<String, ScaleType>>() {
+        override fun areItemsTheSame(oldItem: Pair<String, ScaleType>, newItem: Pair<String, ScaleType>): Boolean {
             return oldItem.first == newItem.first
         }
 
-        override fun areContentsTheSame(oldItem: Pair<String, ReaderBottomPopup.ScaleType>, newItem: Pair<String, ReaderBottomPopup.ScaleType>): Boolean {
+        override fun areContentsTheSame(oldItem: Pair<String, ScaleType>, newItem: Pair<String, ScaleType>): Boolean {
             return oldItem.second == newItem.second
         }
 

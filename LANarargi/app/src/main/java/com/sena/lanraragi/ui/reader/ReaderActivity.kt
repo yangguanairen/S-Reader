@@ -1,6 +1,7 @@
 package com.sena.lanraragi.ui.reader
 
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -12,14 +13,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ActivityReaderBinding
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.launch
 
@@ -30,8 +34,8 @@ class ReaderActivity : BaseActivity() {
 
     private val binding: ActivityReaderBinding by lazy { ActivityReaderBinding.inflate(layoutInflater) }
     private val vm: ReaderVM by lazy { ReaderVM() }
-    private lateinit var adapter: ReaderAdapter
-    private lateinit var webtoonAdapter: WebtoonAdapter
+    private lateinit var viewPagerAdapter: ReaderAdapter
+    private lateinit var webtoonAdapter: ReaderAdapter
     private lateinit var bottomPopup: BasePopupView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +51,49 @@ class ReaderActivity : BaseActivity() {
 //        val title = mArchive?.title
 //        val pageCount = mFileNameList?.size ?: mArchive?.pagecount
 
-        initView()
         initVM()
+        initView()
         initData()
     }
 
+    private fun initVM() {
+        vm.fileNameList.observe(this) { list ->
+            binding.contentReader.apply {
+                seekbar.max = list.size - 1
+                if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
+                    recyclerView.visibility = View.VISIBLE
+                    viewPager.visibility = View.INVISIBLE
+                    webtoonAdapter.submitList(list.map { s -> Pair(s, ScaleType.WEBTOON) }) {
+                        vm.updateList()
+                    }
+                } else {
+                    recyclerView.visibility = View.INVISIBLE
+                    viewPager.visibility = View.VISIBLE
+                    viewPagerAdapter.submitList(list.map { s -> Pair(s, AppConfig.scaleMethod) }) {
+                        vm.updateList()
+                    }
+                }
+            }
+
+        }
+        vm.curPos.observe(this) { page ->
+            val title = mArchive?.title
+            val subtitle = "${page + 1}/${vm.fileNameList.value?.size ?: 0}页"
+            setAppBarText(title, subtitle)
+            binding.contentReader.apply {
+                seekbar.progress = page
+                if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
+                    if (!vm.fromWebtoon) {
+                        recyclerView.scrollToPosition(page)
+                    } else {
+                        vm.fromWebtoon = false
+                    }
+                } else {
+                    viewPager.currentItem = page
+                }
+            }
+        }
+    }
 
     private fun initView() {
         // 初始Toolbar
@@ -61,56 +103,14 @@ class ReaderActivity : BaseActivity() {
 
         // 初始popup
         val customPopup = ReaderBottomPopup(this).apply {
-            setOnScaleTypeChangeListener { scaleType ->
-                when (scaleType) {
-                    ReaderBottomPopup.ScaleType.WEBTOON -> {
-                        // binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_LTR
-                        // binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_VERTICAL
-                        binding.contentReader.recyclerView.visibility= View.VISIBLE
-                        binding.contentReader.viewPager.visibility = View.GONE
-                        val list = adapter.items.map { p -> p.first }
-                        webtoonAdapter.submitList(list)
-                        val pos2 = vm.curPos2.value ?: 0
-                        binding.contentReader.recyclerView.scrollToPosition(pos2)
-                    }
-                    else -> {
-                        // binding.contentReader.viewPager.layoutDirection = View.LAYOUT_DIRECTION_RTL
-                        // binding.contentReader.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
-                        binding.contentReader.recyclerView.visibility= View.GONE
-                        binding.contentReader.viewPager.visibility = View.VISIBLE
-                        val list = adapter.items.map { p -> Pair(p.first, scaleType) }
-                        adapter.submitList(list)
-                        val pos2 = vm.curPos2.value ?: 0
-                        binding.contentReader.viewPager.setCurrentItem(pos2, true)
-                    }
-                }
+            setOnScaleTypeChangeListener {
+                vm.setFileNameList(vm.fileNameList.value ?: emptyList())
             }
         }
         bottomPopup = XPopup.Builder(this)
             .borderRadius(8f)
             .isDestroyOnDismiss(false)
             .asCustom(customPopup)
-
-        // 初始ViewPager
-        // 改为从右到左阅读
-        binding.contentReader.viewPager.apply {
-            layoutDirection = View.LAYOUT_DIRECTION_RTL
-            registerOnPageChangeCallback(object : OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    vm.setCurPosition2(position)
-                }
-            })
-        }
-        binding.contentReader.recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val lm = recyclerView.layoutManager as LinearLayoutManager
-                val firstVisiblePos = lm.findFirstVisibleItemPosition()
-                vm.setCurPosition2(firstVisiblePos)
-            }
-        })
-
 
         initViewPager()
         initWebtoon()
@@ -121,9 +121,9 @@ class ReaderActivity : BaseActivity() {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    vm.setCurPosition1(progress)
+                    vm.setCurPosition(progress)
                 } else {
-//                    DebugLog.e("非人类")
+                    DebugLog.d("测试: seekbar 非用户操作")
                 }
             }
 
@@ -138,74 +138,89 @@ class ReaderActivity : BaseActivity() {
         })
     }
 
-
-    private fun initVM() {
-        vm.fileNameList.observe(this) {
-            binding.contentReader.seekbar.max = it.size
-            adapter.let { a ->
-                // TODO: 默认从右往左读，后续读取设置情况
-                a.submitList(it.map { s -> Pair(s, ReaderBottomPopup.ScaleType.FIT_WIDTH) })
-                val pos = vm.curPos2.value ?: -1
-                val finalPos = if (pos < 0 || pos > it.size - 1) 0 else pos
-                binding.contentReader.viewPager.setCurrentItem(finalPos, false)
-            }
-            webtoonAdapter.submitList(it)
-        }
-        vm.curPos1.observe(this) {
-             binding.contentReader.viewPager.setCurrentItem(it, true)
-             binding.contentReader.recyclerView.scrollToPosition(it)
-        }
-        vm.curPos2.observe(this) {
-            val title = mArchive?.title
-            val subtitle = "${it + 1}/${adapter.itemCount}页"
-            setAppBarText(title, subtitle)
-            // 更改seekbar的progress
-            binding.contentReader.seekbar.progress = it
-        }
-
-    }
-
     private fun initViewPager() {
         // viewPager2详解
         // https://blog.51cto.com/u_13303/6872084
-        adapter = ReaderAdapter()
-        adapter.setOnImageClickListener { _, _, _ ->
-            binding.contentReader.appBar.apply {
-                if (visibility == View.VISIBLE) {
-                    visibility = View.INVISIBLE
-                    binding.contentReader.seekbar.visibility = View.INVISIBLE
+        val pageChangeListener = object : OnPageChangeCallback() {
+            var isHuman = false
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                if (isHuman) {
+                    vm.setCurPosition(position)
+                    isHuman = false
                 } else {
-                    visibility = View.VISIBLE
-                    binding.contentReader.seekbar.visibility = View.VISIBLE
+                    DebugLog.d("测试: ViewPager 非用户操作")
+                }
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                if (state == SCROLL_STATE_DRAGGING) { // 判断是否是用户主动进行的拖动
+                    isHuman = true
                 }
             }
         }
-        adapter.setOnImageLongClickListener { _, _, _ ->
+        viewPagerAdapter = ReaderAdapter()
+        viewPagerAdapter.setOnImageClickListener { _, _, _ ->
+            displayToolbar()
+        }
+        viewPagerAdapter.setOnImageLongClickListener { _, _, _ ->
             bottomPopup.show()
             true
         }
-        binding.contentReader.viewPager.adapter = adapter
+        binding.contentReader.viewPager.apply {
+            layoutDirection = if (AppConfig.enableRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
+            registerOnPageChangeCallback(pageChangeListener)
+            adapter = viewPagerAdapter
+        }
     }
 
     private fun initWebtoon() {
-        webtoonAdapter = WebtoonAdapter()
+        webtoonAdapter = ReaderAdapter()
         webtoonAdapter.setOnImageClickListener { _, _, _ ->
-            binding.contentReader.appBar.apply {
-                if (visibility == View.VISIBLE) {
-                    visibility = View.INVISIBLE
-                    binding.contentReader.seekbar.visibility = View.INVISIBLE
-                } else {
-                    visibility = View.VISIBLE
-                    binding.contentReader.seekbar.visibility = View.VISIBLE
-                }
-            }
+            displayToolbar()
         }
+        // 处理scaleImageView用
         webtoonAdapter.setOnImageLongClickListener { _, _, _ ->
             bottomPopup.show()
             true
         }
-        binding.contentReader.recyclerView.adapter = webtoonAdapter
-        binding.contentReader.recyclerView.layoutManager = LinearLayoutManager(this)
+        webtoonAdapter.setOnItemClickListener{ _, _, _ ->
+            displayToolbar()
+        }
+        webtoonAdapter.setOnItemLongClickListener { _, _, _ ->
+            bottomPopup.show()
+            true
+        }
+        val onScrollListener = object : RecyclerView.OnScrollListener() {
+            private var isHuman = false
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val lm = recyclerView.layoutManager as LinearLayoutManager
+                val firstVisiblePos = lm.findFirstVisibleItemPosition()
+                if (isHuman) {
+                    vm.fromWebtoon = true
+                    vm.setCurPosition(firstVisiblePos)
+                    isHuman = false
+                } else {
+                    DebugLog.d("测试: Webtoon 非用户操作")
+                }
+            }
+
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) { // 判断是否是用户主动进行的拖动
+                    isHuman = true
+                }
+            }
+        }
+
+        binding.contentReader.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@ReaderActivity)
+            addOnScrollListener(onScrollListener)
+            adapter = webtoonAdapter
+        }
     }
 
 
@@ -213,16 +228,9 @@ class ReaderActivity : BaseActivity() {
 
         val pageCount = mArchive?.pagecount
         if (pageCount != null) {
-            val emptyList = (0 until pageCount).map { Pair("", ReaderBottomPopup.ScaleType.FIT_WIDTH) }
-            adapter.submitList(emptyList)
-            webtoonAdapter.submitList(emptyList())
-            binding.contentReader.seekbar.max = pageCount
-            vm.setCurPosition1(0)
+            val emptyList = (0 until pageCount).map { "" }
+            vm.setFileNameList(emptyList)
         }
-
-        // 临时测试用
-        binding.contentReader.viewPager.visibility = View.VISIBLE
-        binding.contentReader.recyclerView.visibility = View.GONE
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -252,6 +260,36 @@ class ReaderActivity : BaseActivity() {
             }
 
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                if (!AppConfig.enableVoice) return false
+                val cPos = vm.curPos.value ?: 0
+                vm.setCurPosition(cPos + 1)
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                if (!AppConfig.enableVoice) return false
+                val cPos = vm.curPos.value ?: 0
+                vm.setCurPosition(cPos - 1)
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    private fun displayToolbar() {
+        binding.contentReader.appBar.apply {
+            if (visibility == View.VISIBLE) {
+                visibility = View.INVISIBLE
+                binding.contentReader.seekbar.visibility = View.INVISIBLE
+            } else {
+                visibility = View.VISIBLE
+                binding.contentReader.seekbar.visibility = View.VISIBLE
+            }
         }
     }
 }

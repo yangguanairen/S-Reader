@@ -1,6 +1,7 @@
 package com.sena.lanraragi
 
 import com.sena.lanraragi.database.LanraragiDB
+import com.sena.lanraragi.utils.ScaleType
 
 
 /**
@@ -26,7 +27,7 @@ object AppConfig {
     var enableMerge: Boolean = false
     var enableReverseMerge: Boolean = false
     var mergeMethod: String = ""
-    var scaleMethod: String = ""
+    var scaleMethod: ScaleType = ScaleType.FIT_WIDTH
     var screenOvertime: Int = 5
 
     // 搜索

@@ -95,33 +95,27 @@ object HttpHelper {
     /**
      * 下载封面图片和漫画内容图片
      */
-    suspend fun downloadCore(url: String, savePath: String): Boolean {
+    suspend fun downloadCore(url: String, savePath: String) {
         val build = Build().url(url)
 
         val result = withContext(Dispatchers.IO) {
             val response = build.execute()
             if (response?.code != 200) {
                 DebugLog.e("无法下载图片")
-                return@withContext false
+                return@withContext
             }
-            val stream = response.body?.byteStream() ?: return@withContext false
+            val stream = response.body?.byteStream() ?: return@withContext
 
-            return@withContext getOrNull {
-                val fos = FileOutputStream(File(savePath))
-                val buffer = ByteArray(1024)
-                var len: Int
-                while (stream.read(buffer).also { len = it } > 0) {
-                    fos.write(buffer, 0, len)
-                }
-                fos.flush()
-                fos.close()
-                stream.close()
-
-                true
-            } ?: false
+            val fos = FileOutputStream(File(savePath))
+            val buffer = ByteArray(1024)
+            var len: Int
+            while (stream.read(buffer).also { len = it } > 0) {
+                fos.write(buffer, 0, len)
+            }
+            fos.flush()
+            fos.close()
+            stream.close()
         }
-
-        return result
     }
 
     suspend fun getAllPageName(arid: String): List<String>? {
@@ -145,10 +139,10 @@ object HttpHelper {
         return result
     }
 
-    suspend fun downloadPath(arid: String, path: String, targetDir: String): Boolean {
+    suspend fun downloadPath(arid: String, path: String, targetDir: String) {
         if (!File(targetDir).exists()) {
             DebugLog.e("downloadPath() 目标目录不存在, path: $targetDir")
-            return false
+            return
         }
 
         val savePath = File(targetDir, path).absolutePath
@@ -159,10 +153,10 @@ object HttpHelper {
     }
 
 
-    suspend fun downloadThumb(arid: String, targetDir: String): Boolean {
+    suspend fun downloadThumb(arid: String, targetDir: String) {
         if (!File(targetDir).exists()) {
             DebugLog.e("downloadThumb() 目标目录不存在, path: $targetDir")
-            return false
+            return
         }
 
         val savePath = File(targetDir, arid).absolutePath

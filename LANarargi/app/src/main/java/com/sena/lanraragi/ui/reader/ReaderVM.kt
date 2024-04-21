@@ -2,8 +2,7 @@ package com.sena.lanraragi.ui.reader
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sena.lanraragi.database.LanraragiDB
-import com.sena.lanraragi.database.archiveData.Archive
+import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.HttpHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,10 +18,8 @@ class ReaderVM : ViewModel() {
 
     val fileNameList = MutableLiveData<List<String>>()
 
-    // 除了ViewPager2以外的位置改变
-    val curPos1 = MutableLiveData<Int>()
-    // ViewPager2发生位置改变
-    val curPos2 = MutableLiveData<Int>()
+    val curPos = MutableLiveData<Int>()
+    var fromWebtoon: Boolean = false
 
 
     suspend fun initData(arcId: String) {
@@ -32,16 +29,24 @@ class ReaderVM : ViewModel() {
         result?.let { fileNameList.value = it }
     }
 
-    fun setCurPosition1(p: Int) {
-        curPos1.value = p
-    }
-
-    fun setCurPosition2(p: Int) {
-        curPos2.value = p
+    fun setCurPosition(page: Int) {
+        // 校验page正确性
+        val totalCount = fileNameList.value?.size ?: 0
+        if (page < 0 || page > totalCount - 1) {
+            DebugLog.e("ReaderActivity: 错误的当前位置: $page")
+            return
+        }
+        curPos.value = page
     }
 
     fun setFileNameList(list: List<String>) {
         fileNameList.value = list
+    }
+
+    fun updateList() {
+        val cPos = curPos.value ?: 0
+        DebugLog.e("测试bug: updateList: $curPos")
+        curPos.value = cPos
     }
 
 

@@ -14,6 +14,7 @@ import com.sena.lanraragi.utils.DataStoreHelper
 import com.sena.lanraragi.utils.FileUtils
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
+import com.sena.lanraragi.utils.ScaleType
 
 class SettingActivity : BaseActivity() {
 
@@ -203,10 +204,13 @@ class SettingActivity : BaseActivity() {
         changeViewStatus(binding.reader.reverseMergeLayout, enableMerge)
         changeViewStatus(binding.reader.mergeMethodLayout, enableMerge)
         val scaleMethod = AppConfig.scaleMethod
-        binding.reader.scaleText.text = scaleMethod.ifBlank { getString(R.string.setting_read_scale_method_select_1) }
+        val scaleIndex = ScaleType.values().indexOf(scaleMethod)
+        binding.reader.scaleText.text = resources.getStringArray(R.array.setting_read_scale_select).let {
+            it.getOrNull(scaleIndex) ?: it[0]
+        }
         binding.reader.scaleLayout.setOnClickListener {
             readScaleMethodPop.doOnAttach {
-                readScaleMethodCustomPop.updateSelected(AppConfig.scaleMethod)
+                readScaleMethodCustomPop.updateSelected(binding.reader.scaleText.text.toString())
             }
             readScaleMethodPop.show()
         }
@@ -364,17 +368,12 @@ class SettingActivity : BaseActivity() {
         readMergeMethodPop = XPopup.Builder(this)
             .asCustom(readMergeMethodCustomPop)
 
-        val scaleMethodList = arrayListOf(
-            getString(R.string.setting_read_scale_method_select_1),
-            getString(R.string.setting_read_scale_method_select_2),
-            getString(R.string.setting_read_scale_method_select_3),
-            getString(R.string.setting_read_scale_method_select_4),
-        )
+        val scaleMethodList = resources.getStringArray(R.array.setting_read_scale_select).toList()
         readScaleMethodCustomPop = SettingSelectPopup(this, getString(R.string.setting_read_scale_method_title), scaleMethodList)
-        readScaleMethodCustomPop.setOnSelectedListener { _, s ->
+        readScaleMethodCustomPop.setOnSelectedListener { pos, s ->
             binding.reader.scaleText.text = s
-            AppConfig.scaleMethod = s
-            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.READ_SCALE_METHOD, s)
+            AppConfig.scaleMethod = ScaleType.values().getOrNull(pos) ?: ScaleType.FIT_PAGE
+            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.READ_SCALE_METHOD, AppConfig.scaleMethod)
         }
         readScaleMethodPop = XPopup.Builder(this)
             .asCustom(readScaleMethodCustomPop)

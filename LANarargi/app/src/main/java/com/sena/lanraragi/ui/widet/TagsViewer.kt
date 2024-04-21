@@ -60,7 +60,8 @@ class TagsViewer @JvmOverloads constructor(
         list.forEach { s ->
             val tB = ItemTagBinding.inflate(LayoutInflater.from(mContext), contentLayout, true)
             tB.textView.apply {
-                text = if (header == "data_added") timeStamp2String(s.toLong()) else s
+                text = if (header == "date_added") timeStamp2String(s.toLong()) else s
+                isEnabled = header != "date_added"
                 setBackgroundResource(R.drawable.bg_tag_content)
                 setOnClickListener {
                     mListener?.onItemClickListener(header, s)
@@ -76,7 +77,7 @@ class TagsViewer @JvmOverloads constructor(
         val month = calendar.get(Calendar.MONTH) + 1
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val format = "%04d/$02d%02d"
+        val format = "%04d/%02d/%02d"
         return String.format(format, year, month, day)
     }
 

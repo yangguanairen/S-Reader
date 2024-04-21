@@ -3,6 +3,7 @@ package com.sena.lanraragi
 import android.app.Application
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.utils.DataStoreHelper
+import com.sena.lanraragi.utils.ScaleType
 
 
 /**
@@ -37,7 +38,7 @@ class Application : Application() {
             enableMerge = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_MERGE, false)
             enableReverseMerge = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_REVERSE_MERGE, false)
             mergeMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_MERGE_METHOD, getString(R.string.setting_read_merge_method_select_1))
-            scaleMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, getString(R.string.setting_read_scale_method_select_1))
+            scaleMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, ScaleType.FIT_WIDTH)
             screenOvertime = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCREEN_OVER_TIME, 5)
 
             enableLocalSearch = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SEARCH_LOCAL, false)

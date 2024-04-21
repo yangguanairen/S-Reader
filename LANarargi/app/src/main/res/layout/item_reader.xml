@@ -8,14 +8,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerInParent="true"
-        android:indeterminate="true" />
-
-
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/photoView"
         android:visibility="invisible"
@@ -31,13 +23,23 @@
 
     <TextView
         android:id="@+id/errorView"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/read_file_is_not_support"
         android:textSize="28sp"
+        android:padding="48dp"
         android:textColor="?attr/textColor2"
         android:gravity="center" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="48dp"
+        android:elevation="20dp"
+        android:layout_centerInParent="true"
+        android:indeterminate="true" />
 
 
 </RelativeLayout>

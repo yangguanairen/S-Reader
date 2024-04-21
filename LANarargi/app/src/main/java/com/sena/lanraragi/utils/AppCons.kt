@@ -16,3 +16,19 @@ const val OPERATE_KEY_VALUE1 = "openHostPopup"
 
 const val COVER_SHARE_ANIMATION = "cover_share_animation"
 
+
+enum class ScaleType {
+    FIT_PAGE,
+    FIT_WIDTH,
+    FIT_HEIGHT,
+    WEBTOON
+}
+
+enum class TouchZone {
+    Left,
+    Right,
+    Center
+}
+
+
+

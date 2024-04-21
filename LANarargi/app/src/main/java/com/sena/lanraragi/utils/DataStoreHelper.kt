@@ -65,6 +65,13 @@ object DataStoreHelper {
                 LanraragiDB.DBHelper.ORDER.DESC.name -> LanraragiDB.DBHelper.ORDER.DESC
                 else -> defValue
             }
+            is ScaleType -> when (sp.getString(key.s, null)) {
+                ScaleType.FIT_WIDTH.name -> ScaleType.FIT_WIDTH
+                ScaleType.FIT_HEIGHT.name -> ScaleType.FIT_HEIGHT
+                ScaleType.FIT_PAGE.name -> ScaleType.FIT_PAGE
+                ScaleType.WEBTOON.name -> ScaleType.WEBTOON
+                else -> defValue
+            }
             else -> {
                 var type = "null"
                 defValue?.let {
@@ -86,8 +93,9 @@ object DataStoreHelper {
             is Float -> sp.edit().putFloat(key.s, value).apply()
             is Boolean -> sp.edit().putBoolean(key.s, value).apply()
             is Long -> sp.edit().putLong(key.s, value).apply()
-            is LanraragiDB.DBHelper.SORT, -> sp.edit().putString(key.s, value.name).apply()
-            is LanraragiDB.DBHelper.ORDER, -> sp.edit().putString(key.s, value.name).apply()
+            is LanraragiDB.DBHelper.SORT -> sp.edit().putString(key.s, value.name).apply()
+            is LanraragiDB.DBHelper.ORDER -> sp.edit().putString(key.s, value.name).apply()
+            is ScaleType -> sp.edit().putString(key.s, value.name).apply()
             else -> {
                 var type = "null"
                 value?.let {

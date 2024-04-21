@@ -99,6 +99,8 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
             val v = currentFocus
             if (isShouldHideKeyboard(v, ev)) {
                 hideKeyboard(v?.windowToken)
+                // 离开页面后清除焦点
+                v?.clearFocus()
             }
 
         }
