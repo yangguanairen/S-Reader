@@ -3,7 +3,7 @@ package com.sena.lanraragi.ui.reader
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.sena.lanraragi.utils.DebugLog
-import com.sena.lanraragi.utils.HttpHelper
+import com.sena.lanraragi.utils.NewHttpHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,7 +24,7 @@ class ReaderVM : ViewModel() {
 
     suspend fun initData(arcId: String) {
         val result = withContext(Dispatchers.IO) {
-            HttpHelper.getAllPageName(arcId)
+            NewHttpHelper.extractManga(arcId)
         }
         result?.let { fileNameList.value = it }
     }
@@ -45,7 +45,6 @@ class ReaderVM : ViewModel() {
 
     fun updateList() {
         val cPos = curPos.value ?: 0
-        DebugLog.e("测试bug: updateList: $curPos")
         curPos.value = cPos
     }
 

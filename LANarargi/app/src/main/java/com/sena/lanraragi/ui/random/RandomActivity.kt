@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.AppConfig
-import com.sena.lanraragi.BaseArchiveListActivity
+import com.sena.lanraragi.ui.BaseArchiveListActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ActivityRandomBinding
 import com.sena.lanraragi.ui.MainActivity
@@ -41,10 +41,11 @@ class RandomActivity : BaseArchiveListActivity(R.menu.menu_random) {
         initData()
     }
 
-    override fun onTagSelected(s: String) {
-        super.onTagSelected(s)
+    override fun onTagSelected(header: String, content: String) {
+        super.onTagSelected(header, content)
+        val query = if (header.isBlank()) content else "$header:$content"
         val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra(INTENT_KEY_QUERY, s)
+        intent.putExtra(INTENT_KEY_QUERY, query)
         startActivity(intent)
     }
 

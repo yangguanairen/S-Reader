@@ -1,5 +1,6 @@
-package com.sena.lanraragi
+package com.sena.lanraragi.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -12,9 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
-import com.lxj.xpopup.interfaces.OnSelectListener
+import com.sena.lanraragi.BaseActivity
+import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
-import com.sena.lanraragi.ui.MainAdapter
 import com.sena.lanraragi.ui.detail.DetailActivity
 import com.sena.lanraragi.ui.widet.TagsViewer
 import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
@@ -40,7 +41,7 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
         initRecyclerView()
     }
 
-    open fun onTagSelected(s: String) {
+    open fun onTagSelected(header: String, content: String) {
 
     }
 
@@ -67,7 +68,7 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
         mAdapter.setOnItemLongClickListener { a, _, p ->
             a.getItem(p)?.tags?.let { tags ->
                 val pop = TagViewPop(this, tags)
-                pop.setOnItemClickListener { q -> onTagSelected(q) }
+                pop.setOnTagSelectedListener { h, c -> onTagSelected(h, c) }
                 XPopup.Builder(this)
                     .isDestroyOnDismiss(true)
                     .asCustom(pop)
@@ -108,9 +109,10 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
         }
     }
 
-    private class TagViewPop(context: Context, tagStr: String): CenterPopupView(context) {
+    @SuppressLint("ViewConstructor")
+    class TagViewPop(context: Context, tagStr: String): CenterPopupView(context) {
 
-        private var onItemClickListener: OnSelectListener? = null
+        private var mListener: TagsViewer.OnTagSelectedListener? = null
 
         private val mTagStr = tagStr
 
@@ -124,17 +126,19 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
             super.onCreate()
 
             tagViewer = findViewById(R.id.tageViewer)
-            tagViewer.setOnItemClickListener { header, content ->
-                val query = if (header.isBlank()) content else "$header:$content"
+            tagViewer.setOnTagSelectedListener { header, content ->
+//                val query = if (header.isBlank()) content else "$header:$content"
                 dismiss()
-                onItemClickListener?.onSelect(-1, query)
+                mListener?.onTagSelected(header, content)
             }
             tagViewer.setTags(mTagStr)
         }
 
-        fun setOnItemClickListener(func: (s: String) -> Unit) {
-            onItemClickListener = OnSelectListener { _, text ->
-                text?.let { func.invoke(it) }
+        fun setOnTagSelectedListener(func: (header: String, content: String) -> Unit) {
+            mListener = object : TagsViewer.OnTagSelectedListener {
+                override fun onTagSelected(header: String, content: String) {
+                    func.invoke(header, content)
+                }
             }
         }
     }

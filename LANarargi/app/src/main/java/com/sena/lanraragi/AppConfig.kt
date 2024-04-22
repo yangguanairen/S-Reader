@@ -28,7 +28,7 @@ object AppConfig {
     var enableReverseMerge: Boolean = false
     var mergeMethod: String = ""
     var scaleMethod: ScaleType = ScaleType.FIT_WIDTH
-    var screenOvertime: Int = 5
+    var enableScreenLight: Boolean = false
 
     // 搜索
     var enableLocalSearch: Boolean = false  // 是否启用本地搜索

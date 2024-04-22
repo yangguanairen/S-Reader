@@ -16,10 +16,11 @@ data class Archive(
     val tags: String?,
     val lastreadtime: Long?,
     val title: String?,
-    val data_added: Long?
+    val data_added: Long?,
+    var isBookmark: Boolean = false
 ) : Serializable {
     override fun toString(): String {
-        return "arcid: $arcid, title: $title, data_added: $data_added, isnew: $isnew, extension: $extension, pagecount: $pagecount, progress: $progress, tags: $tags, lastereadtime: $lastreadtime, "
+        return "arcid: $arcid, title: $title, data_added: $data_added, isnew: $isnew, extension: $extension, pagecount: $pagecount, progress: $progress, tags: $tags, lastereadtime: $lastreadtime, isBookmark: $isBookmark"
     }
 
 }

@@ -26,7 +26,7 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
     private var mOnPageSelectedListener: OnPageSelectedListener? = null
 //    private var mOnGoToDetailClickListener: OnClickListener? = null
 //    private var mOnSelectPageClickListener: OnClickListener? = null
-//    private var mOnShowBookmarkClickListener: OnClickListener? = null
+    private var mOnShowBookmarkClickListener: OnClickListener? = null
 
     private var fitWidthButton: TextView? = null
     private var fitHeightButton: TextView? = null
@@ -79,7 +79,10 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
             setOnClickListener {  }
         }
         showBookmarkLayout = findViewById<RelativeLayout?>(R.id.showBookmark).apply {
-            setOnClickListener {  }
+            setOnClickListener {
+                dismiss()
+                mOnShowBookmarkClickListener?.onClick(it)
+            }
         }
 
         initScaleType()
@@ -127,6 +130,12 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
             override fun onPageSelected(page: Int) {
                 func.invoke(page)
             }
+        }
+    }
+
+    fun setOnShowBookmarkClickListener(func: () -> Unit) {
+        mOnShowBookmarkClickListener = OnClickListener {
+            func.invoke()
         }
     }
 

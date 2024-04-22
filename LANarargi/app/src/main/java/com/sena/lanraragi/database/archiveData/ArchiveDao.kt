@@ -16,7 +16,7 @@ import androidx.room.Query
 @Dao
 interface ArchiveDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<Archive>)
 
     @Query("DELETE FROM Archive")
@@ -56,8 +56,13 @@ interface ArchiveDao {
     @Query("SELECT * FROM Archive WHERE arcid = :arcId limit 1")
     suspend fun findByArcid(arcId: String): Archive
 
+    @Query("UPDATE Archive SET isBookmark = :status WHERE arcid = :archive")
+    suspend fun updateBookmarkByArcid(archive: String, status: Boolean)
 
+    @Query("SELECT * FROM Archive WHERE isBookmark = 1")
+    suspend fun queryBookmarkedArchives(): List<Archive>
 
-
+    @Query("UPDATE ARCHIVE set isBookmark = 0")
+    suspend fun resetBookmark()
 
 }

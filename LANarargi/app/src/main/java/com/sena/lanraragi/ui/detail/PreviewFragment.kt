@@ -16,7 +16,9 @@ import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.FragmentPreviewBinding
 import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.getOrNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 private const val ARG_ARCHIVE = "arc_archive"
@@ -27,7 +29,6 @@ class PreviewFragment : BaseFragment() {
 
     private lateinit var binding: FragmentPreviewBinding
     private val adapter: PreviewAdapter by lazy { PreviewAdapter() }
-    private val vm: PreviewVM by lazy { PreviewVM() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,33 +41,35 @@ class PreviewFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPreviewBinding.inflate(layoutInflater)
 
-        mArchive?.let {
-            initView(it)
-            initVM()
-        }
-
+        mArchive?.let { initView() }
         return binding.root
     }
 
-    private fun initView(archive: Archive) {
+    private fun initView() {
         binding.recyclerView.layoutManager = GridLayoutManager(context, 2)
         binding.recyclerView.adapter = adapter
-        archive.pagecount?.let {
-            val emptyList = (0 until it).map { "" }
-            adapter.submitList(emptyList)
-        }
-    }
-
-    private fun initVM() {
-        vm.pages.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-        }
     }
 
     override fun lazyLoad() {
         super.lazyLoad()
         lifecycleScope.launch {
-            mArchive?.arcid?.let { vm.initData(it) }
+            mArchive?.let { initData(it) }
+        }
+    }
+
+    private fun initData(archive: Archive) {
+        lifecycleScope.launch {
+           val pageCount = archive.pagecount
+            if (pageCount != null) {
+                val emptyList = (0 until pageCount).map { "" }
+                adapter.submitList(emptyList)
+            }
+            val result = withContext(Dispatchers.IO) {
+                NewHttpHelper.extractManga(archive.arcid)
+            }
+            if (result != null) {
+                adapter.submitList(result)
+            }
         }
     }
 

@@ -12,11 +12,11 @@ import androidx.lifecycle.lifecycleScope
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
-import com.sena.lanraragi.BaseArchiveListActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.ui.detail.DetailActivity
 import com.sena.lanraragi.ui.random.RandomActivity
 import com.sena.lanraragi.ui.setting.SettingActivity
+import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
@@ -30,6 +30,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     private val vm: MainVM by viewModels()
 
     private lateinit var settingLayout: LinearLayout
+    private lateinit var bookmarkView: BookmarkView
     private lateinit var sortTimeButton: RadioButton
     private lateinit var sortTitleButton: RadioButton
     private lateinit var orderAscButton: RadioButton
@@ -79,10 +80,23 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     private fun initLeftNavigationView() {
         binding.leftNav.getHeaderView(0).apply {
             settingLayout = findViewById(R.id.settingLayout)
+            bookmarkView = findViewById(R.id.bookmarkView)
         }
         settingLayout.setOnClickListener {
+            binding.drawerLayout.closeDrawer(binding.leftNav)
             val intent = Intent(this, SettingActivity::class.java)
             startActivity(intent)
+        }
+        bookmarkView.setOnItemClickListener { a, _, p ->
+            a.getItem(p)?.let {
+                val intent = Intent(this, DetailActivity::class.java)
+                intent.putExtra(INTENT_KEY_ARCHIVE, it)
+                startActivity(intent)
+            }
+        }
+        bookmarkView.setOnTagSelectedListener { header, content ->
+            binding.drawerLayout.closeDrawer(binding.leftNav)
+            onTagSelected(header, content)
         }
     }
 
@@ -215,9 +229,10 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
     }
 
-    override fun onTagSelected(s: String) {
-        super.onTagSelected(s)
-        vm.setQueryText(s)
+    override fun onTagSelected(header: String, content: String) {
+        super.onTagSelected(header, content)
+        val query = if (header.isBlank()) content else "$header:$content"
+        vm.setQueryText(query)
     }
 
 

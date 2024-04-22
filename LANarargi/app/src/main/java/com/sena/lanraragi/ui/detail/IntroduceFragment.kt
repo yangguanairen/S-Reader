@@ -16,6 +16,7 @@ import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import com.sena.lanraragi.BaseFragment
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.FragmentIntroduceBinding
 import com.sena.lanraragi.ui.MainActivity
@@ -26,7 +27,9 @@ import com.sena.lanraragi.utils.INTENT_KEY_QUERY
 import com.sena.lanraragi.utils.ImageLoad
 import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.getOrNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 private const val ARG_ARCHIVE = "arc_archive"
@@ -35,6 +38,13 @@ class IntroduceFragment : BaseFragment() {
     private var mArchive: Archive? = null
 
     private lateinit var binding: FragmentIntroduceBinding
+
+    private val bookmarkTextMap by lazy {
+        mapOf(
+            true to getString(R.string.detail_introduce_cancel_bookmark),
+            false to getString(R.string.detail_introduce_add_bookmark)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +71,7 @@ class IntroduceFragment : BaseFragment() {
             TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(binding.title, 10, 18, 1, TypedValue.COMPLEX_UNIT_SP)
         }
 
-        binding.tageViewer.setOnItemClickListener { header, content ->
+        binding.tageViewer.setOnTagSelectedListener { header, content ->
             val query = if (header.isBlank()) content else "$header:$content"
             val intent = Intent(requireContext(), MainActivity::class.java)
             intent.putExtra(INTENT_KEY_QUERY, query)
@@ -72,18 +82,45 @@ class IntroduceFragment : BaseFragment() {
             intent.putExtra(INTENT_KEY_ARCHIVE, archive)
             startActivity(intent)
         }
-
-        binding.title.text = archive.title
-        ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
-        ImageLoad.Builder(requireContext())
-            .loadThumb(archive.arcid)
-            .doOnFinish {
-                requireActivity().supportStartPostponedEnterTransition()
+        binding.bookmark.setOnClickListener {
+            val isBookmarked = archive.isBookmark
+            val fStatus = !isBookmarked
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    LanraragiDB.updateArchiveBookmark(archive.arcid, fStatus)
+                }
+                archive.isBookmark = fStatus
+                binding.bookmark.text = bookmarkTextMap[fStatus]
             }
-            .into(binding.cover)
-            .execute()
-        archive.tags?.let { s ->
-            binding.tageViewer.setTags(s)
+        }
+    }
+
+    override fun lazyLoad() {
+        super.lazyLoad()
+        mArchive?.let { initData(it) }
+        mArchive?:let { requireActivity().supportStartPostponedEnterTransition() }
+    }
+
+    private fun initData(archive: Archive) {
+        lifecycleScope.launch {
+
+            binding.title.text = archive.title
+//            val isBookmarked = withContext(Dispatchers.IO) {
+//                LanraragiDB.queryArchiveById(archive.arcid)
+//            }?.isBookmark ?: false
+
+            binding.bookmark.text = bookmarkTextMap[archive.isBookmark]
+            ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
+            ImageLoad.Builder(requireContext())
+                .loadThumb(archive.arcid)
+                .doOnFinish {
+                    requireActivity().supportStartPostponedEnterTransition()
+                }
+                .into(binding.cover)
+                .execute()
+            archive.tags?.let { s ->
+                binding.tageViewer.setTags(s)
+            }
         }
     }
 

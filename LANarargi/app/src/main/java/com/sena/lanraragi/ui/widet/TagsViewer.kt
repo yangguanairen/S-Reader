@@ -30,7 +30,7 @@ class TagsViewer @JvmOverloads constructor(
     private val binding = ViewTagsBinding.inflate(LayoutInflater.from(mContext), this, true)
 
     private var mTags: String? = null
-    private var mListener: ItemClickListener? = null
+    private var mListener: OnTagSelectedListener? = null
 
     fun setTags(tags: String?) {
         mTags = tags
@@ -64,7 +64,7 @@ class TagsViewer @JvmOverloads constructor(
                 isEnabled = header != "date_added"
                 setBackgroundResource(R.drawable.bg_tag_content)
                 setOnClickListener {
-                    mListener?.onItemClickListener(header, s)
+                    mListener?.onTagSelected(header, s)
                 }
             }
         }
@@ -99,16 +99,16 @@ class TagsViewer @JvmOverloads constructor(
         return result
     }
 
-    fun setOnItemClickListener(func: (header: String, content: String) -> Unit) {
-        mListener = object : ItemClickListener {
-            override fun onItemClickListener(header: String, content: String) {
+    fun setOnTagSelectedListener(func: (header: String, content: String) -> Unit) {
+        mListener = object : OnTagSelectedListener {
+            override fun onTagSelected(header: String, content: String) {
                 func.invoke(header, content)
             }
         }
     }
 
-    private interface ItemClickListener {
-        fun onItemClickListener(header: String, content: String)
+    interface OnTagSelectedListener {
+        fun onTagSelected(header: String, content: String)
     }
 
 

@@ -111,17 +111,29 @@
             style="@style/setting_item_text_subtitle" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/overtimeLayout"
-        style="@style/setting_item_text_layout">
 
-        <TextView
-            style="@style/setting_item_text_title"
-            android:text="@string/setting_read_overtime_title" />
+    <RelativeLayout
+        android:id="@+id/keepLightLayout"
+        style="@style/setting_item_switch_layout">
 
-        <TextView
-            android:id="@+id/overtimeText"
-            style="@style/setting_item_text_subtitle" />
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                style="@style/setting_item_switch_title"
+                android:text="@string/setting_read_keep_screen_light_title" />
+
+            <TextView
+                style="@style/setting_item_text_subtitle"
+                android:text="@string/setting_read_keep_screen_light_subtitle"/>
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/keepLightButton"
+            style="@style/setting_item_switch" />
+
+    </RelativeLayout>
 
 </LinearLayout>

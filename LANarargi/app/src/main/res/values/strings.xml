@@ -45,6 +45,7 @@
     // 详情页
     <string name="detail_introduce_start_read" translatable="false">阅读</string>
     <string name="detail_introduce_add_bookmark" translatable="false">添加书签</string>
+    <string name="detail_introduce_cancel_bookmark" translatable="false">取消书签</string>
     <string name="detail_toolbar_random" translatable="false">查看随机档案</string>
     <string name="detail_toolbar_refresh" translatable="false">强制刷新缩略图</string>
     <string name="detail_toolbar_goto_top" translatable="false">跳转顶部</string>
@@ -101,8 +102,8 @@
         <item>适应高度</item>
         <item>Webtoon</item>
     </string-array>
-    <string name="setting_read_overtime_title" translatable="false">屏幕超时</string>
-    <string name="setting_read_overtime_subtitle" translatable="false">屏幕超时时间, 以秒为单位, -1为永远亮屏\n当前: %d 秒</string>
+    <string name="setting_read_keep_screen_light_title" translatable="false">保持常亮</string>
+    <string name="setting_read_keep_screen_light_subtitle" translatable="false">阅读时不息屏</string>
     // 设置--搜索
     <string name="setting_search_theme" translatable="false">搜索</string>
     <string name="setting_search_local_title" translatable="false">本地搜索</string>
@@ -140,6 +141,12 @@
     <string name="tag_viewer_goto_detail" translatable="false">回到详情页</string>
     <string name="tag_viewer_select_page" translatable="false">跳转页面</string>
     <string name="tag_viewer_display_bookmark" translatable="false">查看书签</string>
+
+
+    // 书签查看器
+    <string name="bookmark_view_clear_single" translatable="false">书签已清除</string>
+    <string name="bookmark_view_clear_all" translatable="false">所有书签已清除</string>
+    <string name="bookmark_view_revoke" translatable="false">撤销</string>
     <!-- ******************************************** 自定义组件 ******************************************** -->
 
 </resources>

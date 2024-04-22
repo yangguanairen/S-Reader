@@ -5,6 +5,12 @@ import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.File
+import java.io.FileOutputStream
 import java.net.URLEncoder
 
 
@@ -15,6 +21,12 @@ import java.net.URLEncoder
  */
 
 object NewHttpHelper {
+
+    private val client by lazy {
+        OkHttpClient.Builder()
+            .dispatcher(Dispatcher().apply { maxRequests = 3 })
+            .build()
+    }
 
     suspend fun queryAllArchive(): List<Archive> {
         val serverResult = queryAllArchiveFromServer()
@@ -58,11 +70,60 @@ object NewHttpHelper {
         val result = LanraragiDB.getRandomArchive(count)
         return result
     }
+    
+    suspend fun extractManga(id: String): List<String>? {
+        val url = AppConfig.serverHost + "/api/archives/$id/files"
 
+        val mBuilder = Build().url(url)
+        var result: List<String>? = null
+        withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            if (response?.code != 200) return@withContext
+            getOrNull {
+                val pages = response.body?.byteStream()?.toJSONObject()?.getJSONArray("pages")
+                if (pages != null) {
+                    val list = arrayListOf<String>()
+                    for (i in 0 until pages.length()) {
+                        list.add((pages.get(i) as String).replace("./", "${AppConfig.serverHost}/"))
+                    }
+                    result = list
+                }
+            }
+        }
+        return result
+    }
+
+    /**
+     * 注意不捕获异常
+     */
+    suspend fun downloadFile(url: String, savePath: String) {
+        val build = Build().url(url)
+
+        withContext(Dispatchers.IO) {
+            val response = build.execute()
+            if (response?.code != 200) {
+                DebugLog.e("无法下载文件: $url")
+                return@withContext
+            }
+            val stream = response.body?.byteStream() ?: return@withContext
+
+            val fos = FileOutputStream(File(savePath))
+            val buffer = ByteArray(1024)
+            var len: Int
+            while (stream.read(buffer).also { len = it } > 0) {
+                fos.write(buffer, 0, len)
+            }
+            fos.flush()
+            fos.close()
+            stream.close()
+        }
+    }
+    
+    
     private suspend fun queryAllArchiveFromServer(): List<Archive>? {
         val url = AppConfig.serverHost + "/api/archives"
 
-        val mBuilder = HttpHelper.Build().url(url)
+        val mBuilder = Build().url(url)
         var result: List<Archive>? = null
         withContext(Dispatchers.IO) {
             val response = mBuilder.execute()
@@ -90,7 +151,7 @@ object NewHttpHelper {
             .append("&start=-1")
             .toString()
 
-        val mBuilder = HttpHelper.Build().url(url)
+        val mBuilder = Build().url(url)
         var result: List<Archive>? = null
         withContext(Dispatchers.IO) {
             val response = mBuilder.execute()
@@ -105,7 +166,7 @@ object NewHttpHelper {
     private suspend fun getRandomArchiveFromServer(count: Int): List<Archive>? {
         val url = AppConfig.serverHost + "/api/search/random?count=$count"
 
-        val mBuilder = HttpHelper.Build().url(url)
+        val mBuilder = Build().url(url)
         var result: List<Archive>? = null
         withContext(Dispatchers.IO) {
             val response = mBuilder.execute()
@@ -115,6 +176,61 @@ object NewHttpHelper {
             }
         }
         return result
+    }
+
+
+
+
+    class Build {
+
+        private var url: String? = null
+        private val headers: MutableMap<String, String> = mutableMapOf()
+        private var isPrintResponseStr = false
+
+
+
+        fun url(s: String): Build {
+            this.url = s
+            return this
+        }
+
+        fun addHeader(name: String, value: String): Build {
+            this.headers[name] = value
+            return this
+        }
+
+        fun isPrintRespStr(b: Boolean): Build {
+            isPrintResponseStr = b
+            return this
+        }
+
+        fun execute(): Response? {
+            val mUrl = url ?: throw Exception("url is null")
+            val build = Request.Builder().url(mUrl)
+            val secretKey = AppConfig.serverSecretKey
+            if (secretKey.isNotBlank()) {
+                build.addHeader("Authorization ", "Bearer $secretKey")
+            }
+            headers.entries.forEach {
+                build.addHeader(it.key, it.value)
+            }
+            val request = build.build()
+
+            val sTime = System.currentTimeMillis()
+            val response = getOrNull { client.newCall(request).execute() }
+            val eTime = System.currentTimeMillis()
+            val sb = StringBuilder()
+                .appendLine("HttpHelper 网络请求日志")
+                .appendLine("RequestUrl: $mUrl")
+                .appendLine("RequestHeader: ${headers.map { "${it.key}:${it.value}" }.joinToString(", ")}")
+                .appendLine("ResponseCode: ${response?.code}")
+                .appendLine("请求总耗时: ${eTime - sTime}毫秒")
+
+            DebugLog.d("$sb")
+
+            return response
+        }
+
     }
 
 }

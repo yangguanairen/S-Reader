@@ -159,7 +159,7 @@ class ImageLoad private constructor(context: Context) {
             if (!isExists) {
                 withContext(Dispatchers.IO) {
                     kotlin.runCatching {
-                        HttpHelper.downloadCore(url, path)
+                        NewHttpHelper.downloadFile(url, path)
                     }.onFailure {
                         mOnErrorListener?.onError()
                     }
@@ -200,7 +200,7 @@ class ImageLoad private constructor(context: Context) {
             if (!isExists) {
                 withContext(Dispatchers.IO) {
                     kotlin.runCatching {
-                        HttpHelper.downloadCore(url, path)
+                        NewHttpHelper.downloadFile(url, path)
                     }.onFailure {
                         mOnErrorListener?.onError()
                     }

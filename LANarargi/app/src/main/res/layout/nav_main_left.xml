@@ -27,29 +27,35 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:orientation="horizontal"
+
+    <com.sena.lanraragi.ui.widet.BookmarkView
+        android:id="@+id/bookmarkView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/main_left_nav_bookmark"
-            android:textSize="16sp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:textColor="?attr/textColor2" />
+        android:layout_height="wrap_content" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_clear_24"
-            android:contentDescription="@string/main_left_nav_bookmark" />
+<!--    <RelativeLayout-->
+<!--        android:orientation="horizontal"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:padding="8dp">-->
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/main_left_nav_bookmark"-->
+<!--            android:textSize="16sp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:layout_marginBottom="8dp"-->
+<!--            android:textColor="?attr/textColor2" />-->
 
-    </RelativeLayout>
+<!--        <ImageView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:src="@drawable/ic_clear_24"-->
+<!--            android:contentDescription="@string/main_left_nav_bookmark" />-->
+
+<!--    </RelativeLayout>-->
 
 
 

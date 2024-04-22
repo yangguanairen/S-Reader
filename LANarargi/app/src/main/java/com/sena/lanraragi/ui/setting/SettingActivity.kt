@@ -34,8 +34,6 @@ class SettingActivity : BaseActivity() {
     private lateinit var readMergeMethodPop: BasePopupView
     private lateinit var readScaleMethodCustomPop: SettingSelectPopup
     private lateinit var readScaleMethodPop: BasePopupView
-    private lateinit var readTimeCustomPop: SettingInputPopup
-    private lateinit var readTimePop: BasePopupView
 
     private lateinit var searchDelayCustomPop: SettingInputPopup
     private lateinit var searchDelayPop: BasePopupView
@@ -214,13 +212,14 @@ class SettingActivity : BaseActivity() {
             }
             readScaleMethodPop.show()
         }
-        val screenOvertime = AppConfig.screenOvertime
-        binding.reader.overtimeText.text = String.format(getString(R.string.setting_read_overtime_subtitle), screenOvertime)
-        binding.reader.overtimeLayout.setOnClickListener {
-            readTimePop.doOnAttach {// 必须在onAttach时, 之前onCreate还未执行, 变量未初始化
-                readTimeCustomPop.setInputContent(AppConfig.screenOvertime.toString())
-            }
-            readTimePop.show()
+        val enableScreenLight = AppConfig.enableScreenLight
+        binding.reader.keepLightButton.isChecked = enableScreenLight
+        binding.reader.keepLightLayout.setOnClickListener {
+            val curStatus = binding.reader.keepLightButton.isChecked
+            val finStatus = !curStatus
+            binding.reader.keepLightButton.isChecked = finStatus
+            AppConfig.enableScreenLight = finStatus
+            DataStoreHelper.updateValue(this, DataStoreHelper.KEY.READ_KEEP_SCREEN_LIGHT, finStatus)
         }
 
     }
@@ -377,19 +376,6 @@ class SettingActivity : BaseActivity() {
         }
         readScaleMethodPop = XPopup.Builder(this)
             .asCustom(readScaleMethodCustomPop)
-
-        readTimeCustomPop = SettingInputPopup(this, getString(R.string.setting_read_overtime_title), true)
-        readTimeCustomPop.setOnConfirmClickListener { t ->
-            val number = t.toIntOrNull() ?: return@setOnConfirmClickListener
-            binding.reader.overtimeText.text = String.format(getString(R.string.setting_read_overtime_subtitle), number)
-            AppConfig.screenOvertime = number
-            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.READ_SCREEN_OVER_TIME, number)
-        }
-        readTimePop = XPopup.Builder(this)
-            .autoFocusEditText(true)
-            .autoOpenSoftInput(true)
-            .moveUpToKeyboard(true)
-            .asCustom(readTimeCustomPop)
     }
 
     private fun initSearchPop() {

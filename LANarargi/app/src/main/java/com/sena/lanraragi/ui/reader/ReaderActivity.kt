@@ -5,6 +5,7 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.lifecycle.Lifecycle
@@ -19,16 +20,21 @@ import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ActivityReaderBinding
+import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getOrNull
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ReaderActivity : BaseActivity() {
 
+//    private var mId: String? = null
     private var mArchive: Archive? = null
 //    private var mFileNameList: List<String>? = null
 
@@ -37,6 +43,8 @@ class ReaderActivity : BaseActivity() {
     private lateinit var viewPagerAdapter: ReaderAdapter
     private lateinit var webtoonAdapter: ReaderAdapter
     private lateinit var bottomPopup: BasePopupView
+
+    private lateinit var bookmarkMenuItem: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +56,16 @@ class ReaderActivity : BaseActivity() {
             DebugLog.e("ReaderActivity.onCreate(): archive is null")
             return
         }
+        if (AppConfig.enableScreenLight) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
 //        val title = mArchive?.title
 //        val pageCount = mFileNameList?.size ?: mArchive?.pagecount
 
         initVM()
         initView()
-        initData()
+        mArchive?.let { initData(it) }
     }
 
     private fun initVM() {
@@ -96,15 +108,15 @@ class ReaderActivity : BaseActivity() {
     }
 
     private fun initView() {
-        // 初始Toolbar
-        setNavigation(R.drawable.ic_arrow_back_24) { finish() }
-        binding.contentReader.appBar.visibility = View.INVISIBLE
-        binding.contentReader.seekbar.visibility = View.INVISIBLE
-
+        initToolbar()
         // 初始popup
         val customPopup = ReaderBottomPopup(this).apply {
             setOnScaleTypeChangeListener {
                 vm.setFileNameList(vm.fileNameList.value ?: emptyList())
+            }
+            setOnShowBookmarkClickListener {
+                displayToolbar()
+                binding.drawerLayout.openDrawer(binding.leftNav)
             }
         }
         bottomPopup = XPopup.Builder(this)
@@ -114,6 +126,7 @@ class ReaderActivity : BaseActivity() {
 
         initViewPager()
         initWebtoon()
+        initLeftNav()
 
         binding.contentReader.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
 
@@ -136,6 +149,13 @@ class ReaderActivity : BaseActivity() {
             }
 
         })
+    }
+
+    private fun initToolbar() {
+        // 初始Toolbar
+        setNavigation(R.drawable.ic_arrow_back_24) { finish() }
+        binding.contentReader.appBar.visibility = View.INVISIBLE
+        binding.contentReader.seekbar.visibility = View.INVISIBLE
     }
 
     private fun initViewPager() {
@@ -177,14 +197,6 @@ class ReaderActivity : BaseActivity() {
 
     private fun initWebtoon() {
         webtoonAdapter = ReaderAdapter()
-        webtoonAdapter.setOnImageClickListener { _, _, _ ->
-            displayToolbar()
-        }
-        // 处理scaleImageView用
-        webtoonAdapter.setOnImageLongClickListener { _, _, _ ->
-            bottomPopup.show()
-            true
-        }
         webtoonAdapter.setOnItemClickListener{ _, _, _ ->
             displayToolbar()
         }
@@ -199,12 +211,14 @@ class ReaderActivity : BaseActivity() {
                 super.onScrolled(recyclerView, dx, dy)
                 val lm = recyclerView.layoutManager as LinearLayoutManager
                 val firstVisiblePos = lm.findFirstVisibleItemPosition()
+                val lastVisiblePos = lm.findLastVisibleItemPosition()
+                val finalPos = if (dy >= 0) lastVisiblePos else firstVisiblePos
                 if (isHuman) {
                     vm.fromWebtoon = true
-                    vm.setCurPosition(firstVisiblePos)
+                    vm.setCurPosition(finalPos)
                     isHuman = false
                 } else {
-                    DebugLog.d("测试: Webtoon 非用户操作")
+//                    DebugLog.d("测试: Webtoon 非用户操作")
                 }
             }
 
@@ -223,23 +237,29 @@ class ReaderActivity : BaseActivity() {
         }
     }
 
-
-    private fun initData() {
-
-        val pageCount = mArchive?.pagecount
-        if (pageCount != null) {
-            val emptyList = (0 until pageCount).map { "" }
-            vm.setFileNameList(emptyList)
+    private fun initLeftNav() {
+        val bookmarkView = binding.leftNav.getHeaderView(0).findViewById<BookmarkView>(R.id.bookmarkView)
+        bookmarkView.setOnItemClickListener { a, _, p ->
+            // TODO: 更换数据源
+           //  a.getItem(p)?.let { initData(it) }
         }
+    }
 
+
+    private fun initData(archive: Archive) {
         lifecycleScope.launch {
+            val pageCount = archive.pagecount
+            if (pageCount != null) {
+                val emptyList = (0 until pageCount).map { "" }
+                vm.setFileNameList(emptyList)
+            }
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 //                if (mFileNameList != null) {
 //                    vm.setFileNameList(mFileNameList!!)
 //                } else {
 //                    vm.initData(id)
 //                }
-                mArchive?.arcid?.let { vm.initData(it) }
+                vm.initData(archive.arcid)
             }
         }
     }
@@ -248,19 +268,32 @@ class ReaderActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_reader, menu)
+        menu?.let {
+            bookmarkMenuItem = it.findItem(R.id.bookmark)
+        }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        return when (item.itemId) {
+        when (item.itemId) {
             R.id.setting -> {
                 bottomPopup.show()
-                true
             }
-
-            else -> super.onOptionsItemSelected(item)
+            R.id.bookmark -> {
+                val archive = mArchive ?: return false
+                val isBookmarked = archive.isBookmark
+                val finStatus = !isBookmarked
+                val icon = if (finStatus) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        LanraragiDB.updateArchiveBookmark(archive.arcid, finStatus)
+                    }
+                    mArchive?.isBookmark = finStatus
+                    item.setIcon(icon)
+                }
+            }
         }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -283,6 +316,15 @@ class ReaderActivity : BaseActivity() {
 
     private fun displayToolbar() {
         binding.contentReader.appBar.apply {
+            mArchive?.arcid?.let { id ->
+                lifecycleScope.launch {
+                    val isBookmarked = withContext(Dispatchers.IO) {
+                        LanraragiDB.queryArchiveById(id)
+                    }?.isBookmark ?: false
+                    val icon = if (isBookmarked) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
+                    bookmarkMenuItem.setIcon(icon)
+                }
+            }
             if (visibility == View.VISIBLE) {
                 visibility = View.INVISIBLE
                 binding.contentReader.seekbar.visibility = View.INVISIBLE

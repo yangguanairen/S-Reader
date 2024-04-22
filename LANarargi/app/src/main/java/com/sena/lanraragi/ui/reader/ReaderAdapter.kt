@@ -6,9 +6,11 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +54,7 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
                 holder.bindPhotoView(url, scaleType, position)
             }
             url.isBlank() -> {
-                holder.bindEmptyView(position)
+                holder.bindEmptyView()
             }
             else -> {
                 holder.bindErrorView(url, scaleType, position)
@@ -76,11 +78,17 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
 
     inner class VH(rootView: View) : RecyclerView.ViewHolder(rootView) {
 
-        private val imageLayout: RelativeLayout = rootView.findViewById(R.id.imageLayout)
         private val photoView: PhotoView = rootView.findViewById(R.id.photoView)
         private val scaleView: SubsamplingScaleImageView = rootView.findViewById(R.id.scaleView)
         private val errorView: TextView = rootView.findViewById(R.id.errorView)
         private val progressBar: ProgressBar = rootView.findViewById(R.id.progressBar)
+        private val progressLayout: LinearLayout = rootView.findViewById<LinearLayout?>(R.id.progressLayout).apply {
+            setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, -1) }
+            setOnLongClickListener {
+                mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, -1)
+                true
+            }
+        }
         
         fun bindPhotoView(url: String, type: ScaleType, pos: Int) {
             DebugLog.i("ReaderAdapter.VH.bindPhotoView():\n 加载资源:$url\n scaleType:${type.name}")
@@ -123,7 +131,7 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
                     photoView.visibility = View.VISIBLE
                 }
                 .doOnSuccess {
-                    progressBar.visibility = View.INVISIBLE
+                    progressLayout.visibility = View.INVISIBLE
                     errorView.visibility = View.INVISIBLE
                     photoView.visibility = View.VISIBLE
                     scaleView.visibility = View.INVISIBLE
@@ -143,28 +151,6 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
                 ScaleType.FIT_PAGE -> SubsamplingScaleImageView.SCALE_TYPE_CUSTOM
                 ScaleType.WEBTOON -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
             }
-//
-//            scaleView.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
-//                override fun onReady() {
-//                    super.onReady()
-//                    DebugLog.e("测试: onReady")
-//                    val fadeIn = AlphaAnimation(1f, 0f).apply { duration = 300L }
-//                    fadeIn.setAnimationListener(object : Animation.AnimationListener {
-//                        override fun onAnimationStart(animation: Animation?) {}
-//                        override fun onAnimationEnd(animation: Animation?) {
-//                            DebugLog.e("测试: onAnimationEnd")
-//
-//
-//
-//                        }
-//                        override fun onAnimationRepeat(animation: Animation?) {}
-//                    })
-//                    progressBar.startAnimation(fadeIn)
-//                }
-//                override fun onImageLoaded() {
-//                    DebugLog.e("测试: onImageLoaded")
-//                }
-//            })
             scaleView.apply {
                 setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
                 setOnLongClickListener {
@@ -180,10 +166,19 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
                     scaleView.visibility = View.VISIBLE
                 }
                 .doOnSuccess {
-                    progressBar.visibility = View.INVISIBLE
-                    errorView.visibility = View.INVISIBLE
-                    photoView.visibility = View.INVISIBLE
-                    scaleView.visibility = View.VISIBLE
+                    val fadeIn = AlphaAnimation(1f, 0f).apply { duration = 200L }
+                    fadeIn.setAnimationListener(object : Animation.AnimationListener {
+                        override fun onAnimationStart(animation: Animation?) {}
+                        override fun onAnimationEnd(animation: Animation?) {
+                            progressLayout.visibility = View.INVISIBLE
+                            errorView.visibility = View.INVISIBLE
+                            photoView.visibility = View.INVISIBLE
+                            scaleView.visibility = View.VISIBLE
+                        }
+                        override fun onAnimationRepeat(animation: Animation?) {}
+                    })
+                    progressBar.startAnimation(fadeIn)
+
                 }
                 .doOnError {
                     bindErrorView(url, scaleType, pos)
@@ -202,22 +197,14 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
                 }
             }
 
-            progressBar.visibility = View.INVISIBLE
+            progressLayout.visibility = View.INVISIBLE
             errorView.visibility = View.VISIBLE
             photoView.visibility = View.INVISIBLE
             scaleView.visibility = View.INVISIBLE
         }
 
-        fun bindEmptyView(pos: Int) {
-            imageLayout.apply {
-                setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
-                setOnLongClickListener {
-                    mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
-                    true
-                }
-            }
-
-            progressBar.visibility = View.VISIBLE
+        fun bindEmptyView() {
+            progressLayout.visibility = View.VISIBLE
             errorView.visibility = View.INVISIBLE
             photoView.visibility = View.INVISIBLE
             scaleView.visibility = View.INVISIBLE

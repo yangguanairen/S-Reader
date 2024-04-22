@@ -6,6 +6,7 @@ import androidx.room.DatabaseConfiguration
 import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import com.sena.lanraragi.AppConfig
@@ -21,7 +22,7 @@ import com.sena.lanraragi.utils.DebugLog
  * https://juejin.cn/post/7218743537495998524
  */
 
-@Database(entities = [Archive::class], version = 1, exportSchema = false)
+@Database(entities = [Archive::class], version = 2, exportSchema = false)
 abstract class LanraragiDB : RoomDatabase() {
 
     abstract fun archiveDao(): ArchiveDao
@@ -52,8 +53,17 @@ abstract class LanraragiDB : RoomDatabase() {
                             DebugLog.d("Room: onCreate() db_name = ${db.path}")
                         }
                     })
+                    .addMigrations(
+                        MIGRATION_1_2
+                    )
                     .build()
                 INSTANCE = instance
+            }
+        }
+
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE Archive ADD COLUMN 'isBookmark' INTEGER NOT NULL DEFAULT 0")
             }
         }
 
@@ -63,10 +73,18 @@ abstract class LanraragiDB : RoomDatabase() {
                 return
             }
             INSTANCE!!.archiveDao().apply {
+                val oldData = getAll()
+                archives.forEach {
+                    it.isBookmark = oldData.firstOrNull { o -> o.arcid == it.arcid }?.isBookmark ?: false
+                    if (it.isBookmark) {
+                        DebugLog.e("测试: DB数据被保留\n$it")
+                    }
+                }
                 clearTable()
                 insertAll(archives)
             }
         }
+
 
         suspend fun getRandomArchive(count: Int): List<Archive> {
             if (INSTANCE == null) {
@@ -105,6 +123,34 @@ abstract class LanraragiDB : RoomDatabase() {
                 order == ORDER.DESC && sort == SORT.TIME -> dao.queryArchivesWithTagByAddTimeDesc(query)
                 else -> emptyList()
             }
+        }
+
+        suspend fun queryArchiveById(id: String): Archive? {
+            val instance = INSTANCE
+            if (instance == null) {
+                DebugLog.e("DB 未初始化")
+                return null
+            }
+            val result = instance.archiveDao().findByArcid(id)
+            return result
+        }
+
+
+        suspend fun updateArchiveBookmark(id: String, status: Boolean) {
+            if (INSTANCE == null) {
+                DebugLog.e("DB 未初始化")
+                return
+            }
+            INSTANCE!!.archiveDao().updateBookmarkByArcid(id, status)
+        }
+
+        suspend fun getBookmarkedArchives(): List<Archive> {
+            val instance = INSTANCE
+            if (instance == null) {
+                DebugLog.e("DB 未初始化")
+                return emptyList()
+            }
+            return instance.archiveDao().queryBookmarkedArchives()
         }
     }
 

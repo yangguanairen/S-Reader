@@ -39,7 +39,7 @@ class Application : Application() {
             enableReverseMerge = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_REVERSE_MERGE, false)
             mergeMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_MERGE_METHOD, getString(R.string.setting_read_merge_method_select_1))
             scaleMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, ScaleType.FIT_WIDTH)
-            screenOvertime = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCREEN_OVER_TIME, 5)
+            enableScreenLight = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_KEEP_SCREEN_LIGHT, false)
 
             enableLocalSearch = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SEARCH_LOCAL, false)
             searchDelay = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SEARCH_DELAY, 750)
