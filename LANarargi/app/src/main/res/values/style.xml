@@ -14,7 +14,7 @@
 
 
     <style name="main_right_group_title">
-        <item name="android:textColor">?attr/textColor2</item>
+        <item name="android:textColor">?attr/textColor1</item>
         <item name="android:textSize">20sp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -142,7 +142,7 @@
     <style name="setting_item_line">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="backgroundColor">?attr/bgColor4</item>
+        <item name="android:background">@drawable/shape_bookmark_item_divid</item>
     </style>
 
 

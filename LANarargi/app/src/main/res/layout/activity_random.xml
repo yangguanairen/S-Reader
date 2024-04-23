@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.random.RandomActivity"
-    android:background="?attr/bgColor1">
+    android:background="?attr/bgColor2">
 
 
     <com.google.android.material.appbar.AppBarLayout
@@ -22,7 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/textColor1"
             app:subtitleTextColor="?attr/textColor2"
-            android:background="?attr/bgColor2"
+            android:background="?attr/bgColor1"
             app:popupTheme="@style/ToolbarPopTheme" />
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -1,21 +1,52 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+
+<!--    Toolbar -> #34353B-->
+<!--    MainView -> #4F535B-->
+<!--    CardView -> #43464E-->
+<!--    NavView -> #363940-->
+
+
+<!--    ToolbarTitleIconColor -> #FFFFFF-->
+<!--    CardTextColor -> #DDDDDD-->
+<!--    TagArtistColor -> #22a7f0-->
+
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
-        <item name="textColor1">#ffffff</item>
+        <item name="bgColor1">#34353B</item> <!-- Toolbar背景颜色 -->
+        <item name="bgColor2">#4F535B</item> <!-- 页面背景颜色 -->
+        <item name="bgColor3">#43464E</item> <!-- 卡片背景颜色 -->
+        <item name="bgColor4">#363940</item> <!-- NavView背景颜色 -->
+        <item name="bgColor5">#5b5b5d</item> <!-- 分割线颜色 -->
+
+        <item name="textColor1">#FFFFFF</item>
         <item name="textColor2">#BDBDBD</item>
         <item name="textColor3">#82c9c3</item>
-        <item name="bgColor1">#303030</item>
-        <item name="bgColor2">#212121</item>
-        <item name="bgColor3">#424242</item>
-        <item name="bgColor4">#5b5b5d</item>
+
 
         <item name="android:windowContentTransitions">true</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
-<!--        <item name="android:windowEnterTransition">true</item>-->
-<!--        <item name="android:windowExitTransition">true</item>-->
     </style>
+
+
+
+<!--    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">-->
+<!--        <item name="textColor1">#ffffff</item>-->
+<!--        <item name="textColor2">#BDBDBD</item>-->
+<!--        <item name="textColor3">#82c9c3</item>-->
+<!--        <item name="bgColor1">#303030</item>-->
+<!--        <item name="bgColor2">#212121</item>-->
+<!--        <item name="bgColor3">#424242</item>-->
+<!--        <item name="bgColor4">#5b5b5d</item>-->
+
+<!--        <item name="android:windowContentTransitions">true</item>-->
+<!--        <item name="windowActionModeOverlay">true</item>-->
+<!--        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>-->
+<!--        <item name="android:windowExitAnimation">@android:anim/fade_out</item>-->
+<!--&lt;!&ndash;        <item name="android:windowEnterTransition">true</item>&ndash;&gt;-->
+<!--&lt;!&ndash;        <item name="android:windowExitTransition">true</item>&ndash;&gt;-->
+<!--    </style>-->
 
 
 

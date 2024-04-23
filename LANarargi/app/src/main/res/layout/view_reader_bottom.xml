@@ -79,11 +79,11 @@
         <ImageView
             style="@style/reader_nav_item_icon"
             android:src="@drawable/ic_detail_24"
-            android:contentDescription="@string/tag_viewer_goto_detail" />
+            android:contentDescription="@string/bottom_pop_goto_detail" />
 
         <TextView
             style="@style/reader_nav_item_text"
-            android:text="@string/tag_viewer_goto_detail" />
+            android:text="@string/bottom_pop_goto_detail" />
 
     </RelativeLayout>
 
@@ -94,11 +94,11 @@
         <ImageView
             style="@style/reader_nav_item_icon"
             android:src="@drawable/ic_image_24"
-            android:contentDescription="@string/tag_viewer_select_page"/>
+            android:contentDescription="@string/bottom_pop_select_page"/>
 
         <TextView
             style="@style/reader_nav_item_text"
-            android:text="@string/tag_viewer_select_page" />
+            android:text="@string/bottom_pop_select_page" />
 
     </RelativeLayout>
 
@@ -109,11 +109,11 @@
         <ImageView
             style="@style/reader_nav_item_icon"
             android:src="@drawable/ic_star_24"
-            android:contentDescription="@string/tag_viewer_display_bookmark" />
+            android:contentDescription="@string/bottom_pop_display_bookmark" />
 
         <TextView
             style="@style/reader_nav_item_text"
-            android:text="@string/tag_viewer_display_bookmark" />
+            android:text="@string/bottom_pop_display_bookmark" />
 
     </RelativeLayout>
 

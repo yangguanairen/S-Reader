@@ -18,27 +18,66 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/textColor1"
             app:subtitleTextColor="?attr/textColor2"
-            android:background="?attr/bgColor2"
-            app:popupTheme="@style/Theme.LANraragi" />
+            android:background="?attr/bgColor1"
+            app:popupTheme="@style/AppTheme" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <SeekBar
-        android:id="@+id/seekbar"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/seekbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:background="@drawable/bg_reader_seekbar"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginBottom="32dp"
-        android:padding="8dp"
-        android:elevation="12dp"
-        android:maxHeight="2dp"
-        android:minHeight="2dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:elevation="12dp">
 
-        android:progressDrawable="@drawable/layer_reader_seekbar_progress"
-        android:thumb="@drawable/layer_reader_seekbar_thumb"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <TextView
+            android:id="@+id/curPage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/textColor2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/seekbar"/>
+
+        <SeekBar
+            android:id="@+id/seekbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxHeight="2dp"
+            android:minHeight="2dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:progressDrawable="@drawable/layer_reader_seekbar_progress"
+            android:thumb="@drawable/layer_reader_seekbar_thumb"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/curPage"
+            app:layout_constraintEnd_toStartOf="@id/totalPage"/>
+
+        <TextView
+            android:id="@+id/totalPage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/textColor2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/seekbar"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     <androidx.viewpager2.widget.ViewPager2
         android:visibility="gone"

@@ -1,5 +1,6 @@
 package com.sena.lanraragi.ui.reader
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -68,10 +69,12 @@ class ReaderActivity : BaseActivity() {
         mArchive?.let { initData(it) }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initVM() {
         vm.fileNameList.observe(this) { list ->
             binding.contentReader.apply {
                 seekbar.max = list.size - 1
+                totalPage.text = list.size.toString()
                 if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.INVISIBLE
@@ -94,6 +97,7 @@ class ReaderActivity : BaseActivity() {
             setAppBarText(title, subtitle)
             binding.contentReader.apply {
                 seekbar.progress = page
+                curPage.text = (page + 1).toString()
                 if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
                     if (!vm.fromWebtoon) {
                         recyclerView.scrollToPosition(page)
@@ -155,7 +159,7 @@ class ReaderActivity : BaseActivity() {
         // 初始Toolbar
         setNavigation(R.drawable.ic_arrow_back_24) { finish() }
         binding.contentReader.appBar.visibility = View.INVISIBLE
-        binding.contentReader.seekbar.visibility = View.INVISIBLE
+        binding.contentReader.seekbarLayout.visibility = View.INVISIBLE
     }
 
     private fun initViewPager() {
@@ -327,10 +331,10 @@ class ReaderActivity : BaseActivity() {
             }
             if (visibility == View.VISIBLE) {
                 visibility = View.INVISIBLE
-                binding.contentReader.seekbar.visibility = View.INVISIBLE
+                binding.contentReader.seekbarLayout.visibility = View.INVISIBLE
             } else {
                 visibility = View.VISIBLE
-                binding.contentReader.seekbar.visibility = View.VISIBLE
+                binding.contentReader.seekbarLayout.visibility = View.VISIBLE
             }
         }
     }

@@ -2,13 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/bgColor1">
+    android:layout_height="match_parent">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="标签"
+        android:text="@string/tag_view_title"
         android:layout_marginBottom="8dp"
         android:textColor="?attr/textColor2"
         android:textSize="20sp"/>

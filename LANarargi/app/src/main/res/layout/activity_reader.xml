@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="?attr/bgColor1"
+        android:background="?attr/bgColor3"
         app:headerLayout="@layout/nav_reader_left" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

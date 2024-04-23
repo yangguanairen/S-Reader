@@ -9,15 +9,16 @@
         android:layout_height="?attr/actionBarSize"
         android:gravity="center_vertical"
         android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:textStyle="bold"
-        android:textColor="?attr/textColor2"
+        android:textColor="?attr/textColor1"
         android:textSize="24sp"
         android:text="@string/main_right_nav_filter" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/textColor2" />
+        android:background="@drawable/shape_bookmark_item_divid" />
 
     <LinearLayout
         android:orientation="vertical"

@@ -138,9 +138,13 @@
 
     <!-- ******************************************** 自定义组件 ******************************************** -->
     // 标签查看器
-    <string name="tag_viewer_goto_detail" translatable="false">回到详情页</string>
-    <string name="tag_viewer_select_page" translatable="false">跳转页面</string>
-    <string name="tag_viewer_display_bookmark" translatable="false">查看书签</string>
+    <string name="tag_view_title" translatable="false">标签</string>
+
+
+    // Reader底部弹窗
+    <string name="bottom_pop_goto_detail" translatable="false">回到详情页</string>
+    <string name="bottom_pop_select_page" translatable="false">跳转页面</string>
+    <string name="bottom_pop_display_bookmark" translatable="false">查看书签</string>
 
 
     // 书签查看器
@@ -149,4 +153,7 @@
     <string name="bookmark_view_revoke" translatable="false">撤销</string>
     <!-- ******************************************** 自定义组件 ******************************************** -->
 
+
+    // 其他
+    <string name="content_cover" translatable="false">封面</string>
 </resources>

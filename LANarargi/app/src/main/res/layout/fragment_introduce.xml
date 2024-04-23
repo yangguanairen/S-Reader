@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.detail.IntroduceFragment"
-    android:background="?attr/bgColor1">
+    android:background="?attr/bgColor2">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -24,6 +24,7 @@
                 android:layout_height="220dp"
                 android:layout_weight="1"
                 android:layout_margin="8dp"
+                android:contentDescription="@string/content_cover"
                 android:src="@drawable/bg_placeholder"
                 android:scaleType="fitCenter" />
 
@@ -80,7 +81,7 @@
             android:id="@+id/line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?attr/bgColor4"
+            android:background="@drawable/shape_bookmark_item_divid"
             app:layout_constraintTop_toBottomOf="@+id/detailLayout"/>
 
         <LinearLayout

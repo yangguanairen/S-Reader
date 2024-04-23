@@ -106,6 +106,7 @@ class BookmarkView @JvmOverloads constructor(
 
         binding.clearAll.setOnClickListener {
             val curData = mAdapter.items
+            if (curData.isEmpty()) return@setOnClickListener
             mAdapter.submitList(emptyList())
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.IO) {

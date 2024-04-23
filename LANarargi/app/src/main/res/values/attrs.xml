@@ -9,6 +9,7 @@
     <attr name="bgColor2" format="color"/>
     <attr name="bgColor3" format="color" />
     <attr name="bgColor4" format="color" />
+    <attr name="bgColor5" format="color" />
 
 
 </resources>

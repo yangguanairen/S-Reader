@@ -34,7 +34,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/bgColor4" />
+        android:background="@drawable/shape_bookmark_item_divid" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
