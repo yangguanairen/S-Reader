@@ -3,7 +3,6 @@ package com.sena.lanraragi.ui.reader
 import android.content.Context
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import com.lxj.xpopup.core.BottomPopupView
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.R
@@ -22,11 +21,8 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
 
     private val mContext = context
 
-    private var mScaleTypeChangeListener: ScaleTypeChange? = null
-    private var mOnPageSelectedListener: OnPageSelectedListener? = null
-//    private var mOnGoToDetailClickListener: OnClickListener? = null
-//    private var mOnSelectPageClickListener: OnClickListener? = null
-    private var mOnShowBookmarkClickListener: OnClickListener? = null
+    private var mScaleTypeChangeListener: OnScaleTypeChangeListener? = null
+    private var mOnItemClickListener: OnItemClickListener? = null
 
     private var fitWidthButton: TextView? = null
     private var fitHeightButton: TextView? = null
@@ -73,15 +69,21 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
         }
 
         gotoDetailLayout = findViewById<RelativeLayout?>(R.id.goToDetail).apply {
-            setOnClickListener { (activity as AppCompatActivity).onBackPressedDispatcher.onBackPressed() }
+            setOnClickListener {
+                dismiss()
+                mOnItemClickListener?.onItemClick(R.id.goToDetail)
+            }
         }
         selectPageLayout = findViewById<RelativeLayout?>(R.id.selectPage).apply {
-            setOnClickListener {  }
+            setOnClickListener {
+                dismiss()
+                mOnItemClickListener?.onItemClick(R.id.selectPage)
+            }
         }
         showBookmarkLayout = findViewById<RelativeLayout?>(R.id.showBookmark).apply {
             setOnClickListener {
                 dismiss()
-                mOnShowBookmarkClickListener?.onClick(it)
+                mOnItemClickListener?.onItemClick(R.id.showBookmark)
             }
         }
 
@@ -113,38 +115,32 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
         DataStoreHelper.updateValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, scaleType)
 
         if (needCallback) {
-            mScaleTypeChangeListener?.onScaleTypeChangeListener(scaleType)
+            mScaleTypeChangeListener?.onScaleTypeChange(scaleType)
         }
     }
 
     fun setOnScaleTypeChangeListener(func: (scaleType: ScaleType) -> Unit) {
-        mScaleTypeChangeListener = object : ScaleTypeChange {
-            override fun onScaleTypeChangeListener(scaleType: ScaleType) {
+        mScaleTypeChangeListener = object : OnScaleTypeChangeListener {
+            override fun onScaleTypeChange(scaleType: ScaleType) {
                 func.invoke(scaleType)
             }
         }
     }
 
-    fun setOnPageSelectedListener(func: (page: Int) -> Unit) {
-        mOnPageSelectedListener = object : OnPageSelectedListener {
-            override fun onPageSelected(page: Int) {
-                func.invoke(page)
+    fun setOnItemClickListener(func: (layoutId: Int) -> Unit) {
+        mOnItemClickListener = object : OnItemClickListener {
+            override fun onItemClick(layoutId: Int) {
+                func.invoke(layoutId)
             }
         }
     }
 
-    fun setOnShowBookmarkClickListener(func: () -> Unit) {
-        mOnShowBookmarkClickListener = OnClickListener {
-            func.invoke()
-        }
+    private interface OnScaleTypeChangeListener {
+        fun onScaleTypeChange(scaleType: ScaleType)
     }
 
-    private interface OnPageSelectedListener {
-        fun onPageSelected(page: Int)
-    }
-
-    private interface ScaleTypeChange {
-        fun onScaleTypeChangeListener(scaleType: ScaleType)
+    private interface OnItemClickListener {
+        fun onItemClick(layoutId: Int)
     }
 }
 

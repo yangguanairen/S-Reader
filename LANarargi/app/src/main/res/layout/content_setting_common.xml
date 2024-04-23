@@ -3,6 +3,7 @@
     style="@style/setting_item_layout">
 
     <TextView
+        android:id="@+id/commonTheme"
         style="@style/setting_item_theme"
         android:text="@string/setting_common_theme" />
 
@@ -11,6 +12,7 @@
         style="@style/setting_item_switch_layout">
 
         <TextView
+            android:id="@+id/refreshTitle"
             style="@style/setting_item_switch_title"
             android:text="@string/setting_common_refresh_title" />
 
@@ -26,6 +28,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/themeTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_common_apptheme_title" />
 
@@ -39,6 +42,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/viewMethodTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_common_view_method_title" />
 
@@ -52,10 +56,12 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/previewCacheTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_common_clear_title" />
 
         <TextView
+            android:id="@+id/previewCacheText"
             android:text="@string/setting_common_clear_subtitle"
             style="@style/setting_item_text_subtitle" />
     </LinearLayout>

@@ -8,7 +8,7 @@
                 android:radius="4dp" />
 
             <solid
-                android:color="?attr/bgColor1" />
+                android:color="?attr/bgColor4" />
 
         </shape>
     </item>

@@ -3,6 +3,7 @@
     style="@style/setting_item_layout">
 
     <TextView
+        android:id="@+id/serverTheme"
         style="@style/setting_item_theme"
         android:text="@string/setting_server_theme" />
 
@@ -11,6 +12,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/hostTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_server_host_title" />
 
@@ -24,6 +26,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/keyTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_server_key_title" />
 

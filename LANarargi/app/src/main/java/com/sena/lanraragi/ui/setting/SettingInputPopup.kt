@@ -4,10 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.InputType
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.OnInputConfirmListener
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.R
+import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.getThemeColor
 
 
 /**
@@ -24,6 +28,7 @@ class SettingInputPopup(
     private val mTitle = title
     private val mOnlyNumber = onlyNumber
 
+    private lateinit var rootLayout: LinearLayout
     private lateinit var titleView: TextView
     private lateinit var inputView: EditText
     private lateinit var cancelButton: TextView
@@ -39,6 +44,7 @@ class SettingInputPopup(
     override fun onCreate() {
         super.onCreate()
 
+        rootLayout = findViewById(R.id.rootLayout)
         titleView = findViewById(R.id.tv_title)
         inputView = findViewById(R.id.et_input)
         cancelButton = findViewById(R.id.tv_cancel)
@@ -56,6 +62,23 @@ class SettingInputPopup(
         confirmButton.setOnClickListener {
             dismiss()
             onConfirmClickListener?.onConfirm(inputView.text.toString())
+        }
+    }
+
+    // 应对多主题
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        context.getThemeColor(R.attr.textColor1)?.let {
+            inputView.setTextColor(it)
+            titleView.setTextColor(it)
+        }
+        context.getThemeColor(R.attr.textColor3)?.let {
+            cancelButton.setTextColor(it)
+            confirmButton.setTextColor(it)
+        }
+        context.theme.getDrawable(R.drawable.bg_popup)?.let {
+            rootLayout.background = it
         }
     }
 

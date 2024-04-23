@@ -5,7 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/bgColor2"
+    android:background="?attr/bgColor1"
     tools:context=".ui.MainActivity">
 
 
@@ -21,7 +21,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:fitsSystemWindows="true"
-        android:background="?attr/bgColor4"
+        android:background="?attr/bgColor1"
         app:headerLayout="@layout/nav_main_right" />
 
 
@@ -31,7 +31,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        android:background="?attr/bgColor4"
+        android:background="?attr/bgColor1"
         app:headerLayout="@layout/nav_main_left" />
 
 

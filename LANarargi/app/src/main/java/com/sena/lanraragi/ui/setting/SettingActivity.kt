@@ -11,10 +11,12 @@ import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ActivitySettingBinding
 import com.sena.lanraragi.utils.DataStoreHelper
+import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.FileUtils
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
 import com.sena.lanraragi.utils.ScaleType
+import com.sena.lanraragi.utils.getThemeColor
 
 class SettingActivity : BaseActivity() {
 
@@ -40,6 +42,13 @@ class SettingActivity : BaseActivity() {
 
     private lateinit var randomCountCustomPop: SettingInputPopup
     private lateinit var randomCountPop: BasePopupView
+
+    private val appTheme2StrMap by lazy {
+        mapOf(
+            getString(R.string.setting_common_apptheme_select_1) to R.style.AppTheme,
+            getString(R.string.setting_common_apptheme_select_2) to R.style.AppTheme_HVerse
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,10 +140,10 @@ class SettingActivity : BaseActivity() {
             DataStoreHelper.updateValue(this, DataStoreHelper.KEY.COMMON_SCROLL_REFRESH, finStatus)
         }
         val theme = AppConfig.theme
-        binding.common.themeText.text = theme.ifBlank { getString(R.string.setting_common_apptheme_select_1) }
+        binding.common.themeText.text = theme
         binding.common.themeLayout.setOnClickListener {
             commonAppThemePop.doOnAttach {
-                commonAppThemeCustomPop.updateSelected(AppConfig.theme)
+                commonAppThemeCustomPop.updateSelected(theme)
             }
             commonAppThemePop.show()
         }
@@ -286,6 +295,9 @@ class SettingActivity : BaseActivity() {
             AppConfig.enableCrashInfo = finStatus
             DataStoreHelper.updateValue(this, DataStoreHelper.KEY.DEBUG_CRASH, finStatus)
         }
+        binding.debug.copyCrashLayout.setOnClickListener {
+            // TODO: 全局捕获异常到沙盒txt中，读取到剪贴板
+        }
     }
 
     private fun initServerPop() {
@@ -325,16 +337,15 @@ class SettingActivity : BaseActivity() {
     }
 
     private fun initCommonPop() {
-        val appThemeList = arrayListOf(
-            getString(R.string.setting_common_apptheme_select_1),
-            getString(R.string.setting_common_apptheme_select_2),
-            getString(R.string.setting_common_apptheme_select_3)
-        )
-        commonAppThemeCustomPop = SettingSelectPopup(this, getString(R.string.setting_common_apptheme_title), appThemeList)
+
+        commonAppThemeCustomPop = SettingSelectPopup(this, getString(R.string.setting_common_apptheme_title), appTheme2StrMap.keys.toList())
         commonAppThemeCustomPop.setOnSelectedListener { _, s ->
             binding.common.themeText.text = s
+            val themeId = appTheme2StrMap[s] ?: R.style.AppTheme
             AppConfig.theme = s
             DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_THEME, s)
+            setTheme(themeId)
+            onThemeChanged(themeId)
         }
         commonAppThemePop = XPopup.Builder(this)
             .asCustom(commonAppThemeCustomPop)
@@ -415,6 +426,71 @@ class SettingActivity : BaseActivity() {
         view.apply {
             this.isEnabled = b
             this.alpha = mAlpha
+        }
+    }
+
+    override fun onThemeChanged(theme: Int) {
+        super.onThemeChanged(theme)
+        DebugLog.e("测试： Theme改变$theme")
+
+        val bgColor1 = getThemeColor(R.attr.bgColor1)!!
+        val bgColor2 = getThemeColor(R.attr.bgColor2)!!
+
+        val textColor1 = getThemeColor(R.attr.textColor1)!!
+        val textColor2 = getThemeColor(R.attr.textColor2)!!
+        val textColor3 = getThemeColor(R.attr.textColor3)!!
+
+
+        val textColor1ViewList = arrayListOf(
+            binding.server.hostTitle, binding.server.keyTitle,
+            binding.cache.cacheTitle,
+            binding.common.refreshTitle, binding.common.themeTitle, binding.common.viewMethodTitle,
+            binding.common.previewCacheTitle,
+            binding.reader.rtlTitle, binding.reader.voiceTitle, binding.reader.mergeTitle,
+            binding.reader.reverseMergeTitle, binding.reader.mergeMethodTitle, binding.reader.scaleTitle,
+            binding.reader.keepLightTitle,
+            binding.search.localSearchTitle, binding.search.searchDelayTitle,
+            binding.random.randomCountTitle,
+            binding.source.licensesTitle, binding.source.gplv3Title, binding.source.githubTitle,
+            binding.debug.detailTitle, binding.debug.crashTitle, binding.debug.copyCrashTitle
+
+        )
+        val textColor2ViewList = arrayListOf(
+            binding.server.hostText, binding.server.keyText,
+            binding.cache.cacheText,
+            binding.common.themeText, binding.common.viewMethodText, binding.common.previewCacheText,
+            binding.reader.mergeText, binding.reader.reverseMergeText, binding.reader.mergerMethodText,
+            binding.reader.scaleText, binding.reader.keepLightText,
+            binding.search.localSearchText, binding.search.searchDelayText,
+            binding.random.randomCountText,
+            binding.source.licensesText, binding.source.gplv3Text, binding.source.githubText,
+            binding.debug.detailText, binding.debug.copyCrashText
+
+        )
+        val textColor3ViewList = arrayListOf(
+            binding.server.serverTheme, binding.cache.cacheTheme, binding.common.commonTheme,
+            binding.reader.readerTheme, binding.search.searchTheme, binding.random.randomTheme,
+            binding.source.sourceTheme, binding.debug.debugTheme
+        )
+
+        binding.root.setBackgroundColor(bgColor1)
+        // toolbar
+        setNavigation(R.drawable.ic_arrow_back_24) {
+            onBackPressedDispatcher.onBackPressed()
+        }
+        binding.toolbar.setTitleTextColor(textColor1)
+        binding.toolbar.setSubtitleTextColor(textColor2)
+        binding.toolbar.setBackgroundColor(bgColor2)
+
+
+        textColor1ViewList.forEach {
+            it.setTextColor(textColor1)
+        }
+        textColor2ViewList.forEach {
+            it.setTextColor(textColor2)
+        }
+        textColor3ViewList.forEach {
+            it.setTextColor(textColor3)
         }
     }
 

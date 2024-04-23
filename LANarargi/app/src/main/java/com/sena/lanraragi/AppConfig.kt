@@ -1,5 +1,6 @@
 package com.sena.lanraragi
 
+import androidx.annotation.StyleRes
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.utils.ScaleType
 

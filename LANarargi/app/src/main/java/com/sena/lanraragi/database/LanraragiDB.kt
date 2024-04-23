@@ -76,9 +76,6 @@ abstract class LanraragiDB : RoomDatabase() {
                 val oldData = getAll()
                 archives.forEach {
                     it.isBookmark = oldData.firstOrNull { o -> o.arcid == it.arcid }?.isBookmark ?: false
-                    if (it.isBookmark) {
-                        DebugLog.e("测试: DB数据被保留\n$it")
-                    }
                 }
                 clearTable()
                 insertAll(archives)

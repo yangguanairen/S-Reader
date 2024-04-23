@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.detail.DetailActivity">
+    tools:context=".ui.detail.DetailActivity"
+    android:background="?attr/bgColor1">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -19,9 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/textColor1"
-            app:title="fjsdlfjls "
             app:subtitleTextColor="?attr/textColor2"
-            android:background="?attr/bgColor1"
+            android:background="?attr/bgColor2"
             app:popupTheme="@style/Theme.LANraragi" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -31,14 +31,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="?attr/bgColor2"
         android:orientation="vertical">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/bgColor2"
+            android:background="?attr/bgColor1"
             app:tabIndicatorColor="?attr/textColor3"
             app:tabSelectedTextColor="?attr/textColor1"
             app:tabTextColor="?attr/textColor2" />

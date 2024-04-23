@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
+import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle
@@ -32,9 +33,14 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
     private var mToolbar: Toolbar? = null
     private val mMenuId = menuId
 
+    private var curTheme = AppConfig.theme
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
+        setTheme(when (AppConfig.theme) {
+            getString(R.string.setting_common_apptheme_select_2) -> R.style.AppTheme_HVerse
+            else -> R.style.AppTheme_Dark
+        })
         LanguageHelper.getAttachBaseContext(this)
         window.statusBarColor = Color.BLACK
     }
@@ -52,6 +58,23 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (AppConfig.theme != curTheme) {
+            curTheme = AppConfig.theme
+            val theme = when (curTheme) {
+                getString(R.string.setting_common_apptheme_select_2) -> R.style.AppTheme_HVerse
+                else -> R.style.AppTheme_Dark
+            }
+            setTheme(theme)
+            onThemeChanged(theme)
+        }
+    }
+
+    open fun onThemeChanged(@StyleRes theme: Int) {
+
+    }
+
     protected fun setAppBarText(title: String?, subtitle: String?) {
         // mToolbar的获取在onCreate()中执行
         lifecycleScope.launch {
@@ -67,11 +90,17 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
 
     }
 
+    protected fun setNavigation(@DrawableRes id: Int) {
+        supportActionBar?.apply {
+            setHomeAsUpIndicator(theme.getDrawable(id))
+        }
+    }
+
     protected fun setNavigation(@DrawableRes id: Int, func: () -> Unit) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 supportActionBar?.apply {
-                    setHomeAsUpIndicator(id)
+                    setHomeAsUpIndicator(theme.getDrawable(id))
                 }
                 mToolbar?.let { toolbar ->
                     toolbar.setNavigationOnClickListener { func.invoke() }

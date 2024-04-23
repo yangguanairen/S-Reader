@@ -5,7 +5,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.setting.SettingActivity">
+    tools:context=".ui.setting.SettingActivity"
+    android:background="?attr/bgColor1">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -20,15 +21,14 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="?attr/textColor1"
             app:subtitleTextColor="?attr/textColor2"
-            android:background="?attr/bgColor1"
+            android:background="?attr/bgColor2"
             app:popupTheme="@style/Theme.LANraragi" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/bgColor2">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"

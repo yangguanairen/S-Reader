@@ -27,6 +27,8 @@ import com.sena.lanraragi.databinding.ActivityReaderBinding
 import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.INTENT_KEY_LIST
+import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.Dispatchers
@@ -118,9 +120,29 @@ class ReaderActivity : BaseActivity() {
             setOnScaleTypeChangeListener {
                 vm.setFileNameList(vm.fileNameList.value ?: emptyList())
             }
-            setOnShowBookmarkClickListener {
-                displayToolbar()
-                binding.drawerLayout.openDrawer(binding.leftNav)
+            setOnItemClickListener { layoutId: Int ->
+                when (layoutId) {
+                    R.id.goToDetail -> {
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                    R.id.selectPage -> {
+                        val list = vm.fileNameList.value
+                        val pos = vm.curPos.value ?: 0
+                        if (list == null) return@setOnItemClickListener
+                        XPopup.Builder(this@ReaderActivity)
+                            .isDestroyOnDismiss(true)
+                            .asCustom(ReaderFullScreenPopup(this@ReaderActivity, pos, list).apply {
+                                setOnPageSelectedListener {
+                                    vm.setCurPosition(it)
+                                }
+                            })
+                            .show()
+                    }
+                    R.id.showBookmark -> {
+                        displayToolbar()
+                        binding.drawerLayout.openDrawer(binding.leftNav)
+                    }
+                }
             }
         }
         bottomPopup = XPopup.Builder(this)
@@ -258,12 +280,14 @@ class ReaderActivity : BaseActivity() {
                 vm.setFileNameList(emptyList)
             }
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                if (mFileNameList != null) {
-//                    vm.setFileNameList(mFileNameList!!)
-//                } else {
-//                    vm.initData(id)
-//                }
-                vm.initData(archive.arcid)
+                val pos = intent.getIntExtra(INTENT_KEY_POS, 0)
+                val list = intent.getStringArrayExtra(INTENT_KEY_LIST)
+                if (list != null) {
+                    vm.setFileNameList(list.toList())
+                    vm.setCurPosition(pos)
+                } else {
+                    vm.initData(archive.arcid)
+                }
             }
         }
     }

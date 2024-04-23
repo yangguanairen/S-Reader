@@ -4,6 +4,7 @@
     style="@style/setting_item_layout">
 
     <TextView
+        android:id="@+id/searchTheme"
         style="@style/setting_item_theme"
         android:text="@string/setting_search_theme" />
 
@@ -13,7 +14,7 @@
 
 
         <LinearLayout
-            android:id="@+id/localSearchText"
+            android:id="@+id/localSearchChildrenLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
@@ -21,11 +22,13 @@
             app:layout_constraintEnd_toStartOf="@id/localSearchButton"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/localSearchTitle"
                 style="@style/setting_item_switch_title"
                 android:layout_width="match_parent"
                 android:text="@string/setting_search_local_title" />
 
             <TextView
+                android:id="@+id/localSearchText"
                 style="@style/setting_item_text_subtitle"
                 android:layout_width="match_parent"
                 android:text="@string/setting_search_local_subtitle"/>
@@ -35,7 +38,7 @@
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/localSearchButton"
             style="@style/setting_item_switch"
-            app:layout_constraintStart_toEndOf="@id/localSearchText"
+            app:layout_constraintStart_toEndOf="@id/localSearchChildrenLayout"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
@@ -47,6 +50,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/searchDelayTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_search_delay_title" />
 

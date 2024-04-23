@@ -11,6 +11,68 @@
 <!--    CardTextColor -> #DDDDDD-->
 <!--    TagArtistColor -> #22a7f0-->
 
+
+    <style name="AppTheme.Base" parent="Theme.MaterialComponents.NoActionBar.Bridge">
+        <item name="android:windowContentTransitions">true</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <style name="AppTheme.Dark" parent="AppTheme.Base">
+        <item name="textColor1">#ffffff</item>
+        <item name="textColor2">#c8c8c8</item>
+        <item name="textColor3">#82c9c3</item>
+
+        <item name="bgColor1">#303030</item>
+        <item name="bgColor2">#212121</item>
+        <item name="bgColor3">#424242</item> <!-- CardView背景色 -->
+        <item name="bgColor4">#5b5b5d</item> <!-- 按钮背景色 -->
+        <item name="bgColor5">#4a4a4a</item> <!-- 分割线颜色 -->
+
+
+<!--        <item name="bgColor_activity">#303030</item>-->
+<!--        <item name="bgColor_toolbar">#212121</item>-->
+<!--        <item name="bg_color_cardview">#424242</item>-->
+<!--        <item name="bg_color_button">#5b5b5d</item>-->
+<!--        <item name="bg_color_nav">#303030</item>-->
+<!--        <item name="bg_color_divider">#4a4a4a</item>-->
+
+
+<!--        <item name="textColor_toolbar_title">#ffffff</item>-->
+<!--        <item name="textColor_toolbar_subtitle">#c8c8c8</item>-->
+<!--        <item name="text_color_cardview">#c8c8c8</item>-->
+
+
+<!--        <item name="icon_color_toolbar">#ffffff</item>-->
+<!--        <item name="icon_color_other">#c8c8c8</item>-->
+
+
+    </style>
+
+    <style name="AppTheme.HVerse" parent="AppTheme.Base">
+        <item name="textColor1">#000000</item>
+        <item name="textColor2">#5C0D11</item>
+        <item name="textColor3">#1b5e20</item>
+
+        <item name="bgColor1">#EDEBDF</item>
+        <item name="bgColor2">#E3E0D1</item>
+        <item name="bgColor3">#F2EFDF</item> <!-- CardView背景色 -->
+        <item name="bgColor4">#fff8e1</item> <!-- 按钮背景色 -->
+        <item name="bgColor5">#4a4a4a</item> <!-- 分割线颜色 -->
+    </style>
+
+
+
+
+
+
+
+
+
+
+
+
     <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
         <item name="bgColor1">#34353B</item> <!-- Toolbar背景颜色 -->
         <item name="bgColor2">#4F535B</item> <!-- 页面背景颜色 -->
@@ -28,6 +90,8 @@
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
+
+
 
 
 

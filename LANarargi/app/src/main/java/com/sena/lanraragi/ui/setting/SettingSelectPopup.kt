@@ -11,6 +11,7 @@ import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.OnSelectListener
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ItemSettingSelectPopupBinding
+import com.sena.lanraragi.utils.getThemeColor
 
 
 /**
@@ -28,6 +29,7 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
     private var mOnCancelClickListener: OnClickListener? = null
     private var mOnSelectedListener: OnSelectListener? = null
 
+    private lateinit var rootLayout: LinearLayout
     private lateinit var titleView: TextView
     private lateinit var listLayout: LinearLayout
     private lateinit var cancelButton: TextView
@@ -39,6 +41,7 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
     override fun onCreate() {
         super.onCreate()
 
+        rootLayout = findViewById(R.id.rootLayout)
         titleView = findViewById(R.id.tv_title)
         listLayout = findViewById(R.id.radioList)
         cancelButton = findViewById(R.id.tv_cancel)
@@ -59,6 +62,25 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
         cancelButton.setOnClickListener {
             dismiss()
             mOnCancelClickListener?.onClick(it)
+        }
+    }
+
+    // 应对多主题
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        context.getThemeColor(R.attr.textColor1)?.let {
+            titleView.setTextColor(it)
+            for (i in 0 until listLayout.childCount) {
+                val itemView = (listLayout.getChildAt(i) as LinearLayout).getChildAt(0) as RadioButton
+                itemView.setTextColor(it)
+            }
+        }
+        context.getThemeColor(R.attr.textColor3)?.let {
+            cancelButton.setTextColor(it)
+        }
+        context.theme.getDrawable(R.drawable.bg_popup)?.let {
+            rootLayout.background = it
         }
     }
 

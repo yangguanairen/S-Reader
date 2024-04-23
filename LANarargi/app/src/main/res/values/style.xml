@@ -89,7 +89,6 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-<!--        <item name="android:layout_marginTop">16dp</item>-->
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">12dp</item>
         <item name="android:paddingTop">12dp</item>
@@ -142,7 +141,7 @@
     <style name="setting_item_line">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:background">@drawable/shape_bookmark_item_divid</item>
+        <item name="android:background">@drawable/bg_divider</item>
     </style>
 
 

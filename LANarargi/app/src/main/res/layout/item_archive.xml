@@ -19,6 +19,7 @@
             android:adjustViewBounds="true"
             android:maxWidth="150dp"
             android:scaleType="fitStart"
+            android:contentDescription="@string/content_cover"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/title"

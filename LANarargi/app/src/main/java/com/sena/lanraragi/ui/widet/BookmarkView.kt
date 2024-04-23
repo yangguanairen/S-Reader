@@ -98,7 +98,7 @@ class BookmarkView @JvmOverloads constructor(
             val itemTouchHelper = ItemTouchHelper(simpleTouchCallback)
             itemTouchHelper.attachToRecyclerView(this)
             val divider = DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL)
-            ContextCompat.getDrawable(mContext, R.drawable.shape_bookmark_item_divid)?.let {
+            ContextCompat.getDrawable(mContext, R.drawable.bg_divider)?.let {
                 divider.setDrawable(it)
             }
             addItemDecoration(divider)

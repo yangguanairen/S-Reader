@@ -1,5 +1,6 @@
 package com.sena.lanraragi.ui.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -14,6 +15,10 @@ import com.sena.lanraragi.BaseFragment
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.FragmentPreviewBinding
+import com.sena.lanraragi.ui.reader.ReaderActivity
+import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.INTENT_KEY_LIST
+import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +51,19 @@ class PreviewFragment : BaseFragment() {
     }
 
     private fun initView() {
+        adapter.setOnItemClickListener { a, _, p ->
+            a.getItem(p)?.let {
+                val list = a.items.toTypedArray()
+                val pos = p
+                val archive = mArchive
+                val intent = Intent(requireContext(), ReaderActivity::class.java)
+                intent.putExtra(INTENT_KEY_ARCHIVE, archive)
+                intent.putExtra(INTENT_KEY_LIST, list)
+                intent.putExtra(INTENT_KEY_POS, pos)
+                requireContext().startActivity(intent)
+            }
+
+        }
         binding.recyclerView.layoutManager = GridLayoutManager(context, 2)
         binding.recyclerView.adapter = adapter
     }

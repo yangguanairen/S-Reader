@@ -38,11 +38,6 @@ class PreviewAdapter : BaseQuickAdapter<String, PreviewAdapter.VH>() {
         @SuppressLint("SetTextI18n")
         fun bind(context: Context, url: String, pos: Int) {
             binding.page.text  = (pos + 1).toString()
-            val id = Regex("api/archives/[a-z0-9]+/page").find(url)?.value?.split(Regex("/"))?.getOrNull(2)
-            val path = Regex("path=.*").find(url)?.value?.replace("path=", "")
-            if (id.isNullOrBlank() || path.isNullOrBlank()) {
-                return
-            }
             ImageLoad.Builder(context)
                 .loadPic(url)
                 .into(binding.image)

@@ -3,6 +3,7 @@
     style="@style/setting_item_layout">
 
     <TextView
+        android:id="@+id/readerTheme"
         style="@style/setting_item_theme"
         android:text="@string/setting_read_theme" />
 
@@ -11,6 +12,7 @@
         style="@style/setting_item_switch_layout">
 
         <TextView
+            android:id="@+id/rtlTitle"
             style="@style/setting_item_switch_title"
             android:text="@string/setting_read_rtl_title" />
 
@@ -25,6 +27,7 @@
         style="@style/setting_item_switch_layout">
 
         <TextView
+            android:id="@+id/voiceTitle"
             style="@style/setting_item_switch_title"
             android:text="@string/setting_read_voice_title" />
 
@@ -43,10 +46,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/mergeTitle"
                 style="@style/setting_item_switch_title"
                 android:text="@string/setting_read_merge_title" />
 
             <TextView
+                android:id="@+id/mergeText"
                 style="@style/setting_item_text_subtitle"
                 android:text="@string/setting_read_merge_subtitle"/>
 
@@ -69,10 +74,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/reverseMergeTitle"
                 style="@style/setting_item_switch_title"
                 android:text="@string/setting_read_reverse_merge_title" />
 
             <TextView
+                android:id="@+id/reverseMergeText"
                 style="@style/setting_item_text_subtitle"
                 android:text="@string/setting_read_reverse_merge_subtitle"/>
 
@@ -89,6 +96,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/mergeMethodTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_read_merge_method_title" />
 
@@ -103,6 +111,7 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/scaleTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_read_scale_method_title" />
 
@@ -121,10 +130,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/keepLightTitle"
                 style="@style/setting_item_switch_title"
                 android:text="@string/setting_read_keep_screen_light_title" />
 
             <TextView
+                android:id="@+id/keepLightText"
                 style="@style/setting_item_text_subtitle"
                 android:text="@string/setting_read_keep_screen_light_subtitle"/>
 

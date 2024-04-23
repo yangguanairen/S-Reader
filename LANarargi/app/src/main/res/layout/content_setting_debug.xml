@@ -3,6 +3,7 @@
     style="@style/setting_item_layout">
 
     <TextView
+        android:id="@+id/debugTheme"
         style="@style/setting_item_theme"
         android:text="@string/setting_debug_theme" />
 
@@ -15,10 +16,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
+                android:id="@+id/detailTitle"
                 style="@style/setting_item_switch_title"
                 android:text="@string/setting_debug_detail_title" />
 
             <TextView
+                android:id="@+id/detailText"
                 style="@style/setting_item_text_subtitle"
                 android:text="@string/setting_debug_detail_subtitle"/>
 
@@ -37,6 +40,7 @@
         style="@style/setting_item_switch_layout">
 
         <TextView
+            android:id="@+id/crashTitle"
             style="@style/setting_item_switch_title"
             android:text="@string/setting_debug_crash_title" />
 
@@ -45,5 +49,21 @@
             style="@style/setting_item_switch" />
 
     </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/copyCrashLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            android:id="@+id/copyCrashTitle"
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_debug_copy_crash_title" />
+
+        <TextView
+            android:id="@+id/copyCrashText"
+            android:text="@string/setting_debug_copy_crash_subtitle"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
 
 </LinearLayout>

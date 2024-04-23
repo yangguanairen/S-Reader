@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
@@ -19,8 +20,10 @@ import com.sena.lanraragi.ui.setting.SettingActivity
 import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
+import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
+import com.sena.lanraragi.utils.getThemeColor
 import kotlinx.coroutines.launch
 
 class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
@@ -210,6 +213,11 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         vm.dataList.observe(this) {
             mAdapter.submitList(it) {
 //                mRecyclerView?.layoutManager?.scrollToPosition(0)
+                val historyPos = intent.getIntExtra(INTENT_KEY_POS, -1)
+                if (historyPos > -1) {
+                    intent.putExtra(INTENT_KEY_POS, -1)
+                    mRecyclerView?.layoutManager?.scrollToPosition(historyPos)
+                }
             }
         }
         vm.queryText.observe(this) {
@@ -256,5 +264,16 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
         return super.onOptionsItemSelected(item)
 
+    }
+
+    override fun onThemeChanged(theme: Int) {
+        super.onThemeChanged(theme)
+        // 重启当前活动
+        val curPos = (mRecyclerView?.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        intent.putExtra(INTENT_KEY_POS, curPos)
+        finish()
+        overridePendingTransition(0, 0) // 可选，去除动画效果
+        startActivity(intent)
+        overridePendingTransition(0, 0) // 可选，去除动画效果
     }
 }

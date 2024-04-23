@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.detail.IntroduceFragment"
-    android:background="?attr/bgColor2">
+    tools:context=".ui.detail.IntroduceFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -56,7 +55,7 @@
                     android:padding="8dp"
                     android:text="@string/detail_introduce_start_read"
                     android:gravity="center"
-                    android:background="@drawable/bg_main_random_button"
+                    android:background="@drawable/bg_button"
                     android:textColor="?attr/textColor1"
                     android:layout_marginBottom="16dp"
                     app:layout_constraintBottom_toTopOf="@id/bookmark"/>
@@ -68,7 +67,7 @@
                     android:padding="8dp"
                     android:text="@string/detail_introduce_add_bookmark"
                     android:gravity="center"
-                    android:background="@drawable/bg_main_random_button"
+                    android:background="@drawable/bg_button"
                     android:textColor="?attr/textColor1"
                     app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -81,7 +80,7 @@
             android:id="@+id/line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@drawable/shape_bookmark_item_divid"
+            android:background="@drawable/bg_divider"
             app:layout_constraintTop_toBottomOf="@+id/detailLayout"/>
 
         <LinearLayout

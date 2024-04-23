@@ -3,6 +3,7 @@
     style="@style/setting_item_layout">
 
     <TextView
+        android:id="@+id/sourceTheme"
         style="@style/setting_item_theme"
         android:text="@string/setting_source_theme" />
 
@@ -11,10 +12,12 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/licensesTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_source_licenses_title" />
 
         <TextView
+            android:id="@+id/licensesText"
             android:text="@string/setting_source_licenses_subtitle"
             style="@style/setting_item_text_subtitle" />
     </LinearLayout>
@@ -24,10 +27,12 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/gplv3Title"
             style="@style/setting_item_text_title"
             android:text="@string/setting_source_gplv3_title" />
 
         <TextView
+            android:id="@+id/gplv3Text"
             android:text="@string/setting_source_gplv3_subtitle"
             style="@style/setting_item_text_subtitle" />
     </LinearLayout>
@@ -38,10 +43,12 @@
         style="@style/setting_item_text_layout">
 
         <TextView
+            android:id="@+id/githubTitle"
             style="@style/setting_item_text_title"
             android:text="@string/setting_source_github_title" />
 
         <TextView
+            android:id="@+id/githubText"
             android:text="@string/setting_source_github_subtitle"
             style="@style/setting_item_text_subtitle" />
     </LinearLayout>
