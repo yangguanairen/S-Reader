@@ -17,16 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/errorView"
-        android:visibility="invisible"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="48dp"
-        android:text="@string/read_file_is_not_support"
-        android:textSize="28sp"
-        android:textColor="?attr/textColor2"
-        android:gravity="center" />
+
 
     <LinearLayout
         android:id="@+id/progressLayout"

@@ -118,7 +118,8 @@ class ReaderActivity : BaseActivity() {
         // 初始popup
         val customPopup = ReaderBottomPopup(this).apply {
             setOnScaleTypeChangeListener {
-                vm.setFileNameList(vm.fileNameList.value ?: emptyList())
+//                vm.setFileNameList(vm.fileNameList.value ?: emptyList())
+                viewPagerAdapter.onScaleTest(it)
             }
             setOnItemClickListener { layoutId: Int ->
                 when (layoutId) {

@@ -85,22 +85,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-<!--    <com.sena.lanraragi.ui.reader.WebtoonFrameLayout-->
-<!--        android:id="@+id/webttonFrameLayout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent">-->
-
-<!--        <com.sena.lanraragi.ui.reader.WebtoonRecyclerView-->
-<!--            android:id="@+id/recyclerView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent" />-->
-
-<!--    </com.sena.lanraragi.ui.reader.WebtoonFrameLayout>-->
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <com.sena.lanraragi.ui.reader.WebtoonFrameLayout
+        android:id="@+id/webttonFrameLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <com.sena.lanraragi.ui.reader.WebtoonRecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.sena.lanraragi.ui.reader.WebtoonFrameLayout>
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/recyclerView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

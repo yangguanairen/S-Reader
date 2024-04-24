@@ -13,11 +13,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
  * Date: 2024/4/21
  */
 
-class WebtoonScaleImageView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet, defStyle: Int = 0
-) : SubsamplingScaleImageView(context, attrs) {
-
-
+class WebtoonScaleImageView(context: Context) : SubsamplingScaleImageView(context) {
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return false
