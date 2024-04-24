@@ -1,4 +1,4 @@
-package com.sena.lanraragi.ui.reader
+package com.sena.lanraragi.ui.reader.webtoon
 
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator

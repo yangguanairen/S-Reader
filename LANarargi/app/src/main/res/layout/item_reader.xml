@@ -1,22 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sena.lanraragi.ui.reader.TouchToggleLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/photoView"
-        android:visibility="invisible"
-        android:scaleType="fitCenter"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-        android:id="@+id/scaleView"
-        android:visibility="invisible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <TextView
         android:id="@+id/errorView"
@@ -29,26 +16,13 @@
         android:textColor="?attr/textColor2"
         android:gravity="center" />
 
-    <LinearLayout
-        android:id="@+id/progressLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:clickable="true"
-        android:longClickable="true"
-        android:focusable="true">
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="48dp"
+        android:elevation="20dp"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_margin="48dp"
-            android:elevation="20dp"
-            android:indeterminate="true" />
-
-    </LinearLayout>
-
-
-
-
-</RelativeLayout>
+</com.sena.lanraragi.ui.reader.TouchToggleLayout>

@@ -239,6 +239,7 @@ class ImageLoad private constructor(context: Context) {
         val view = subScaleImageView ?: return
         view.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onReady() {
+
             }
 
             override fun onImageLoaded() {

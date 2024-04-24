@@ -1,4 +1,4 @@
-package com.sena.lanraragi.ui.reader
+package com.sena.lanraragi.ui.reader.webtoon
 
 import android.content.Context
 import android.util.AttributeSet

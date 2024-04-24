@@ -1,6 +1,7 @@
 package com.sena.lanraragi.ui.reader
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -80,14 +81,16 @@ class ReaderActivity : BaseActivity() {
                 if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.INVISIBLE
-                    webtoonAdapter.submitList(list.map { s -> Pair(s, ScaleType.WEBTOON) }) {
+                    webtoonAdapter.submitList(list) {
                         vm.updateList()
+                        webtoonAdapter.onScaleChange(AppConfig.scaleMethod)
                     }
                 } else {
                     recyclerView.visibility = View.INVISIBLE
                     viewPager.visibility = View.VISIBLE
-                    viewPagerAdapter.submitList(list.map { s -> Pair(s, AppConfig.scaleMethod) }) {
+                    viewPagerAdapter.submitList(list) {
                         vm.updateList()
+                        viewPagerAdapter.onScaleChange(AppConfig.scaleMethod)
                     }
                 }
             }
@@ -207,10 +210,10 @@ class ReaderActivity : BaseActivity() {
             }
         }
         viewPagerAdapter = ReaderAdapter()
-        viewPagerAdapter.setOnImageClickListener { _, _, _ ->
+        viewPagerAdapter.setOnImageClickListener {
             displayToolbar()
         }
-        viewPagerAdapter.setOnImageLongClickListener { _, _, _ ->
+        viewPagerAdapter.setOnImageLongClickListener {
             bottomPopup.show()
             true
         }
@@ -223,12 +226,12 @@ class ReaderActivity : BaseActivity() {
 
     private fun initWebtoon() {
         webtoonAdapter = ReaderAdapter()
-        webtoonAdapter.setOnItemClickListener{ _, _, _ ->
-            displayToolbar()
-        }
-        webtoonAdapter.setOnItemLongClickListener { _, _, _ ->
+        webtoonAdapter.setOnImageLongClickListener{
             bottomPopup.show()
             true
+        }
+        webtoonAdapter.setOnImageClickListener {
+            displayToolbar()
         }
         val onScrollListener = object : RecyclerView.OnScrollListener() {
             private var isHuman = false
@@ -260,6 +263,13 @@ class ReaderActivity : BaseActivity() {
             layoutManager = LinearLayoutManager(this@ReaderActivity)
             addOnScrollListener(onScrollListener)
             adapter = webtoonAdapter
+            isFocusable= false
+            tapListener = {
+                displayToolbar()
+            }
+            longPressListener = {
+                bottomPopup.show()
+            }
         }
     }
 
@@ -322,6 +332,13 @@ class ReaderActivity : BaseActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (AppConfig.scaleMethod != ScaleType.WEBTOON) {
+            viewPagerAdapter.onConfigChange()
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {

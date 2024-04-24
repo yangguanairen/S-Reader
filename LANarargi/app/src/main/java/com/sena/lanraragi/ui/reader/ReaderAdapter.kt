@@ -1,23 +1,28 @@
 package com.sena.lanraragi.ui.reader
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.view.GestureDetector.OnDoubleTapListener
+import android.graphics.PointF
+import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.GONE
+import android.view.View.OnClickListener
+import android.view.View.OnLongClickListener
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter4.BaseDifferAdapter
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.chrisbanes.photoview.PhotoView
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.R
+import com.sena.lanraragi.ui.reader.webtoon.WebtoonScaleImageView
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.ImageLoad
 import com.sena.lanraragi.utils.ScaleType
@@ -29,10 +34,10 @@ import com.sena.lanraragi.utils.ScaleType
  * Date: 2024/3/28
  */
 
-class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.VH>(DiffCallback()) {
+class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()) {
 
-    private  var mOnClickListener: OnClickListener? = null
-    private var mOnLongClickListener: OnLongClickListener? = null
+    private var mOnTapListener: OnClickListener? = null
+    private var mOnLongPressListener: OnLongClickListener? = null
 
     private val scaleImageSupportList= arrayListOf(
         ".png", ".jpeg", ".jpg", ".webp"
@@ -41,209 +46,258 @@ class ReaderAdapter : BaseDifferAdapter<Pair<String, ScaleType>, ReaderAdapter.V
         ".gif"
     )
 
-    override fun onBindViewHolder(holder: VH, position: Int, item: Pair<String, ScaleType>?) {
+    private val cacheHolderList: ArrayList<VH> = arrayListOf()
+
+    fun onScaleChange(scaleType: ScaleType) {
+        cacheHolderList.forEach { it.onScaleTypeChange(scaleType) }
+    }
+
+    fun onConfigChange() {
+        cacheHolderList.forEach { it.onScaleTypeChange(AppConfig.scaleMethod) }
+    }
+
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        val h = holder as VH
+        cacheHolderList.add(h)
+        h.onScaleTypeChange(AppConfig.scaleMethod)
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        super.onViewRecycled(holder)
+        (holder as VH).onRecycle()
+    }
+
+    override fun onViewDetachedFromWindow(holder: RecyclerView.ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        cacheHolderList.remove(holder as VH)
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int, item: String?) {
         if (item == null) return
-        val url = item.first
-        val scaleType = item.second
-        
+
         when {
-            scaleImageSupportList.any { url.lowercase().endsWith(it) } -> {
-                holder.bindScaleView(url, scaleType, position)
+            scaleImageSupportList.any { item.lowercase().endsWith(it) } -> {
+                holder.bindScaleView(item)
             }
-            photoImageSupportList.any { url.lowercase().endsWith(it) } -> {
-                holder.bindPhotoView(url, scaleType, position)
+            photoImageSupportList.any { item.lowercase().endsWith(it) } -> {
+                holder.bindPhotoView(item)
             }
-            url.isBlank() -> {
+            item.isBlank() -> {
                 holder.bindEmptyView()
             }
             else -> {
-                holder.bindErrorView(url, scaleType, position)
+                holder.bindErrorView(item)
             }
         }
     }
 
     override fun onCreateViewHolder(context: Context, parent: ViewGroup, viewType: Int): VH {
-        val firstItemScaleType = items.getOrNull(0)?.second
-        return if (firstItemScaleType == ScaleType.WEBTOON) {
-            VH(LayoutInflater.from(context).inflate(R.layout.item_reader_webtoon, parent, false))
-        } else {
-            VH(LayoutInflater.from(context).inflate(R.layout.item_reader, parent, false))
-        }
+        return VH(LayoutInflater.from(context).inflate(R.layout.item_reader, parent, false))
     }
 
-    override fun getItemViewType(position: Int, list: List<Pair<String, ScaleType>>): Int {
+    override fun getItemViewType(position: Int, list: List<String>): Int {
         return position
     }
 
 
-    inner class VH(rootView: View) : RecyclerView.ViewHolder(rootView) {
+    inner class VH(private val rootView: View) : RecyclerView.ViewHolder(rootView) {
 
-        private val photoView: PhotoView = rootView.findViewById(R.id.photoView)
-        private val scaleView: SubsamplingScaleImageView = rootView.findViewById(R.id.scaleView)
+        private var mainView: View? = null
+        private val firstScaleType by lazy { AppConfig.scaleMethod }
+        private val rootLayout: TouchToggleLayout = rootView.findViewById<TouchToggleLayout?>(R.id.rootLayout).apply {
+            if (firstScaleType == ScaleType.WEBTOON) {
+                enableTouch = false
+                layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
+            }
+        }
         private val errorView: TextView = rootView.findViewById(R.id.errorView)
         private val progressBar: ProgressBar = rootView.findViewById(R.id.progressBar)
-        private val progressLayout: LinearLayout = rootView.findViewById<LinearLayout?>(R.id.progressLayout).apply {
-            setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, -1) }
-            setOnLongClickListener {
-                mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, -1)
-                true
+
+
+
+        var mUrl: String? = null
+
+        init {
+            rootView.apply {
+                setOnClickListener { mOnTapListener?.onClick(this) }
+                setOnLongClickListener { mOnLongPressListener?.onLongClick(this) == true }
             }
         }
-        
-        fun bindPhotoView(url: String, type: ScaleType, pos: Int) {
-            DebugLog.i("ReaderAdapter.VH.bindPhotoView():\n 加载资源:$url\n scaleType:${type.name}")
-            val realScaleType = when (type) {
-                ScaleType.FIT_WIDTH -> ImageView.ScaleType.FIT_CENTER
-                ScaleType.FIT_HEIGHT -> ImageView.ScaleType.FIT_START
-                ScaleType.FIT_PAGE -> ImageView.ScaleType.CENTER
-                ScaleType.WEBTOON -> ImageView.ScaleType.FIT_CENTER
-            }
-            photoView.apply {
-                scaleType = realScaleType
-                setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
-                setOnLongClickListener {
-                    mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
-                    true
-                }
-                if (type == ScaleType.WEBTOON) {
-                    setOnDoubleTapListener(object : OnDoubleTapListener {
-                        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                            mOnClickListener?.onClick(this@ReaderAdapter, this@apply, pos)
-                            return true
-                        }
 
-                        override fun onDoubleTap(e: MotionEvent): Boolean {
-                            mOnClickListener?.onClick(this@ReaderAdapter, this@apply, pos)
-                            return true
+        fun bindPhotoView(url: String) {
+            DebugLog.i("ReaderAdapter.VH.bindPhotoView():\n 加载资源:$url\n${firstScaleType.name}")
+            mUrl = url
+            mainView = PhotoView(context).also {
+                initView(it)
+                ImageLoad.Builder(context)
+                    .loadPic(url)
+                    .doOnSuccess {
+                        progressBar.visibility = GONE
+                        rootView.run {
+                            setOnClickListener(null)
+                            setOnLongClickListener(null)
                         }
+                        updateScale(it, AppConfig.scaleMethod)
+                    }
+                    .doOnError {
+                        bindErrorView(url)
+                        it.visibility = GONE
+                    }
+                    .into(it)
+                    .execute()
 
-                        override fun onDoubleTapEvent(e: MotionEvent): Boolean {
-                            return true
-                        }
-
-                    })
-                    setOnScaleChangeListener(null)
-                }
-            }
-            ImageLoad.Builder(context)
-                .loadPic(url)
-                .doOnStart {
-                    photoView.visibility = View.VISIBLE
-                }
-                .doOnSuccess {
-                    progressLayout.visibility = View.INVISIBLE
-                    errorView.visibility = View.INVISIBLE
-                    photoView.visibility = View.VISIBLE
-                    scaleView.visibility = View.INVISIBLE
-                }
-                .doOnError {
-                    bindErrorView(url, type, pos)
-                }
-                .into(photoView)
-                .execute()
+            }.also { setImageTapEvent(it) }
         }
 
-        fun bindScaleView(url: String, scaleType: ScaleType, pos: Int) {
-            DebugLog.i("ReaderAdapter.VH.bindScaleView(): 加载资源:$url, scaleType:${scaleType.name}")
-            val realScaleType = when (scaleType) {
-                ScaleType.FIT_WIDTH -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
-                ScaleType.FIT_HEIGHT -> SubsamplingScaleImageView.SCALE_TYPE_START
-                ScaleType.FIT_PAGE -> SubsamplingScaleImageView.SCALE_TYPE_CUSTOM
-                ScaleType.WEBTOON -> SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
-            }
-            scaleView.apply {
-                setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
-                setOnLongClickListener {
-                    mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
-                    true
-                }
-                setMinimumScaleType(realScaleType)
-            }
+        fun bindScaleView(url: String) {
+            DebugLog.i("ReaderAdapter.VH.bindScaleView(): 加载资源:$url${firstScaleType.name}")
+            mUrl = url
+            mainView = (if (firstScaleType == ScaleType.WEBTOON) {
+                WebtoonScaleImageView(context)
+            } else {
+                SubsamplingScaleImageView(context)
+            }).also {
+                initView(it)
+//                it.setMaxTileSize(getMaxTextureSize())
+//                it.setMinimumTileDpi(160)
 
-            ImageLoad.Builder(context)
-                .loadPic(url)
-                .doOnStart {
-                    scaleView.visibility = View.VISIBLE
-                }
-                .doOnSuccess {
-                    val fadeIn = AlphaAnimation(1f, 0f).apply { duration = 200L }
-                    fadeIn.setAnimationListener(object : Animation.AnimationListener {
-                        override fun onAnimationStart(animation: Animation?) {}
-                        override fun onAnimationEnd(animation: Animation?) {
-                            progressLayout.visibility = View.INVISIBLE
-                            errorView.visibility = View.INVISIBLE
-                            photoView.visibility = View.INVISIBLE
-                            scaleView.visibility = View.VISIBLE
+                ImageLoad.Builder(context)
+                    .loadPic(url)
+                    .doOnSuccess {
+                        progressBar.visibility = GONE
+                        rootView.run {
+                            setOnClickListener(null)
+                            setOnLongClickListener(null)
                         }
-                        override fun onAnimationRepeat(animation: Animation?) {}
-                    })
-                    progressBar.startAnimation(fadeIn)
-
-                }
-                .doOnError {
-                    bindErrorView(url, scaleType, pos)
-                }
-                .into(scaleView)
-                .execute()
+                        updateScale(it, AppConfig.scaleMethod)
+                    }
+                    .doOnError {
+                        bindErrorView(url)
+                        it.visibility = GONE
+                    }
+                    .into(it)
+                    .execute()
+            }.also { setImageTapEvent(it) }
         }
 
-        fun bindErrorView(url: String, scaleType: ScaleType, pos: Int) {
-            DebugLog.e("ReaderAdapter.VH.bindScaleView(): 不支持的资源:$url, scaleType:${scaleType.name}")
+        fun bindErrorView(url: String) {
+            DebugLog.e("ReaderAdapter.VH.bindErrorView(): 不支持的资源:$url")
+            mUrl = url
+            progressBar.visibility = View.VISIBLE
             errorView.apply {
-                setOnClickListener { mOnClickListener?.onClick(this@ReaderAdapter, it, pos) }
-                setOnLongClickListener {
-                    mOnLongClickListener?.onLongClick(this@ReaderAdapter, it, pos)
-                    true
-                }
+                setOnClickListener { mOnTapListener?.onClick(this) }
+                setOnLongClickListener { mOnLongPressListener?.onLongClick(this) == true }
+                errorView.visibility = View.VISIBLE
             }
-
-            progressLayout.visibility = View.INVISIBLE
-            errorView.visibility = View.VISIBLE
-            photoView.visibility = View.INVISIBLE
-            scaleView.visibility = View.INVISIBLE
         }
 
         fun bindEmptyView() {
-            progressLayout.visibility = View.VISIBLE
-            errorView.visibility = View.INVISIBLE
-            photoView.visibility = View.INVISIBLE
-            scaleView.visibility = View.INVISIBLE
-        }
-    }
-
-    class DiffCallback : DiffUtil.ItemCallback<Pair<String, ScaleType>>() {
-        override fun areItemsTheSame(oldItem: Pair<String, ScaleType>, newItem: Pair<String, ScaleType>): Boolean {
-            return oldItem.first == newItem.first
+//            progressLayout.visibility = View.VISIBLE
+//            errorView.visibility = View.INVISIBLE
+//            photoView.visibility = View.INVISIBLE
+//            scaleView.visibility = View.INVISIBLE
         }
 
-        override fun areContentsTheSame(oldItem: Pair<String, ScaleType>, newItem: Pair<String, ScaleType>): Boolean {
-            return oldItem.second == newItem.second
+        @SuppressLint("ClickableViewAccessibility")
+        private fun setImageTapEvent(view: View) {
+            if (firstScaleType != ScaleType.WEBTOON) {
+                if (view is SubsamplingScaleImageView) {
+                    val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+                        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                            mOnTapListener?.onClick(view)
+                            return true
+                        }
+                    })
+                    view.setOnTouchListener { _, e -> gestureDetector.onTouchEvent(e) }
+                } else if (view is PhotoView) {
+                    view.setOnViewTapListener { _, _, _ -> mOnTapListener?.onClick(view) }
+                }
+            }
+            view.setOnLongClickListener { mOnLongPressListener?.onLongClick(view) == true }
         }
 
-    }
-    fun setOnImageClickListener(func: (a: ReaderAdapter, v: View, p: Int) -> Unit)  {
-        mOnClickListener = object : OnClickListener {
-            override fun onClick(a: ReaderAdapter, v: View, p: Int) {
-                func.invoke(a, v, p)
+        private fun initView(view: View) {
+            view.layoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                if (firstScaleType == ScaleType.WEBTOON) {
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+                } else {
+                    RelativeLayout.LayoutParams.MATCH_PARENT
+                }
+            )
+            rootLayout.addView(view)
+            progressBar.bringToFront()
+        }
+
+        private fun updateScale(view: View?, scaleType: ScaleType) {
+            when (view) {
+                is SubsamplingScaleImageView -> {
+                    when (scaleType) {
+                        ScaleType.FIT_PAGE -> {
+                            val hPadding = view.paddingLeft - view.paddingRight
+                            val viewWidth = view.width
+                            val minScale = (viewWidth - hPadding) / view.sWidth.toFloat()
+                            view.minScale = minScale
+                            view.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+                            view.resetScaleAndCenter()
+                        }
+                        ScaleType.FIT_HEIGHT -> {
+                            val vPadding = view.paddingBottom - view.paddingTop
+                            val viewHeight = view.height
+                            val minScale = (viewHeight - vPadding) / view.sHeight.toFloat()
+                            view.minScale = minScale
+                            view.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+                            view.setScaleAndCenter(minScale, PointF(0f, 0f))
+                        }
+                        ScaleType.WEBTOON, ScaleType.FIT_WIDTH -> {
+                            val hPadding = view.paddingLeft - view.paddingRight
+                            val viewWidth = view.width
+                            val minScale = (viewWidth - hPadding) / view.sWidth.toFloat()
+                            view.minScale = minScale
+                            view.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+                            view.setScaleAndCenter(minScale, PointF(0f, 0f))
+                        }
+                    }
+                }
+                is PhotoView -> {
+                    view.scaleType = when (scaleType) {
+                        ScaleType.FIT_WIDTH -> ImageView.ScaleType.FIT_CENTER
+                        ScaleType.FIT_HEIGHT -> ImageView.ScaleType.FIT_START
+                        ScaleType.FIT_PAGE -> ImageView.ScaleType.CENTER
+                        ScaleType.WEBTOON -> ImageView.ScaleType.FIT_CENTER
+                    }
+                }
             }
         }
-    }
 
-    fun setOnImageLongClickListener(func: (a: ReaderAdapter, v: View, p: Int) -> Boolean)  {
-        mOnLongClickListener = object : OnLongClickListener {
-            override fun onLongClick(a: ReaderAdapter, v: View, p: Int): Boolean {
-                return func.invoke(a, v, p)
-            }
+        fun onScaleTypeChange(scaleType: ScaleType) {
+            updateScale(mainView, scaleType)
+        }
+
+        fun onRecycle() {
+            (mainView as? SubsamplingScaleImageView?)?.recycle()
+            rootLayout.removeView(mainView)
+            mainView = null
         }
     }
 
-    private interface OnClickListener {
-        fun onClick(a: ReaderAdapter, v: View, p: Int)
+    class DiffCallback : DiffUtil.ItemCallback<String>() {
+        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+            return oldItem == newItem
+        }
+
+    }
+    fun setOnImageClickListener(func: () -> Unit)  {
+        mOnTapListener = OnClickListener { func.invoke() }
     }
 
-    private interface OnLongClickListener {
-        fun onLongClick(a: ReaderAdapter, v: View, p: Int): Boolean
+    fun setOnImageLongClickListener(func: () -> Boolean)  {
+        mOnLongPressListener = OnLongClickListener { func.invoke() }
     }
-
 }
 
