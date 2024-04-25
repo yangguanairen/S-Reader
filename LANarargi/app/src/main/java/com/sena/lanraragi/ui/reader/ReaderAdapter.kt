@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.GONE
-import android.view.View.OnClickListener
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -26,6 +25,7 @@ import com.sena.lanraragi.ui.reader.webtoon.WebtoonScaleImageView
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.ImageLoad
 import com.sena.lanraragi.utils.ScaleType
+import com.sena.lanraragi.utils.TouchZone
 
 
 /**
@@ -36,7 +36,7 @@ import com.sena.lanraragi.utils.ScaleType
 
 class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()) {
 
-    private var mOnTapListener: OnClickListener? = null
+    private var mOnTapListener: OnTapListener? = null
     private var mOnLongPressListener: OnLongClickListener? = null
 
     private val scaleImageSupportList= arrayListOf(
@@ -112,7 +112,10 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
             }
         }
         private val errorView: TextView = rootView.findViewById(R.id.errorView)
-        private val progressBar: ProgressBar = rootView.findViewById(R.id.progressBar)
+        private val progressBar: ProgressBar = rootView.findViewById<ProgressBar?>(R.id.progressBar).apply {
+            isIndeterminate = true
+            max = 100
+        }
 
 
 
@@ -120,7 +123,7 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
 
         init {
             rootView.apply {
-                setOnClickListener { mOnTapListener?.onClick(this) }
+                setOnClickListener { mOnTapListener?.onTap(TouchZone.Center) }
                 setOnLongClickListener { mOnLongPressListener?.onLongClick(this) == true }
             }
         }
@@ -132,6 +135,10 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
                 initView(it)
                 ImageLoad.Builder(context)
                     .loadPic(url)
+                    .doOnProgressChange { curSize, _ ->
+                        progressBar.isIndeterminate = false
+                        progressBar.progress = curSize
+                    }
                     .doOnSuccess {
                         progressBar.visibility = GONE
                         rootView.run {
@@ -164,6 +171,10 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
 
                 ImageLoad.Builder(context)
                     .loadPic(url)
+                    .doOnProgressChange { curSize, _ ->
+                        progressBar.isIndeterminate = false
+                        progressBar.progress = curSize
+                    }
                     .doOnSuccess {
                         progressBar.visibility = GONE
                         rootView.run {
@@ -181,12 +192,22 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
             }.also { setImageTapEvent(it) }
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         fun bindErrorView(url: String) {
             DebugLog.e("ReaderAdapter.VH.bindErrorView(): 不支持的资源:$url")
             mUrl = url
             progressBar.visibility = View.VISIBLE
             errorView.apply {
-                setOnClickListener { mOnTapListener?.onClick(this) }
+                val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+                    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                        mOnTapListener?.onTap(getTouchZone(e.x, rootView))
+                        return true
+                    }
+                })
+                setOnTouchListener { _, e ->
+                    gestureDetector.onTouchEvent(e)
+                    true
+                }
                 setOnLongClickListener { mOnLongPressListener?.onLongClick(this) == true }
                 errorView.visibility = View.VISIBLE
             }
@@ -205,13 +226,13 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
                 if (view is SubsamplingScaleImageView) {
                     val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                            mOnTapListener?.onClick(view)
+                            mOnTapListener?.onTap(getTouchZone(e.x, view))
                             return true
                         }
                     })
                     view.setOnTouchListener { _, e -> gestureDetector.onTouchEvent(e) }
                 } else if (view is PhotoView) {
-                    view.setOnViewTapListener { _, _, _ -> mOnTapListener?.onClick(view) }
+                    view.setOnViewTapListener { _, x, _ -> mOnTapListener?.onTap(getTouchZone(x, view)) }
                 }
             }
             view.setOnLongClickListener { mOnLongPressListener?.onLongClick(view) == true }
@@ -271,6 +292,18 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
             }
         }
 
+        private fun getTouchZone(x: Float, view: View) : TouchZone {
+            val location = x / view.width
+
+            if (location <= 0.4)
+                return TouchZone.Left
+
+            if (location >= 0.6)
+                return TouchZone.Right
+
+            return TouchZone.Center
+        }
+
         fun onScaleTypeChange(scaleType: ScaleType) {
             updateScale(mainView, scaleType)
         }
@@ -292,12 +325,20 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
         }
 
     }
-    fun setOnImageClickListener(func: () -> Unit)  {
-        mOnTapListener = OnClickListener { func.invoke() }
+    fun setOnImageClickListener(func: (touchZone: TouchZone) -> Unit)  {
+        mOnTapListener = object : OnTapListener {
+            override fun onTap(touchZone: TouchZone) {
+                func.invoke(touchZone)
+            }
+        }
     }
 
     fun setOnImageLongClickListener(func: () -> Boolean)  {
         mOnLongPressListener = OnLongClickListener { func.invoke() }
+    }
+
+    private interface OnTapListener {
+        fun onTap(touchZone: TouchZone)
     }
 }
 

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.CenterPopupView
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
@@ -53,12 +54,7 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
         if (mRecyclerView?.layoutManager != null) {
             return
         }
-
-        mRecyclerView?.layoutManager = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            GridLayoutManager(this, 2)
-        } else {
-            LinearLayoutManager(this)
-        }
+        mRecyclerView?.layoutManager = getListLayoutManager()
         mRecyclerView?.adapter = mAdapter
         mAdapter.setOnItemClickListener { a, v, p ->
             a.getItem(p)?.let { archive ->
@@ -98,14 +94,39 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
             val startView = getChildAt(0)
             val scrollTopOffset = if (startView == null) 0 else paddingTop - startView.top
             // 切换布局
-            layoutManager = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                GridLayoutManager(this@BaseArchiveListActivity, 2)
-            } else {
-                LinearLayoutManager(this@BaseArchiveListActivity)
-            }
+            layoutManager = getListLayoutManager()
             // 恢复上次的浏览状态
             layoutManager?.scrollToPosition(scrollPos)
             lm?.scrollToPositionWithOffset(scrollPos, scrollTopOffset)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mRecyclerView?.apply {
+            // 保存当前的浏览状态
+            val lm = getOrNull { layoutManager as LinearLayoutManager }
+            val scrollPos = lm?.findFirstVisibleItemPosition() ?: 0
+            val startView = getChildAt(0)
+            val scrollTopOffset = if (startView == null) 0 else paddingTop - startView.top
+            adapter = mAdapter
+            // 切换布局
+            layoutManager = getListLayoutManager()
+            // 恢复上次的浏览状态
+            layoutManager?.scrollToPosition(scrollPos)
+            lm?.scrollToPositionWithOffset(scrollPos, scrollTopOffset)
+        }
+    }
+
+    private fun getListLayoutManager(): LinearLayoutManager {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isLandCard = AppConfig.isLandCard(this)
+        return when {
+            isLandscape && isLandCard -> GridLayoutManager(this, 3)
+            isLandscape && !isLandCard -> GridLayoutManager(this, 2)
+            !isLandscape && isLandCard -> GridLayoutManager(this, 2)
+            !isLandscape && !isLandCard -> LinearLayoutManager(this)
+            else -> LinearLayoutManager(this)
         }
     }
 

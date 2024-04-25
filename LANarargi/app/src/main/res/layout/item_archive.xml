@@ -6,53 +6,60 @@
     app:cardBackgroundColor="?attr/bgColor3"
     android:layout_margin="8dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@+id/cover"
-        app:layout_constraintTop_toBottomOf="@+id/cover">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/cover"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:maxWidth="150dp"
             android:scaleType="fitStart"
-            android:contentDescription="@string/content_cover"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="1.0" />
+            android:contentDescription="@string/content_cover" />
 
-        <TextView
-            android:id="@+id/title"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_margin="5dp"
-            android:textColor="?attr/textColor2"
-            android:ellipsize="end"
-            android:gravity="start"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/cover"
-            app:layout_constraintBottom_toTopOf="@id/viewTags"/>
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_margin="8dp">
 
 
-        <TextView
-            android:id="@+id/viewTags"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/cover"
-            android:textColor="?attr/textColor2"
-            android:textAlignment="textEnd"
-            android:layout_margin="8dp"
-            android:textStyle="italic"
-            android:text="@string/main_item_view_tags" />
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textColor="?attr/textColor2"
+                android:ellipsize="end"
+                android:gravity="start"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/viewTags"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/viewTags"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="?attr/textColor2"
+                android:gravity="bottom|end"
+                android:paddingEnd="2dp"
+                android:paddingStart="2dp"
+                android:textStyle="italic"
+                android:text="@string/main_item_view_tags" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

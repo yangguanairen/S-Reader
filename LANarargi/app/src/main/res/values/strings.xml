@@ -80,8 +80,8 @@
     <string name="setting_common_apptheme_select_2" translatable="false">H-Verse</string>
     <string name="setting_common_apptheme_select_3" translatable="false">Material </string>
     <string name="setting_common_view_method_title" translatable="false">列表显示</string>
-    <string name="setting_common_view_method_select_1" translatable="false">卡片</string>
-    <string name="setting_common_view_method_select_2" translatable="false">封面</string>
+    <string name="setting_common_view_method_select_1" translatable="false">横向卡片</string>
+    <string name="setting_common_view_method_select_2" translatable="false">竖向卡片</string>
     <string name="setting_common_clear_title" translatable="false">清理预览图缓存</string>
     <string name="setting_common_clear_subtitle" translatable="false">点击以删除预览图缓存</string>
     // 设置--阅读

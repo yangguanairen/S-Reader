@@ -13,80 +13,86 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.sena.lanraragi.BaseFragment
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.FragmentPreviewBinding
 import com.sena.lanraragi.ui.reader.ReaderActivity
-import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
-import com.sena.lanraragi.utils.INTENT_KEY_LIST
+import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.NewHttpHelper
-import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-private const val ARG_ARCHIVE = "arc_archive"
+private const val ARG_ARCHIVE_ID = "arc_archive_id"
 
 class PreviewFragment : BaseFragment() {
 
+    private var mId: String? = null
     private var mArchive: Archive? = null
 
     private lateinit var binding: FragmentPreviewBinding
-    private val adapter: PreviewAdapter by lazy { PreviewAdapter() }
+    private val mAdapter: PreviewAdapter = PreviewAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         arguments?.let {
-            mArchive = getOrNull { it.getSerializable(ARG_ARCHIVE) as Archive }
+            mId = it.getString(ARG_ARCHIVE_ID)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentPreviewBinding.inflate(layoutInflater)
 
-        mArchive?.let { initView() }
+        mId?.let { initView() }
         return binding.root
     }
 
     private fun initView() {
-        adapter.setOnItemClickListener { a, _, p ->
+        mAdapter.setOnItemClickListener { a, _, p ->
             a.getItem(p)?.let {
-                val list = a.items.toTypedArray()
-                val pos = p
-                val archive = mArchive
                 val intent = Intent(requireContext(), ReaderActivity::class.java)
-                intent.putExtra(INTENT_KEY_ARCHIVE, archive)
-                intent.putExtra(INTENT_KEY_LIST, list)
-                intent.putExtra(INTENT_KEY_POS, pos)
+                intent.putExtra(INTENT_KEY_ARCID, mId)
+                intent.putExtra(INTENT_KEY_POS, p)
                 requireContext().startActivity(intent)
             }
 
         }
-        binding.recyclerView.layoutManager = GridLayoutManager(context, 2)
-        binding.recyclerView.adapter = adapter
+        binding.recyclerView.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = mAdapter
+        }
     }
 
     override fun lazyLoad() {
         super.lazyLoad()
-        lifecycleScope.launch {
-            mArchive?.let { initData(it) }
-        }
+        mId?.let { initData(it) }
     }
 
-    private fun initData(archive: Archive) {
+    private fun initData(id: String) {
         lifecycleScope.launch {
-           val pageCount = archive.pagecount
+            val archive = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchiveById(id)
+            }
+            if (archive == null) {
+                DebugLog.e("IntroduceFragment: 数据中不存在此数据: $id")
+                return@launch
+            }
+            // 服务器强行提取缩略图
+            withContext(Dispatchers.IO) {
+                NewHttpHelper.extractManga(id)
+            }
+
+            mArchive = archive
+            val pageCount = archive.pagecount
             if (pageCount != null) {
-                val emptyList = (0 until pageCount).map { "" }
-                adapter.submitList(emptyList)
-            }
-            val result = withContext(Dispatchers.IO) {
-                NewHttpHelper.extractManga(archive.arcid)
-            }
-            if (result != null) {
-                adapter.submitList(result)
+                val list = (0 until pageCount).map {
+                    Pair(archive.arcid, "${it + 1}")
+                }
+                mAdapter.submitList(list)
             }
         }
     }
@@ -114,7 +120,7 @@ class PreviewFragment : BaseFragment() {
             }
 
             R.id.gotoBottom -> {
-                binding.recyclerView.layoutManager?.scrollToPosition(adapter.items.size - 1)
+                binding.recyclerView.layoutManager?.scrollToPosition(mAdapter.items.size - 1)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -122,9 +128,9 @@ class PreviewFragment : BaseFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(archive: Archive) = PreviewFragment().apply {
+        fun newInstance(id: String) = PreviewFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(ARG_ARCHIVE, archive)
+                putSerializable(ARG_ARCHIVE_ID, id)
             }
         }
     }

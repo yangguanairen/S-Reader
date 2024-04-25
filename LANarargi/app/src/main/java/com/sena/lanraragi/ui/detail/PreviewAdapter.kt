@@ -16,11 +16,13 @@ import com.sena.lanraragi.utils.ImageLoad
  * Date: 2024/3/27
  */
 
-class PreviewAdapter : BaseQuickAdapter<String, PreviewAdapter.VH>() {
+class PreviewAdapter : BaseQuickAdapter<Pair<String, String>, PreviewAdapter.VH>() {
 
-    override fun onBindViewHolder(holder: VH, position: Int, item: String?) {
-        if (item != null) {
-            holder.bind(context, item, position)
+    override fun onBindViewHolder(holder: VH, position: Int, item: Pair<String, String>?) {
+        item?.let {
+            val arcId = item.first
+            val pageName = item.second
+            holder.bind(context, arcId, pageName, position)
         }
     }
 
@@ -28,7 +30,7 @@ class PreviewAdapter : BaseQuickAdapter<String, PreviewAdapter.VH>() {
         return VH(ItemPreviewBinding.inflate(LayoutInflater.from(context), null, false))
     }
 
-    override fun getItemViewType(position: Int, list: List<String>): Int {
+    override fun getItemViewType(position: Int, list: List<Pair<String, String>>): Int {
         return position
     }
 
@@ -36,10 +38,10 @@ class PreviewAdapter : BaseQuickAdapter<String, PreviewAdapter.VH>() {
     class VH(private val binding: ItemPreviewBinding) : RecyclerView.ViewHolder(binding.root) {
 
         @SuppressLint("SetTextI18n")
-        fun bind(context: Context, url: String, pos: Int) {
+        fun bind(context: Context, id: String, pageName: String, pos: Int) {
             binding.page.text  = (pos + 1).toString()
             ImageLoad.Builder(context)
-                .loadPic(url)
+                .loadPreview(id, pageName)
                 .into(binding.image)
                 .execute()
         }

@@ -18,7 +18,7 @@ import com.sena.lanraragi.ui.detail.PreviewAdapter
  */
 
 @SuppressLint("ViewConstructor")
-class ReaderFullScreenPopup(context: Context, pos: Int, list: List<String>) : FullScreenPopupView(context) {
+class ReaderFullScreenPopup(context: Context, pos: Int, list: List<Pair<String, String>>) : FullScreenPopupView(context) {
 
     private val mPos = pos
     private val mList = list
@@ -86,6 +86,7 @@ class ReaderFullScreenPopup(context: Context, pos: Int, list: List<String>) : Fu
             adapter = mAdapter
         }
 
+        // TODO: 暂且注销，迁移previewThumb中
         mAdapter.submitList(mList)
         pagePicker.value = mPos + 1
         mRecyclerView.scrollToPosition(mPos)

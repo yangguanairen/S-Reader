@@ -27,18 +27,17 @@ import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.databinding.ActivityReaderBinding
 import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.DebugLog
-import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
-import com.sena.lanraragi.utils.INTENT_KEY_LIST
+import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.ScaleType
-import com.sena.lanraragi.utils.getOrNull
+import com.sena.lanraragi.utils.TouchZone
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ReaderActivity : BaseActivity() {
 
-//    private var mId: String? = null
+    private var mId: String? = null
     private var mArchive: Archive? = null
 //    private var mFileNameList: List<String>? = null
 
@@ -54,9 +53,10 @@ class ReaderActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        mArchive = getOrNull { intent.getSerializableExtra(INTENT_KEY_ARCHIVE) as Archive }
+        mId = intent.getStringExtra(INTENT_KEY_ARCID)
+//        mArchive = getOrNull { intent.getSerializableExtra(INTENT_KEY_ARCHIVE) as Archive }
 //        mFileNameList = getOrNull { intent.getStringArrayListExtra("fileNameList")?.toList() }
-        if (mArchive == null) {
+        if (mId == null) {
             DebugLog.e("ReaderActivity.onCreate(): archive is null")
             return
         }
@@ -69,7 +69,7 @@ class ReaderActivity : BaseActivity() {
 
         initVM()
         initView()
-        mArchive?.let { initData(it) }
+        mId?.let { initData(it) }
     }
 
     @SuppressLint("SetTextI18n")
@@ -129,9 +129,11 @@ class ReaderActivity : BaseActivity() {
                         onBackPressedDispatcher.onBackPressed()
                     }
                     R.id.selectPage -> {
-                        val list = vm.fileNameList.value
+                        val size = vm.fileNameList.value ?.size
                         val pos = vm.curPos.value ?: 0
-                        if (list == null) return@setOnItemClickListener
+                        val id = mId
+                        if (size == null || size <= 0 || size - 1 < pos || id == null) return@setOnItemClickListener
+                        val list = (1..size).map { Pair(id, it.toString()) }
                         XPopup.Builder(this@ReaderActivity)
                             .isDestroyOnDismiss(true)
                             .asCustom(ReaderFullScreenPopup(this@ReaderActivity, pos, list).apply {
@@ -210,11 +212,9 @@ class ReaderActivity : BaseActivity() {
             }
         }
         viewPagerAdapter = ReaderAdapter()
-        viewPagerAdapter.setOnImageClickListener {
-            displayToolbar()
-        }
+        viewPagerAdapter.setOnImageClickListener { onItemTap(it) }
         viewPagerAdapter.setOnImageLongClickListener {
-            bottomPopup.show()
+            onItemLongPress()
             true
         }
         binding.contentReader.viewPager.apply {
@@ -227,15 +227,12 @@ class ReaderActivity : BaseActivity() {
     private fun initWebtoon() {
         webtoonAdapter = ReaderAdapter()
         webtoonAdapter.setOnImageLongClickListener{
-            bottomPopup.show()
+            onItemLongPress()
             true
         }
-        webtoonAdapter.setOnImageClickListener {
-            displayToolbar()
-        }
+        webtoonAdapter.setOnImageClickListener { onItemTap(it) }
         val onScrollListener = object : RecyclerView.OnScrollListener() {
             private var isHuman = false
-
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val lm = recyclerView.layoutManager as LinearLayoutManager
@@ -264,12 +261,8 @@ class ReaderActivity : BaseActivity() {
             addOnScrollListener(onScrollListener)
             adapter = webtoonAdapter
             isFocusable= false
-            tapListener = {
-                displayToolbar()
-            }
-            longPressListener = {
-                bottomPopup.show()
-            }
+            tapListener = ::onItemTap
+            longPressListener = ::onItemLongPress
         }
     }
 
@@ -282,22 +275,28 @@ class ReaderActivity : BaseActivity() {
     }
 
 
-    private fun initData(archive: Archive) {
+    private fun initData(id: String) {
         lifecycleScope.launch {
+            val archive = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchiveById(id)
+            }
+            if (archive == null) {
+                DebugLog.e("ReaderActivity: 数据中不存在此数据: $id")
+                return@launch
+            }
+
+            mArchive = archive
+            binding.contentReader.toolbar.title = archive.title
             val pageCount = archive.pagecount
             if (pageCount != null) {
                 val emptyList = (0 until pageCount).map { "" }
                 vm.setFileNameList(emptyList)
-            }
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val pos = intent.getIntExtra(INTENT_KEY_POS, 0)
-                val list = intent.getStringArrayExtra(INTENT_KEY_LIST)
-                if (list != null) {
-                    vm.setFileNameList(list.toList())
-                    vm.setCurPosition(pos)
-                } else {
-                    vm.initData(archive.arcid)
-                }
+                vm.setCurPosition(pos)
+            }
+
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.initData(archive.arcid)
             }
         }
     }
@@ -361,7 +360,7 @@ class ReaderActivity : BaseActivity() {
 
     private fun displayToolbar() {
         binding.contentReader.appBar.apply {
-            mArchive?.arcid?.let { id ->
+            mId?.let { id ->
                 lifecycleScope.launch {
                     val isBookmarked = withContext(Dispatchers.IO) {
                         LanraragiDB.queryArchiveById(id)
@@ -378,5 +377,23 @@ class ReaderActivity : BaseActivity() {
                 binding.contentReader.seekbarLayout.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun onItemTap(zone: TouchZone) {
+        if (zone == TouchZone.Center || AppConfig.scaleMethod == ScaleType.WEBTOON) {
+            displayToolbar()
+            return
+        }
+        val isRtl = AppConfig.enableRtl
+        val curPos = vm.curPos.value ?: return
+        if (zone == TouchZone.Left) {
+            vm.setCurPosition(if (isRtl) curPos + 1 else curPos - 1)
+        } else if (zone == TouchZone.Right) {
+            vm.setCurPosition(if (isRtl) curPos - 1 else curPos + 1)
+        }
+    }
+
+    private fun onItemLongPress() {
+        bottomPopup.show()
     }
 }

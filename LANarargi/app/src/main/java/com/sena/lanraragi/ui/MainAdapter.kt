@@ -2,13 +2,17 @@ package com.sena.lanraragi.ui
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter4.BaseDifferAdapter
+import com.sena.lanraragi.AppConfig
+import com.sena.lanraragi.R
 import com.sena.lanraragi.database.archiveData.Archive
-import com.sena.lanraragi.databinding.ItemArchiveBinding
 import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
 import com.sena.lanraragi.utils.ImageLoad
 
@@ -28,28 +32,32 @@ class MainAdapter : BaseDifferAdapter<Archive, MainAdapter.VH>(DiffCallback()) {
     }
 
     override fun onCreateViewHolder(context: Context, parent: ViewGroup, viewType: Int): VH {
-        return VH(
-            ItemArchiveBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        )
+        return if (context.getString(R.string.setting_common_view_method_select_2) == AppConfig.viewMethod) {
+            VH(LayoutInflater.from(context).inflate(R.layout.item_archive_vertical, parent, false))
+        } else {
+            VH(LayoutInflater.from(context).inflate(R.layout.item_archive, parent, false))
+        }
     }
 
     override fun getItemViewType(position: Int, list: List<Archive>): Int {
         return position
     }
 
-    class VH(
-        private val binding: ItemArchiveBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    class VH(rootView: View) : RecyclerView.ViewHolder(rootView) {
+
+        private val titleView = rootView.findViewById<TextView>(R.id.title)
+        private val coverView = rootView.findViewById<ImageView>(R.id.cover)
 
         fun bind(context: Context, archive: Archive) {
-            binding.apply {
-                binding.title.text = archive.title
-                ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
-                ImageLoad.Builder(context)
+                titleView.text = archive.title
+                ViewCompat.setTransitionName(coverView, COVER_SHARE_ANIMATION)
+                var builder = ImageLoad.Builder(context)
                     .loadThumb(archive.arcid)
-                    .into(binding.cover)
-                    .execute()
-            }
+
+                if (AppConfig.isLandCard(context)) {
+                    builder = builder.setRadius(16f)
+                }
+                builder.into(coverView).execute()
         }
     }
 

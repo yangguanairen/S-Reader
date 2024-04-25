@@ -37,10 +37,10 @@ class DetailActivity : BaseActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        val introduceFragment = IntroduceFragment.newInstance(archive).apply {
+        val introduceFragment = IntroduceFragment.newInstance(archive.arcid).apply {
             setOnGenerateArchiveListener { onNewRandomArchive(it) }
         }
-        val previewFragment = PreviewFragment.newInstance(archive).apply {
+        val previewFragment = PreviewFragment.newInstance(archive.arcid).apply {
             setOnGenerateArchiveListener { onNewRandomArchive(it) }
         }
         val fragments = arrayListOf(introduceFragment, previewFragment)

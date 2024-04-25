@@ -39,6 +39,7 @@ class TagsViewer @JvmOverloads constructor(
     }
 
     private fun redrawTagView(s: String) {
+        binding.tagLayout.removeAllViews()
 
         parseTagsToMap(s).entries.forEach { entry ->
             val lB = ItemTagLayoutBinding.inflate(LayoutInflater.from(mContext), binding.tagLayout, true)

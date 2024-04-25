@@ -22,7 +22,9 @@
         android:layout_height="48dp"
         android:layout_margin="48dp"
         android:elevation="20dp"
-        android:layout_centerHorizontal="true"
-        android:indeterminate="true" />
+        android:progressDrawable="@drawable/shape_progress_bar"
+        android:indeterminate="true"
+        android:indeterminateOnly="false"
+        android:layout_centerInParent="true" />
 
 </com.sena.lanraragi.ui.reader.TouchToggleLayout>

@@ -1,6 +1,7 @@
 package com.sena.lanraragi
 
 import android.app.Application
+import android.content.Context
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.utils.DataStoreHelper
 import com.sena.lanraragi.utils.ScaleType
@@ -17,6 +18,8 @@ class Application : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        instance = this
 
         LanraragiDB.init(this)
 
@@ -57,6 +60,20 @@ class Application : Application() {
             serverHost = "http://192.168.0.102:3003"
             randomCount = 10
         }
+    }
+
+
+
+
+
+    companion object {
+
+         private lateinit var instance: com.sena.lanraragi.Application
+
+        fun getContext(): Context {
+            return instance
+        }
+
     }
 }
 

@@ -1,6 +1,6 @@
 package com.sena.lanraragi
 
-import androidx.annotation.StyleRes
+import android.content.Context
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.utils.ScaleType
 
@@ -46,5 +46,8 @@ object AppConfig {
     var isNew: Boolean = false
     var sort: LanraragiDB.DBHelper.SORT = LanraragiDB.DBHelper.SORT.TIME
     var order: LanraragiDB.DBHelper.ORDER = LanraragiDB.DBHelper.ORDER.DESC
+
+
+    fun isLandCard(context: Context) = viewMethod == context.getString(R.string.setting_common_view_method_select_2)
 }
 

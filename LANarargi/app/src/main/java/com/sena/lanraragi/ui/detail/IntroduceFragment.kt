@@ -22,19 +22,21 @@ import com.sena.lanraragi.databinding.FragmentIntroduceBinding
 import com.sena.lanraragi.ui.MainActivity
 import com.sena.lanraragi.ui.reader.ReaderActivity
 import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
-import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
 import com.sena.lanraragi.utils.ImageLoad
 import com.sena.lanraragi.utils.NewHttpHelper
-import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-private const val ARG_ARCHIVE = "arc_archive"
+private const val ARG_ARCHIVE_ID = "arc_archive_id"
 
 class IntroduceFragment : BaseFragment() {
+
+    private var mId: String? = null
     private var mArchive: Archive? = null
 
     private lateinit var binding: FragmentIntroduceBinding
@@ -50,7 +52,7 @@ class IntroduceFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         arguments?.let {
-            mArchive = getOrNull { it.getSerializable(ARG_ARCHIVE) as Archive }
+            mId = it.getString(ARG_ARCHIVE_ID)
         }
 
     }
@@ -58,11 +60,11 @@ class IntroduceFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentIntroduceBinding.inflate(inflater)
 
-        mArchive?.let { initView(it) }
+        mId?.let { initView(it) }
         return binding.root
     }
 
-    private fun initView(archive: Archive) {
+    private fun initView(id: String) {
         // 设置textView字体大小
         // https://blog.csdn.net/mqdxiaoxiao/article/details/884110611
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -79,36 +81,42 @@ class IntroduceFragment : BaseFragment() {
         }
         binding.startRead.setOnClickListener {
             val intent = Intent(requireContext(), ReaderActivity::class.java)
-            intent.putExtra(INTENT_KEY_ARCHIVE, archive)
+            intent.putExtra(INTENT_KEY_ARCID, mId)
             startActivity(intent)
         }
         binding.bookmark.setOnClickListener {
-            val isBookmarked = archive.isBookmark
+            val isBookmarked = mArchive?.isBookmark ?: false
             val fStatus = !isBookmarked
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    LanraragiDB.updateArchiveBookmark(archive.arcid, fStatus)
+                    LanraragiDB.updateArchiveBookmark(id, fStatus)
                 }
-                archive.isBookmark = fStatus
+                mArchive?.isBookmark = fStatus
                 binding.bookmark.text = bookmarkTextMap[fStatus]
             }
         }
     }
 
-    override fun lazyLoad() {
-        super.lazyLoad()
-        mArchive?.let { initData(it) }
-        mArchive?:let { requireActivity().supportStartPostponedEnterTransition() }
+    override fun onResume() {
+        super.onResume()
+        mId?.let {
+            initData(it)
+            requireActivity().supportStartPostponedEnterTransition()
+        }
     }
 
-    private fun initData(archive: Archive) {
+    private fun initData(id: String) {
         lifecycleScope.launch {
+            val archive = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchiveById(id)
+            }
+            if (archive == null) {
+                DebugLog.e("IntroduceFragment: 数据中不存在此数据: $id")
+                return@launch
+            }
 
+            mArchive = archive
             binding.title.text = archive.title
-//            val isBookmarked = withContext(Dispatchers.IO) {
-//                LanraragiDB.queryArchiveById(archive.arcid)
-//            }?.isBookmark ?: false
-
             binding.bookmark.text = bookmarkTextMap[archive.isBookmark]
             ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
             ImageLoad.Builder(requireContext())
@@ -126,9 +134,9 @@ class IntroduceFragment : BaseFragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(archive: Archive) = IntroduceFragment().apply {
+        fun newInstance(id: String) = IntroduceFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(ARG_ARCHIVE, archive)
+                putSerializable(ARG_ARCHIVE_ID, id)
             }
         }
     }
@@ -151,7 +159,7 @@ class IntroduceFragment : BaseFragment() {
                 }
             }
             R.id.refresh -> {
-                mArchive?.arcid?.let {
+                mId?.let {
                     ImageLoad.Builder(requireContext())
                         .loadThumb(it)
                         .isIgnoreDiskCache(true)

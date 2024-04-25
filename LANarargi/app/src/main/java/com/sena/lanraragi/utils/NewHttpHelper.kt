@@ -6,9 +6,17 @@ import com.sena.lanraragi.database.archiveData.Archive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Dispatcher
+import okhttp3.Interceptor
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.BufferedSource
+import okio.ForwardingSource
+import okio.Source
+import okio.buffer
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URLEncoder
@@ -22,7 +30,7 @@ import java.net.URLEncoder
 
 object NewHttpHelper {
 
-    private val client by lazy {
+    private val defaultClient by lazy {
         OkHttpClient.Builder()
             .dispatcher(Dispatcher().apply { maxRequests = 3 })
             .build()
@@ -71,16 +79,17 @@ object NewHttpHelper {
         return result
     }
     
-    suspend fun extractManga(id: String): List<String>? {
-        val url = AppConfig.serverHost + "/api/archives/$id/files"
+    suspend fun extractManga(id: String): ArrayList<String>? {
+        val url = AppConfig.serverHost + "/api/archives/$id/files?force=true"
 
         val mBuilder = Build().url(url)
-        var result: List<String>? = null
+        var result: ArrayList<String>? = null
         withContext(Dispatchers.IO) {
             val response = mBuilder.execute()
             if (response?.code != 200) return@withContext
             getOrNull {
-                val pages = response.body?.byteStream()?.toJSONObject()?.getJSONArray("pages")
+                val jsonObject = response.body?.byteStream()?.toJSONObject()
+                val pages = jsonObject?.getJSONArray("pages")
                 if (pages != null) {
                     val list = arrayListOf<String>()
                     for (i in 0 until pages.length()) {
@@ -96,8 +105,18 @@ object NewHttpHelper {
     /**
      * 注意不捕获异常
      */
-    suspend fun downloadFile(url: String, savePath: String) {
+    suspend fun downloadFile(url: String, savePath: String, onDownloadProgress: ((curSize: Int, totalSize: Int) -> Unit)? = null) {
         val build = Build().url(url)
+
+        val client = OkHttpClient.Builder()
+            .addNetworkInterceptor(Interceptor { chain ->
+                val originalResp = chain.proceed(chain.request())
+                originalResp.newBuilder()
+                    .body(ProgressResponseBody(originalResp.body!!, onDownloadProgress))
+                    .build()
+            })
+            .build()
+        build.addClient(client)
 
         withContext(Dispatchers.IO) {
             val response = build.execute()
@@ -178,6 +197,38 @@ object NewHttpHelper {
         return result
     }
 
+    class ProgressResponseBody(respBody: ResponseBody, onDownloadProgress: ((curSize: Int, totalSize: Int) -> Unit)? = null) : ResponseBody() {
+
+        private val mRespBody = respBody
+        private val mListener = onDownloadProgress
+        private var bufferedSource: BufferedSource? = null
+        private var lastProgress: Int = 0
+
+        override fun contentLength(): Long = mRespBody.contentLength()
+        override fun contentType(): MediaType? = mRespBody.contentType()
+
+        override fun source(): BufferedSource = bufferedSource ?: source(mRespBody.source()).buffer()
+            .also { bufferedSource = it }
+
+
+        private fun source(source: Source): Source {
+            return object : ForwardingSource(source) {
+                var totalBytesRead = 0L
+                override fun read(sink: Buffer, byteCount: Long): Long {
+
+                    val bytesRead = super.read(sink, byteCount)
+                    totalBytesRead += if (bytesRead != -1L) bytesRead else 0L
+                    val curProgress = (totalBytesRead * 100 / contentLength()).toInt()
+                    if (curProgress != lastProgress) {
+                        lastProgress = curProgress
+                        mListener?.invoke(curProgress, 100)
+                    }
+                    return bytesRead
+                }
+            }
+        }
+
+    }
 
 
 
@@ -186,11 +237,16 @@ object NewHttpHelper {
         private var url: String? = null
         private val headers: MutableMap<String, String> = mutableMapOf()
         private var isPrintResponseStr = false
-
+        private var mClient: OkHttpClient? = null
 
 
         fun url(s: String): Build {
             this.url = s
+            return this
+        }
+
+        fun addClient(c: OkHttpClient): Build {
+            mClient = c
             return this
         }
 
@@ -215,9 +271,10 @@ object NewHttpHelper {
                 build.addHeader(it.key, it.value)
             }
             val request = build.build()
+            val finalClient = mClient ?: defaultClient
 
             val sTime = System.currentTimeMillis()
-            val response = getOrNull { client.newCall(request).execute() }
+            val response = getOrNull { finalClient.newCall(request).execute() }
             val eTime = System.currentTimeMillis()
             val sb = StringBuilder()
                 .appendLine("HttpHelper 网络请求日志")

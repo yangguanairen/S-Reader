@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.databinding.ViewSearchBinding
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.getOrNull
@@ -32,12 +33,12 @@ class SearchView @JvmOverloads constructor(
 
     private val binding = ViewSearchBinding.inflate(LayoutInflater.from(mContext), this, true)
 
-    private var mFinishListener: AfterInputFinishListener? = null
-    private var mClearListener: ClearTextListener? = null
-    private var mDoneListener: SearchDoneListener? = null
+    private var mFinishListener: OnInputFinishListener? = null
+    private var mClearListener: OnClearTextListener? = null
+    private var mDoneListener: OnSearchDoneListener? = null
 
     private val mWhat = 1
-    private val delayTime = 500L
+    private var delayTime = AppConfig.searchDelay.toLong()
     private val mHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
@@ -46,7 +47,7 @@ class SearchView @JvmOverloads constructor(
             val text = getOrNull { msg.obj.toString() }
             DebugLog.d("SearchView 接收: $text")
             if (text == null)  return
-            mFinishListener?.onAfterInputFinishListener(text)
+            mFinishListener?.onInputFinish(text)
         }
     }
 
@@ -83,36 +84,48 @@ class SearchView @JvmOverloads constructor(
         binding.input.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val queryText = v.editableText?.toString() ?: return@setOnEditorActionListener true
-                mDoneListener?.onSearchDoneListener(queryText)
+                mDoneListener?.onSearchDone(queryText)
             }
             return@setOnEditorActionListener true
         }
 
         binding.clear.setOnClickListener {
             binding.input.setText("")
-            mClearListener?.onClearTextListener()
+            mClearListener?.onClearText()
         }
     }
 
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        // 一般MainActivity不会被销毁，不更新会保留旧数据
+        delayTime = AppConfig.searchDelay.toLong()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        // 预防内存泄漏
+        mHandler.removeCallbacksAndMessages(null)
+    }
+
     fun setOnAfterInputFinishListener(func: (s: String) -> Unit) {
-        mFinishListener = object : AfterInputFinishListener {
-            override fun onAfterInputFinishListener(s: String) {
+        mFinishListener = object : OnInputFinishListener {
+            override fun onInputFinish(s: String) {
                 func.invoke(s)
             }
         }
     }
 
     fun setOnClearTextListener(func: () -> Unit) {
-        mClearListener = object : ClearTextListener {
-            override fun onClearTextListener() {
+        mClearListener = object : OnClearTextListener {
+            override fun onClearText() {
                 func.invoke()
             }
         }
     }
 
     fun setOnSearchDoneListener(func: (s: String) -> Unit) {
-        mDoneListener = object : SearchDoneListener {
-            override fun onSearchDoneListener(s: String) {
+        mDoneListener = object : OnSearchDoneListener {
+            override fun onSearchDone(s: String) {
                 func.invoke(s)
             }
         }
@@ -127,16 +140,16 @@ class SearchView @JvmOverloads constructor(
     }
 
 
-    private interface AfterInputFinishListener {
-        fun onAfterInputFinishListener(s: String)
+    private interface OnInputFinishListener {
+        fun onInputFinish(s: String)
     }
 
-    private interface ClearTextListener {
-        fun onClearTextListener()
+    private interface OnClearTextListener {
+        fun onClearText()
     }
 
-    private interface SearchDoneListener {
-        fun onSearchDoneListener(s: String)
+    private interface OnSearchDoneListener {
+        fun onSearchDone(s: String)
     }
 
 

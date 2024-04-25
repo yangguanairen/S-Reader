@@ -10,6 +10,7 @@ import coil.request.ErrorResult
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import coil.size.ViewSizeResolver
+import coil.transform.RoundedCornersTransformation
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.sena.lanraragi.AppConfig
@@ -32,16 +33,20 @@ class ImageLoad private constructor(context: Context) {
 
     private val mContext = context
     private var arcId: String = ""
+    private var previewIndex: String = ""
     private var picUrl: String = ""
     private var isThumb: Boolean = false
     private var isPic: Boolean = false
+    private var isPreview: Boolean = false
     private var isIgnoreDiskCache: Boolean = false
     private var imageView: ImageView? = null
     private var subScaleImageView: SubsamplingScaleImageView? = null
+    private var cornerRadius: Float = 0f
 
     private var mOnStartListener: Builder.OnStartListener? = null
     private var mOnSuccessListener: Builder.OnSuccessListener? = null
     private var mOnErrorListener: Builder.OnErrorListener? = null
+    private var mOnProgressListener: ((curSize: Int, totalSize: Int) -> Unit)? = null
 
     class Builder(context: Context) {
 
@@ -59,8 +64,20 @@ class ImageLoad private constructor(context: Context) {
             return this
         }
 
+        fun loadPreview(id: String, index: String): Builder {
+            imageLoad.arcId = id
+            imageLoad.previewIndex = index
+            imageLoad.isPreview = true
+            return this
+        }
+
         fun isIgnoreDiskCache(b: Boolean): Builder {
             imageLoad.isIgnoreDiskCache = b
+            return this
+        }
+
+        fun setRadius(radius: Float): Builder {
+            imageLoad.cornerRadius = radius
             return this
         }
 
@@ -118,6 +135,11 @@ class ImageLoad private constructor(context: Context) {
             return this
         }
 
+        fun doOnProgressChange(func: (curSize: Int, totalSize: Int) -> Unit): Builder {
+            imageLoad.mOnProgressListener = func
+            return this
+        }
+
         interface OnStartListener {
             fun onStart()
         }
@@ -135,6 +157,9 @@ class ImageLoad private constructor(context: Context) {
         if (isThumb) {
             mOnStartListener?.onStart()
             loadThumb()
+        } else if (isPreview) {
+            mOnStartListener?.onStart()
+            loadPreview()
         } else if (isPic) {
             mOnStartListener?.onStart()
             loadPic()
@@ -159,7 +184,44 @@ class ImageLoad private constructor(context: Context) {
             if (!isExists) {
                 withContext(Dispatchers.IO) {
                     kotlin.runCatching {
-                        NewHttpHelper.downloadFile(url, path)
+                        NewHttpHelper.downloadFile(url, path, mOnProgressListener)
+                    }.onFailure {
+                        mOnErrorListener?.onError()
+                    }
+                }
+            }
+            imageView?.let { v ->
+                v.load(path) {
+                    crossfade(true)
+                    listener(createListener(url))
+                    error(R.drawable.bg_error)
+//                    placeholder(R.drawable.bg_placeholder)
+                    size(ViewSizeResolver(v))
+                    if (cornerRadius > 0f) {
+                        transformations(RoundedCornersTransformation(cornerRadius))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadPreview() {
+        val dir = File(mContext.externalCacheDir, "archiveThumb/$arcId")
+        if (!dir.exists()) dir.mkdirs()
+        var isExists = dir.listFiles()?.any { it.name == previewIndex } == true
+        if (isIgnoreDiskCache) isExists = false
+
+        // http://192.168.0.102:3003/api/archives/f469625f2b9af02827575a0e743d8244df5378cf/thumbnail?page=5
+        val url = AppConfig.serverHost + "/api/archives/$arcId/thumbnail?page=$previewIndex"
+        val path = dir.absolutePath + "/$previewIndex"
+
+        imageView?.load(R.drawable.bg_placeholder)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            if (!isExists) {
+                withContext(Dispatchers.IO) {
+                    kotlin.runCatching {
+                        NewHttpHelper.downloadFile(url, path, mOnProgressListener)
                     }.onFailure {
                         mOnErrorListener?.onError()
                     }
@@ -172,6 +234,9 @@ class ImageLoad private constructor(context: Context) {
                     error(R.drawable.bg_error)
                     placeholder(R.drawable.bg_placeholder)
                     size(ViewSizeResolver(v))
+                    if (cornerRadius > 0f) {
+                        transformations(RoundedCornersTransformation(cornerRadius))
+                    }
                 }
             }
         }
@@ -200,7 +265,7 @@ class ImageLoad private constructor(context: Context) {
             if (!isExists) {
                 withContext(Dispatchers.IO) {
                     kotlin.runCatching {
-                        NewHttpHelper.downloadFile(url, path)
+                        NewHttpHelper.downloadFile(url, path, mOnProgressListener)
                     }.onFailure {
                         mOnErrorListener?.onError()
                     }
