@@ -331,9 +331,9 @@ class ImageLoad private constructor(context: Context) {
     private fun createListener(url: String) = object : ImageRequest.Listener {
         override fun onSuccess(request: ImageRequest, result: SuccessResult) {
             super.onSuccess(request, result)
-            val w = result.drawable.intrinsicWidth
-            val h = result.drawable.intrinsicHeight
-            DebugLog.d("测试: 实际大小: $url\nw: $w, h: $h")
+//            val w = result.drawable.intrinsicWidth
+//            val h = result.drawable.intrinsicHeight
+//            DebugLog.d("测试: 实际大小: $url\nw: $w, h: $h")
             mOnSuccessListener?.onSuccess()
         }
 

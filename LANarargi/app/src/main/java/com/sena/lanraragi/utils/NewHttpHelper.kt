@@ -250,22 +250,12 @@ object NewHttpHelper {
             return this
         }
 
-        fun addHeader(name: String, value: String): Build {
-            this.headers[name] = value
-            return this
-        }
-
-        fun isPrintRespStr(b: Boolean): Build {
-            isPrintResponseStr = b
-            return this
-        }
-
         fun execute(): Response? {
             val mUrl = url ?: throw Exception("url is null")
             val build = Request.Builder().url(mUrl)
             val secretKey = AppConfig.serverSecretKey
             if (secretKey.isNotBlank()) {
-                build.addHeader("Authorization ", "Bearer $secretKey")
+                headers["Authorization"] = secretKey
             }
             headers.entries.forEach {
                 build.addHeader(it.key, it.value)

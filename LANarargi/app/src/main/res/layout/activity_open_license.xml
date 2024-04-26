@@ -5,9 +5,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.random.RandomActivity"
-    android:background="?attr/bgColor1">
-
+    tools:context=".ui.setting.OpenLicenseActivity"
+    android:padding="8dp">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -31,7 +30,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp" />
+        android:layout_height="match_parent" />
+
+
 
 </LinearLayout>

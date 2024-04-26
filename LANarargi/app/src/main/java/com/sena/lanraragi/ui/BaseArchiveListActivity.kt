@@ -101,21 +101,29 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
         }
     }
 
+    private var lastViewMethod = AppConfig.viewMethod
+
     override fun onResume() {
         super.onResume()
-        mRecyclerView?.apply {
-            // 保存当前的浏览状态
-            val lm = getOrNull { layoutManager as LinearLayoutManager }
-            val scrollPos = lm?.findFirstVisibleItemPosition() ?: 0
-            val startView = getChildAt(0)
-            val scrollTopOffset = if (startView == null) 0 else paddingTop - startView.top
-            adapter = mAdapter
-            // 切换布局
-            layoutManager = getListLayoutManager()
-            // 恢复上次的浏览状态
-            layoutManager?.scrollToPosition(scrollPos)
-            lm?.scrollToPositionWithOffset(scrollPos, scrollTopOffset)
+        // 视图格式被改变
+        if (lastViewMethod != AppConfig.viewMethod) {
+            lastViewMethod = AppConfig.viewMethod
+            mRecyclerView?.apply {
+                // 保存当前的浏览状态
+                val lm = getOrNull { layoutManager as LinearLayoutManager }
+                val scrollPos = lm?.findFirstVisibleItemPosition() ?: 0
+                val startView = getChildAt(0)
+                val scrollTopOffset = if (startView == null) 0 else paddingTop - startView.top
+                // 重设adapter，起到重构item的作用，否则未被回收的item布局不会改变
+                adapter = mAdapter
+                // 切换布局
+                layoutManager = getListLayoutManager()
+                // 恢复上次的浏览状态
+                layoutManager?.scrollToPosition(scrollPos)
+                lm?.scrollToPositionWithOffset(scrollPos, scrollTopOffset)
+            }
         }
+
     }
 
     private fun getListLayoutManager(): LinearLayoutManager {

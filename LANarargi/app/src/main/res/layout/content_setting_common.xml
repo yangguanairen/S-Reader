@@ -8,6 +8,7 @@
         android:text="@string/setting_common_theme" />
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/scrollRefreshLayout"
         style="@style/setting_item_switch_layout">
 

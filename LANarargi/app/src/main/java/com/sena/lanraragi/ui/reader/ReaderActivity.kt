@@ -39,6 +39,7 @@ class ReaderActivity : BaseActivity() {
 
     private var mId: String? = null
     private var mArchive: Archive? = null
+    private var mPos: Int = -1
 //    private var mFileNameList: List<String>? = null
 
     private val binding: ActivityReaderBinding by lazy { ActivityReaderBinding.inflate(layoutInflater) }
@@ -54,18 +55,15 @@ class ReaderActivity : BaseActivity() {
         setContentView(binding.root)
 
         mId = intent.getStringExtra(INTENT_KEY_ARCID)
-//        mArchive = getOrNull { intent.getSerializableExtra(INTENT_KEY_ARCHIVE) as Archive }
-//        mFileNameList = getOrNull { intent.getStringArrayListExtra("fileNameList")?.toList() }
+        mPos = intent.getIntExtra(INTENT_KEY_POS, -1)
+
         if (mId == null) {
-            DebugLog.e("ReaderActivity.onCreate(): archive is null")
+            DebugLog.e("ReaderActivity.onCreate(): arcId is null")
             return
         }
         if (AppConfig.enableScreenLight) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
-
-//        val title = mArchive?.title
-//        val pageCount = mFileNameList?.size ?: mArchive?.pagecount
 
         initVM()
         initView()
@@ -81,17 +79,25 @@ class ReaderActivity : BaseActivity() {
                 if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.INVISIBLE
-                    webtoonAdapter.submitList(list) {
+                    webtoonAdapter.submitList(list)
+                    if (mPos > 0) {
+                        vm.setCurPosition(mPos)
+                        mPos = -1
+                    } else {
                         vm.updateList()
-                        webtoonAdapter.onScaleChange(AppConfig.scaleMethod)
                     }
+                    webtoonAdapter.onScaleChange(AppConfig.scaleMethod)
                 } else {
                     recyclerView.visibility = View.INVISIBLE
                     viewPager.visibility = View.VISIBLE
-                    viewPagerAdapter.submitList(list) {
+                    viewPagerAdapter.submitList(list)
+                    if (mPos > 0) {
+                        vm.setCurPosition(mPos)
+                        mPos = -1
+                    } else {
                         vm.updateList()
-                        viewPagerAdapter.onScaleChange(AppConfig.scaleMethod)
                     }
+                    viewPagerAdapter.onScaleChange(AppConfig.scaleMethod)
                 }
             }
 
@@ -110,7 +116,7 @@ class ReaderActivity : BaseActivity() {
                         vm.fromWebtoon = false
                     }
                 } else {
-                    viewPager.currentItem = page
+                    viewPager.setCurrentItem(page, false)
                 }
             }
         }
@@ -166,8 +172,6 @@ class ReaderActivity : BaseActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     vm.setCurPosition(progress)
-                } else {
-                    DebugLog.d("测试: seekbar 非用户操作")
                 }
             }
 
@@ -199,8 +203,6 @@ class ReaderActivity : BaseActivity() {
                 if (isHuman) {
                     vm.setCurPosition(position)
                     isHuman = false
-                } else {
-                    DebugLog.d("测试: ViewPager 非用户操作")
                 }
             }
 
@@ -243,8 +245,6 @@ class ReaderActivity : BaseActivity() {
                     vm.fromWebtoon = true
                     vm.setCurPosition(finalPos)
                     isHuman = false
-                } else {
-//                    DebugLog.d("测试: Webtoon 非用户操作")
                 }
             }
 
@@ -281,18 +281,16 @@ class ReaderActivity : BaseActivity() {
                 LanraragiDB.queryArchiveById(id)
             }
             if (archive == null) {
-                DebugLog.e("ReaderActivity: 数据中不存在此数据: $id")
+                DebugLog.e("ReaderActivity: 数据库中不存在此数据: $id")
                 return@launch
             }
 
             mArchive = archive
-            binding.contentReader.toolbar.title = archive.title
+//            binding.contentReader.toolbar.title = archive.title
             val pageCount = archive.pagecount
             if (pageCount != null) {
                 val emptyList = (0 until pageCount).map { "" }
                 vm.setFileNameList(emptyList)
-                val pos = intent.getIntExtra(INTENT_KEY_POS, 0)
-                vm.setCurPosition(pos)
             }
 
             repeatOnLifecycle(Lifecycle.State.STARTED) {

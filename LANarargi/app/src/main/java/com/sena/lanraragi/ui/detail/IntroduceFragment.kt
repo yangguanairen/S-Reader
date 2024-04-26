@@ -99,10 +99,8 @@ class IntroduceFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        mId?.let {
-            initData(it)
-            requireActivity().supportStartPostponedEnterTransition()
-        }
+        mId?.let { initData(it) }
+        mId?:let { requireActivity().supportStartPostponedEnterTransition() }
     }
 
     private fun initData(id: String) {
@@ -111,7 +109,7 @@ class IntroduceFragment : BaseFragment() {
                 LanraragiDB.queryArchiveById(id)
             }
             if (archive == null) {
-                DebugLog.e("IntroduceFragment: 数据中不存在此数据: $id")
+                DebugLog.e("IntroduceFragment: 数据库中不存在此数据: $id")
                 return@launch
             }
 

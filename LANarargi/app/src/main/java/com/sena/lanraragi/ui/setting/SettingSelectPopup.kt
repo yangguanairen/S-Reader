@@ -49,11 +49,7 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
         titleView.text = mTitle
         mList.forEachIndexed { index, s ->
             val itemBinding = ItemSettingSelectPopupBinding.inflate(LayoutInflater.from(context), listLayout, true)
-            itemBinding.radioButton.apply {
-                text = s
-//                compoundDrawablePadding = context.dp2px(16)
-//                setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, context.dp2px(32), 0)
-            }
+            itemBinding.radioButton.text = s
             itemBinding.radioLayout.setOnClickListener {
                 dismiss()
                 mOnSelectedListener?.onSelect(index, s)

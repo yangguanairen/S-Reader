@@ -1,9 +1,17 @@
 package com.sena.lanraragi.ui.setting
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.doOnAttach
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.AppConfig
@@ -11,12 +19,14 @@ import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ActivitySettingBinding
 import com.sena.lanraragi.utils.DataStoreHelper
-import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.FileUtils
+import com.sena.lanraragi.utils.GlobalCrashUtils
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
+import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getThemeColor
+import kotlinx.coroutines.launch
 
 class SettingActivity : BaseActivity() {
 
@@ -45,7 +55,7 @@ class SettingActivity : BaseActivity() {
 
     private val appTheme2StrMap by lazy {
         mapOf(
-            getString(R.string.setting_common_apptheme_select_1) to R.style.AppTheme,
+            getString(R.string.setting_common_apptheme_select_1) to R.style.AppTheme_Dark,
             getString(R.string.setting_common_apptheme_select_2) to R.style.AppTheme_HVerse
         )
     }
@@ -62,6 +72,15 @@ class SettingActivity : BaseActivity() {
 
         initPopup()
         initView()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val operate = intent.getStringExtra(INTENT_KEY_OPERATE)
+                if (operate == OPERATE_KEY_VALUE1) {
+                    binding.server.hostLayout.callOnClick()
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -266,13 +285,18 @@ class SettingActivity : BaseActivity() {
 
     private fun initSource() {
         binding.source.licensesLayout.setOnClickListener {
-            // TODO: 跳转activity
+            val intent = Intent(this, OpenLicenseActivity::class.java)
+            startActivity(intent)
         }
         binding.source.gplv3Layout.setOnClickListener {
-            // TODO: 跳转activity
+            val intent = Intent(this, MyLicenseActivity::class.java)
+            startActivity(intent)
         }
         binding.source.githubLayout.setOnClickListener {
-            // TODO: 跳转activity
+            val url = "https://github.com/yangguanairen/LANraragi"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val chooser = Intent.createChooser(intent, "Open with")
+            startActivity(chooser)
         }
     }
 
@@ -296,7 +320,10 @@ class SettingActivity : BaseActivity() {
             DataStoreHelper.updateValue(this, DataStoreHelper.KEY.DEBUG_CRASH, finStatus)
         }
         binding.debug.copyCrashLayout.setOnClickListener {
-            // TODO: 全局捕获异常到沙盒txt中，读取到剪贴板
+            val crashLog = GlobalCrashUtils.getCrashText(this)
+            val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText(null, crashLog)
+            cm.setPrimaryClip(clipData)
         }
     }
 
@@ -341,7 +368,7 @@ class SettingActivity : BaseActivity() {
         commonAppThemeCustomPop = SettingSelectPopup(this, getString(R.string.setting_common_apptheme_title), appTheme2StrMap.keys.toList())
         commonAppThemeCustomPop.setOnSelectedListener { _, s ->
             binding.common.themeText.text = s
-            val themeId = appTheme2StrMap[s] ?: R.style.AppTheme
+            val themeId = appTheme2StrMap[s] ?: R.style.AppTheme_Dark
             AppConfig.theme = s
             DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_THEME, s)
             setTheme(themeId)
@@ -431,7 +458,6 @@ class SettingActivity : BaseActivity() {
 
     override fun onThemeChanged(theme: Int) {
         super.onThemeChanged(theme)
-        DebugLog.e("测试： Theme改变$theme")
 
         val bgColor1 = getThemeColor(R.attr.bgColor1)!!
         val bgColor2 = getThemeColor(R.attr.bgColor2)!!

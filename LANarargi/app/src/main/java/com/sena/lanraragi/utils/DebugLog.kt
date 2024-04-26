@@ -1,6 +1,9 @@
 package com.sena.lanraragi.utils
 
 import android.util.Log
+import android.widget.Toast
+import com.sena.lanraragi.AppConfig
+import com.sena.lanraragi.LanraragiApplication
 
 
 /**
@@ -71,6 +74,9 @@ object DebugLog {
                 Log.e(tag, s)
             }
         })
+        if (AppConfig.enableShowDetail) {
+            Toast.makeText(LanraragiApplication.getContext(), toPrint.toString(), Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**

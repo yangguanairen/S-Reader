@@ -9,7 +9,7 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.LANraragi"
+        android:theme="@style/AppTheme.Base"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
@@ -19,7 +19,7 @@
             app:titleTextColor="?attr/textColor1"
             app:subtitleTextColor="?attr/textColor2"
             android:background="?attr/bgColor2"
-            app:popupTheme="@style/Theme.LANraragi" />
+            app:popupTheme="@style/AppTheme.Base" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

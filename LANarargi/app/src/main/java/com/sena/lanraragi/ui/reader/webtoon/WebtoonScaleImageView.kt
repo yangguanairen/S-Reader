@@ -2,7 +2,6 @@ package com.sena.lanraragi.ui.reader.webtoon
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.AttributeSet
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 

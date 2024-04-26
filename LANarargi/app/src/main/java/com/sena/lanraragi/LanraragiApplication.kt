@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.utils.DataStoreHelper
+import com.sena.lanraragi.utils.GlobalCrashUtils
 import com.sena.lanraragi.utils.ScaleType
 
 
@@ -13,7 +14,7 @@ import com.sena.lanraragi.utils.ScaleType
  * Date: 2024/3/25
  */
 
-class Application : Application() {
+class LanraragiApplication : Application() {
 
 
     override fun onCreate() {
@@ -24,6 +25,9 @@ class Application : Application() {
         LanraragiDB.init(this)
 
         initAppConfig()
+
+        GlobalCrashUtils.init(this)
+            .register(this)
 
     }
 
@@ -68,10 +72,10 @@ class Application : Application() {
 
     companion object {
 
-         private lateinit var instance: com.sena.lanraragi.Application
+         private lateinit var instance: LanraragiApplication
 
         fun getContext(): Context {
-            return instance
+            return instance.applicationContext
         }
 
     }

@@ -14,9 +14,8 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.chad.library.adapter4.BaseDifferAdapter
+import com.chad.library.adapter4.BaseQuickAdapter
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.github.chrisbanes.photoview.PhotoView
 import com.sena.lanraragi.AppConfig
@@ -34,7 +33,7 @@ import com.sena.lanraragi.utils.TouchZone
  * Date: 2024/3/28
  */
 
-class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()) {
+class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
 
     private var mOnTapListener: OnTapListener? = null
     private var mOnLongPressListener: OnLongClickListener? = null
@@ -82,6 +81,9 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
             }
             photoImageSupportList.any { item.lowercase().endsWith(it) } -> {
                 holder.bindPhotoView(item)
+            }
+            item == "error" -> {
+                holder.bindErrorView(item)
             }
             item.isBlank() -> {
                 holder.bindEmptyView()
@@ -196,7 +198,7 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
         fun bindErrorView(url: String) {
             DebugLog.e("ReaderAdapter.VH.bindErrorView(): 不支持的资源:$url")
             mUrl = url
-            progressBar.visibility = View.VISIBLE
+            progressBar.visibility = View.INVISIBLE
             errorView.apply {
                 val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
@@ -315,16 +317,6 @@ class ReaderAdapter : BaseDifferAdapter<String, ReaderAdapter.VH>(DiffCallback()
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<String>() {
-        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-            return oldItem == newItem
-        }
-
-    }
     fun setOnImageClickListener(func: (touchZone: TouchZone) -> Unit)  {
         mOnTapListener = object : OnTapListener {
             override fun onTap(touchZone: TouchZone) {

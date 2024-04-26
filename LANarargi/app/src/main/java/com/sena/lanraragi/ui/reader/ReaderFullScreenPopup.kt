@@ -42,10 +42,7 @@ class ReaderFullScreenPopup(context: Context, pos: Int, list: List<Pair<String, 
             if (isHuman) {
                 pagePicker.value = finalPos + 1
                 isHuman = false
-            } else {
-//                    DebugLog.d("测试: Webtoon 非用户操作")
             }
-
         }
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)

@@ -6,13 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
-import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.NewHttpHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainVM() : ViewModel() {
+class MainVM : ViewModel() {
 
     val serverArchiveCount = MutableLiveData<Int>()
     val dataList = MutableLiveData<List<Archive>>()
@@ -57,7 +56,6 @@ class MainVM() : ViewModel() {
             val result = withContext(Dispatchers.IO) {
                 LanraragiDB.queryArchivesWithTag(query)
             }
-            DebugLog.d("测试: setSort(): ${result.size}")
             dataList.value = result
         }
     }
@@ -71,7 +69,6 @@ class MainVM() : ViewModel() {
             val result = withContext(Dispatchers.IO) {
                 LanraragiDB.queryArchivesWithTag(query)
             }
-            DebugLog.d("测试: setOrder(): ${result.size}")
             dataList.value = result
         }
     }
@@ -85,7 +82,6 @@ class MainVM() : ViewModel() {
             val result = withContext(Dispatchers.IO) {
                 LanraragiDB.queryArchivesWithTag(query)
             }
-            DebugLog.d("测试: setOrder(): ${result.size}")
             dataList.value = result
         }
     }

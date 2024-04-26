@@ -45,7 +45,7 @@ class SearchView @JvmOverloads constructor(
             val what = msg.what
             if (what != mWhat) return
             val text = getOrNull { msg.obj.toString() }
-            DebugLog.d("SearchView 接收: $text")
+            DebugLog.i("SearchView 接收: $text")
             if (text == null)  return
             mFinishListener?.onInputFinish(text)
         }
@@ -58,7 +58,7 @@ class SearchView @JvmOverloads constructor(
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             binding.clear.visibility = if (s?.length != 0) View.VISIBLE else View.INVISIBLE
-            DebugLog.d("SearchView 输入: $s")
+            DebugLog.i("SearchView 输入: $s")
             if (s == null) return
 
             val message = Message()

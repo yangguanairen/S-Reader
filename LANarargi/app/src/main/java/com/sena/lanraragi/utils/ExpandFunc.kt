@@ -104,7 +104,3 @@ fun Context.getThemeColor(id: Int): Int? {
     return if (isSuccess) typedValue.data else null
 }
 
-fun Context.dp2Px(dp: Int): Int {
-    val density = resources.displayMetrics.density
-    return (density * density + 0.5).toInt()
-}

@@ -8,9 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.OnInputConfirmListener
-import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.R
-import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.getThemeColor
 
 

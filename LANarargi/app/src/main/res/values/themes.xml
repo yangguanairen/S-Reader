@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
 
 <!--    Toolbar -> #34353B-->
@@ -29,25 +29,6 @@
         <item name="bgColor3">#424242</item> <!-- CardView背景色 -->
         <item name="bgColor4">#5b5b5d</item> <!-- 按钮背景色 -->
         <item name="bgColor5">#4a4a4a</item> <!-- 分割线颜色 -->
-
-
-<!--        <item name="bgColor_activity">#303030</item>-->
-<!--        <item name="bgColor_toolbar">#212121</item>-->
-<!--        <item name="bg_color_cardview">#424242</item>-->
-<!--        <item name="bg_color_button">#5b5b5d</item>-->
-<!--        <item name="bg_color_nav">#303030</item>-->
-<!--        <item name="bg_color_divider">#4a4a4a</item>-->
-
-
-<!--        <item name="textColor_toolbar_title">#ffffff</item>-->
-<!--        <item name="textColor_toolbar_subtitle">#c8c8c8</item>-->
-<!--        <item name="text_color_cardview">#c8c8c8</item>-->
-
-
-<!--        <item name="icon_color_toolbar">#ffffff</item>-->
-<!--        <item name="icon_color_other">#c8c8c8</item>-->
-
-
     </style>
 
     <style name="AppTheme.HVerse" parent="AppTheme.Base">
@@ -62,87 +43,8 @@
         <item name="bgColor5">#4a4a4a</item> <!-- 分割线颜色 -->
     </style>
 
-
-
-
-
-
-
-
-
-
-
-
-    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">
-        <item name="bgColor1">#34353B</item> <!-- Toolbar背景颜色 -->
-        <item name="bgColor2">#4F535B</item> <!-- 页面背景颜色 -->
-        <item name="bgColor3">#43464E</item> <!-- 卡片背景颜色 -->
-        <item name="bgColor4">#363940</item> <!-- NavView背景颜色 -->
-        <item name="bgColor5">#5b5b5d</item> <!-- 分割线颜色 -->
-
-        <item name="textColor1">#FFFFFF</item>
-        <item name="textColor2">#BDBDBD</item>
-        <item name="textColor3">#82c9c3</item>
-
-
-        <item name="android:windowContentTransitions">true</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
-    </style>
-
-
-
-
-
-<!--    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar.Bridge">-->
-<!--        <item name="textColor1">#ffffff</item>-->
-<!--        <item name="textColor2">#BDBDBD</item>-->
-<!--        <item name="textColor3">#82c9c3</item>-->
-<!--        <item name="bgColor1">#303030</item>-->
-<!--        <item name="bgColor2">#212121</item>-->
-<!--        <item name="bgColor3">#424242</item>-->
-<!--        <item name="bgColor4">#5b5b5d</item>-->
-
-<!--        <item name="android:windowContentTransitions">true</item>-->
-<!--        <item name="windowActionModeOverlay">true</item>-->
-<!--        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>-->
-<!--        <item name="android:windowExitAnimation">@android:anim/fade_out</item>-->
-<!--&lt;!&ndash;        <item name="android:windowEnterTransition">true</item>&ndash;&gt;-->
-<!--&lt;!&ndash;        <item name="android:windowExitTransition">true</item>&ndash;&gt;-->
-<!--    </style>-->
-
-
-
-    <style name="LAnraragiBlack" parent="Theme.LANraragi">
-        <item name="textColor1">#ffffff</item>
-        <item name="textColor2">#BDBDBD</item>
-        <item name="textColor3">#82c9c3</item>
-        <item name="bgColor1">#303030</item>
-        <item name="bgColor2">#212121</item>
-        <item name="bgColor3">#424242</item>
-        <item name="bgColor4">#5b5b5d</item>
-    </style>
-
-    <style name="AppTranstiotionAnimation" parent="Theme.LANraragi">
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowActionModeOverlay">true</item>
-<!--        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>-->
-    </style>
-
-    <style name="WindowAnimationTransition">
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
-    </style>
-
     <style name="ToolbarPopTheme" parent="Widget.MaterialComponents.PopupMenu">
         <item name="android:popupBackground">?attr/bgColor3</item>
         <item name="android:textColor">?attr/textColor1</item>
     </style>
-
-
-
-
-
-
 </resources>

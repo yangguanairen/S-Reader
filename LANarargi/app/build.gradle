@@ -48,40 +48,33 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-
     // Room
     def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-
-    // OkHttp
-    def okhttp_version = "4.3.1"
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-
     // viewModel
     def viewModel_version = "2.7.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$viewModel_version"
     implementation "androidx.activity:activity-ktx:1.4.0"
-
-    // paging
-    def paging_version = "3.2.1"
-    implementation "androidx.paging:paging-runtime:$paging_version"
-    implementation "androidx.paging:paging-common:$paging_version"
-
+    // OkHttp
+    def okhttp_version = "4.3.1"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     // RecyclerView辅助库
-    implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper4:4.1.4"
-
+    def adapter_version = "4.1.4"
+    implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper4:$adapter_version"
     //重采样加载大图片
-    implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
-
-    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
-
-
-    implementation ('com.github.li-xiaojun:XPopup:2.10.0'){
+    def scale_version = "3.10.0"
+    implementation "com.davemorrissey.labs:subsampling-scale-image-view-androidx:$scale_version"
+    // PhotoView
+    def photo_version = "2.3.0"
+    implementation "com.github.chrisbanes:PhotoView:$photo_version"
+    // Xpopup
+    def pop_version = "2.10.0"
+    implementation ("com.github.li-xiaojun:XPopup:$pop_version"){
         exclude group: "com.davemorrissey.labs", module: "subsampling-scale-image-view-androidx"
     }
-
+    // coil图片加载库
     def coil_version = "2.6.0"
     implementation ("io.coil-kt:coil:$coil_version")
     implementation ("io.coil-kt:coil-gif:$coil_version")

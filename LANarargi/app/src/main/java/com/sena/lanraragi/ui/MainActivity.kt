@@ -23,7 +23,6 @@ import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
 import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
-import com.sena.lanraragi.utils.getThemeColor
 import kotlinx.coroutines.launch
 
 class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {

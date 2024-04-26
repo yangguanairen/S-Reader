@@ -78,7 +78,7 @@ class PreviewFragment : BaseFragment() {
                 LanraragiDB.queryArchiveById(id)
             }
             if (archive == null) {
-                DebugLog.e("IntroduceFragment: 数据中不存在此数据: $id")
+                DebugLog.e("PreviewFragment: 数据库中不存在此数据: $id")
                 return@launch
             }
             // 服务器强行提取缩略图

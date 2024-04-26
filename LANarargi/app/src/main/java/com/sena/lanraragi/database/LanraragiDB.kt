@@ -2,13 +2,10 @@ package com.sena.lanraragi.database
 
 import android.content.Context
 import androidx.room.Database
-import androidx.room.DatabaseConfiguration
-import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.sqlite.db.SupportSQLiteOpenHelper
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.database.archiveData.ArchiveDao
@@ -150,24 +147,5 @@ abstract class LanraragiDB : RoomDatabase() {
             return instance.archiveDao().queryBookmarkedArchives()
         }
     }
-
-
-
-
-
-
-    override fun clearAllTables() {
-        TODO("Not yet implemented")
-    }
-
-    override fun createInvalidationTracker(): InvalidationTracker {
-        TODO("Not yet implemented")
-    }
-
-    override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
-        TODO("Not yet implemented")
-    }
-
-
 }
 
