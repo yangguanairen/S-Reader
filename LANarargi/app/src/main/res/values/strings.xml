@@ -140,6 +140,7 @@
     <string name="bottom_pop_goto_detail" translatable="false">回到详情页</string>
     <string name="bottom_pop_select_page" translatable="false">跳转页面</string>
     <string name="bottom_pop_display_bookmark" translatable="false">查看书签</string>
+    <string name="bottom_pop_change_thumb" translatable="false">将此页面设置为封面</string>
 
 
     // 书签查看器

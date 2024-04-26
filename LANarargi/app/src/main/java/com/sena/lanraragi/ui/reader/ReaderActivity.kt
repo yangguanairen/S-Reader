@@ -10,6 +10,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -40,10 +41,9 @@ class ReaderActivity : BaseActivity() {
     private var mId: String? = null
     private var mArchive: Archive? = null
     private var mPos: Int = -1
-//    private var mFileNameList: List<String>? = null
 
     private val binding: ActivityReaderBinding by lazy { ActivityReaderBinding.inflate(layoutInflater) }
-    private val vm: ReaderVM by lazy { ReaderVM() }
+    private val vm: ReaderVM by viewModels()
     private lateinit var viewPagerAdapter: ReaderAdapter
     private lateinit var webtoonAdapter: ReaderAdapter
     private lateinit var bottomPopup: BasePopupView
@@ -152,6 +152,9 @@ class ReaderActivity : BaseActivity() {
                     R.id.showBookmark -> {
                         displayToolbar()
                         binding.drawerLayout.openDrawer(binding.leftNav)
+                    }
+                    R.id.changeThumb -> {
+                        mId?.let { vm.updateThumb(it) }
                     }
                 }
             }

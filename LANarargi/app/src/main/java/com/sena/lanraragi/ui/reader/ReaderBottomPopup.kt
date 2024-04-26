@@ -1,6 +1,7 @@
 package com.sena.lanraragi.ui.reader
 
 import android.content.Context
+import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.lxj.xpopup.core.BottomPopupView
@@ -31,6 +32,7 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
     private var gotoDetailLayout: RelativeLayout? = null
     private var selectPageLayout: RelativeLayout? = null
     private var showBookmarkLayout: RelativeLayout? = null
+    private var changeThumbLayout: RelativeLayout? = null
 
 
     private val mMap by lazy {
@@ -84,6 +86,13 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
             setOnClickListener {
                 dismiss()
                 mOnItemClickListener?.onItemClick(R.id.showBookmark)
+            }
+        }
+        changeThumbLayout = findViewById<RelativeLayout?>(R.id.changeThumb).apply {
+            visibility = if (AppConfig.serverSecretKey.isBlank()) View.GONE else View.VISIBLE
+            setOnClickListener {
+                dismiss()
+                mOnItemClickListener?.onItemClick(R.id.changeThumb)
             }
         }
 

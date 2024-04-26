@@ -1,5 +1,6 @@
 package com.sena.lanraragi.utils
 
+import android.util.Base64
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
@@ -10,6 +11,7 @@ import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody
 import okio.Buffer
@@ -98,6 +100,19 @@ object NewHttpHelper {
                     result = list
                 }
             }
+        }
+        return result
+    }
+
+    suspend fun updateServerThumb(id: String, page: Int): Boolean {
+        val url = AppConfig.serverHost + "/api/archives/$id/thumbnail?page=$page"
+
+        val mBuilder = Build().url(url).method("put")
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val s = response?.body?.string()
+            DebugLog.d("updateServerThumb response: \n$s")
+            response?.code == 200
         }
         return result
     }
@@ -236,8 +251,9 @@ object NewHttpHelper {
 
         private var url: String? = null
         private val headers: MutableMap<String, String> = mutableMapOf()
-        private var isPrintResponseStr = false
         private var mClient: OkHttpClient? = null
+        private var method: String = "get"
+        private var body: RequestBody? = null
 
 
         fun url(s: String): Build {
@@ -250,12 +266,21 @@ object NewHttpHelper {
             return this
         }
 
+        fun method(m: String, body: RequestBody? = null): Build {
+            method = m
+            this.body = body
+            return this
+        }
+
         fun execute(): Response? {
             val mUrl = url ?: throw Exception("url is null")
-            val build = Request.Builder().url(mUrl)
+            val build = Request.Builder()
+                .url(mUrl)
+                .method(method, null)
             val secretKey = AppConfig.serverSecretKey
             if (secretKey.isNotBlank()) {
-                headers["Authorization"] = secretKey
+                val encodedStr = Base64.encodeToString(secretKey.toByteArray(), Base64.NO_WRAP)
+                headers["Authorization"] = "Bearer $encodedStr"
             }
             headers.entries.forEach {
                 build.addHeader(it.key, it.value)

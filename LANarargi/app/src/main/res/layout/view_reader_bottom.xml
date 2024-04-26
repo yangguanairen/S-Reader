@@ -110,4 +110,19 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/changeThumb"
+        style="@style/reader_nav_item_layout">
+
+        <ImageView
+            style="@style/reader_nav_item_icon"
+            android:src="@drawable/ic_color_lens_24"
+            android:contentDescription="@string/bottom_pop_change_thumb" />
+
+        <TextView
+            style="@style/reader_nav_item_text"
+            android:text="@string/bottom_pop_change_thumb" />
+
+    </RelativeLayout>
+
 </LinearLayout>

@@ -128,7 +128,7 @@ class SettingActivity : BaseActivity() {
         }
         val key = AppConfig.serverSecretKey
         binding.server.keyText.apply {
-            visibility = if (host.isEmpty()) View.GONE else View.VISIBLE
+            visibility = if (key.isEmpty()) View.GONE else View.VISIBLE
             text = key
         }
         binding.server.keyLayout.setOnClickListener {

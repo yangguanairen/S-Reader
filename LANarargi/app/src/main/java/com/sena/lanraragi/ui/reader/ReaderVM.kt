@@ -3,10 +3,12 @@ package com.sena.lanraragi.ui.reader
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.NewHttpHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
@@ -62,6 +64,19 @@ class ReaderVM : ViewModel() {
         curPos.value = cPos
     }
 
+    fun updateThumb(id: String) {
+        val page = (curPos.value ?: 0) + 1
+        viewModelScope.launch {
+            val isSuccess = withContext(Dispatchers.IO) {
+                NewHttpHelper.updateServerThumb(id, page)
+            }
+            if (isSuccess) {
+                Toast.makeText(LanraragiApplication.getContext(), "成功设置为第${page}页", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(LanraragiApplication.getContext(), "设置失败", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
 }
