@@ -172,8 +172,7 @@ class ImageLoad private constructor(context: Context) {
     private fun loadThumb() {
         val dir = File(mContext.externalCacheDir, "thumb")
         if (!dir.exists()) dir.mkdirs()
-        var isExists = dir.listFiles()?.any { it.name == arcId } == true
-        if (isIgnoreDiskCache) isExists = false
+        val isExists = if (isIgnoreDiskCache) false else dir.listFiles()?.any { it.name == arcId } == true
 
         val url = AppConfig.serverHost + "/api/archives/$arcId/thumbnail"
         val path = dir.absolutePath + "/$arcId"
@@ -208,8 +207,7 @@ class ImageLoad private constructor(context: Context) {
     private fun loadPreview() {
         val dir = File(mContext.externalCacheDir, "archiveThumb/$arcId")
         if (!dir.exists()) dir.mkdirs()
-        var isExists = dir.listFiles()?.any { it.name == previewIndex } == true
-        if (isIgnoreDiskCache) isExists = false
+        val isExists = if (isIgnoreDiskCache) false else dir.listFiles()?.any { it.name == previewIndex } == true
 
         // http://192.168.0.102:3003/api/archives/f469625f2b9af02827575a0e743d8244df5378cf/thumbnail?page=5
         val url = AppConfig.serverHost + "/api/archives/$arcId/thumbnail?page=$previewIndex"
@@ -255,8 +253,7 @@ class ImageLoad private constructor(context: Context) {
         if (!dir.exists()) dir.mkdirs()
         // 文件名携带"/"符号会自动生成父级文件夹
         val finFileName = fileName.replace("/", "_")
-        var isExists = dir.listFiles()?.any { it.name == finFileName } == true
-        if (isIgnoreDiskCache) isExists = false
+        val isExists = if (isIgnoreDiskCache) false else dir.listFiles()?.any { it.name == finFileName } == true
 
         val url = picUrl
         val path = dir.absolutePath + "/$finFileName"

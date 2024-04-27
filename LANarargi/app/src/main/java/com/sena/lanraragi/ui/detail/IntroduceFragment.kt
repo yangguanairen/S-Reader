@@ -97,10 +97,26 @@ class IntroduceFragment : BaseFragment() {
         }
     }
 
+    override fun lazyLoad() {
+        super.lazyLoad()
+        mId?.let { initData(it) }
+    }
+
     override fun onResume() {
         super.onResume()
-        mId?.let { initData(it) }
+        mId?.let { refreshBookmark(it) }
         mId?:let { requireActivity().supportStartPostponedEnterTransition() }
+    }
+
+    private fun refreshBookmark(id: String) {
+        lifecycleScope.launch {
+            val archive = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchiveById(id)
+            }
+            if (archive != null) {
+                binding.bookmark.text = bookmarkTextMap[archive.isBookmark]
+            }
+        }
     }
 
     private fun initData(id: String) {

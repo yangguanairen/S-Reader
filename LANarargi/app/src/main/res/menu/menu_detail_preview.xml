@@ -6,6 +6,10 @@
         android:title="@string/detail_toolbar_random"/>
 
     <item
+        android:id="@+id/refresh"
+        android:title="@string/detail_toolbar_refresh_preview"/>
+
+    <item
         android:id="@+id/gotoTop"
         android:title="@string/main_menu_goto_top"/>
 

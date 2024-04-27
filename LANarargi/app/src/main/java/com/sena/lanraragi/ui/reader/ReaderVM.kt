@@ -61,12 +61,12 @@ class ReaderVM : ViewModel() {
 
     fun upPage() {
         val pos = curPos.value?.first ?: 0
-        curPos.value = Pair(pos + 1, PosSource.Other)
+        setCurPosition(pos + 1, PosSource.Other)
     }
 
     fun downPage() {
         val pos = curPos.value?.first ?: 0
-        curPos.value = Pair(pos - 1, PosSource.Other)
+        setCurPosition(pos - 1, PosSource.Other)
     }
 
     fun setFileNameList(list: List<String>) {

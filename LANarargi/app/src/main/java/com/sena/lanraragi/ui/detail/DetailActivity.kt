@@ -47,6 +47,7 @@ class DetailActivity : BaseActivity() {
 
         val tabTitles = arrayListOf("详细", "预览图")
         binding.viewPager.currentItem = 0
+        binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
             override fun getItemCount(): Int {
                 return fragments.size

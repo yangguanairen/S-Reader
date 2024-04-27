@@ -37,6 +37,7 @@ enum class PosSource {
     Webtoon,
     Seekbar,
     PreviewFragment,
+    SelectedPage,
     Other
 }
 

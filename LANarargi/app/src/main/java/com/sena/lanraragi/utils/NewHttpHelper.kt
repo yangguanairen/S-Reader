@@ -89,8 +89,11 @@ object NewHttpHelper {
         withContext(Dispatchers.IO) {
             val response = mBuilder.execute()
             if (response?.code != 200) return@withContext
-            getOrNull {
+            kotlin.runCatching {
                 val jsonObject = response.body?.byteStream()?.toJSONObject()
+//                val job = jsonObject?.getString("job")
+//                job?.let { forceServerExecuteMinio(it) }
+
                 val pages = jsonObject?.getJSONArray("pages")
                 if (pages != null) {
                     val list = arrayListOf<String>()
@@ -99,7 +102,7 @@ object NewHttpHelper {
                     }
                     result = list
                 }
-            }
+            }.onFailure { it.printStackTrace() }
         }
         return result
     }
@@ -121,6 +124,17 @@ object NewHttpHelper {
      * 注意不捕获异常
      */
     suspend fun downloadFile(url: String, savePath: String, onDownloadProgress: ((curSize: Int, totalSize: Int) -> Unit)? = null) {
+        val fileLength = File(savePath).length()
+        val request = Request.Builder().url(url).head().build()
+        val headerResp = withContext(Dispatchers.IO) {
+            defaultClient.newCall(request).execute()
+        }
+        val serverLength = headerResp.header("Content-Length", "0")?.toLongOrNull()
+        if (fileLength == serverLength) {
+            onDownloadProgress?.invoke(100, 100)
+            return
+        }
+
         val build = Build().url(url)
 
         val client = OkHttpClient.Builder()
@@ -196,6 +210,22 @@ object NewHttpHelper {
         }
         return result
     }
+
+//    private suspend fun forceServerExecuteMinio(jobId: String) {
+//        val url = AppConfig.serverHost + "/api/minion/$jobId"
+//        val mBuilder = Build().url(url)
+//        var isActive = true
+//        withContext(Dispatchers.IO) {
+//            while (isActive) {
+//                val resp = mBuilder.execute()
+//                val state = resp?.body?.byteStream()?.toJSONObject()?.getString("state")
+//                isActive = state == "active"
+//                DebugLog.e("测试: state: $state, $isActive")
+//                delay(200)
+//            }
+//            mBuilder.execute()
+//        }
+//    }
 
     private suspend fun getRandomArchiveFromServer(count: Int): List<Archive>? {
         val url = AppConfig.serverHost + "/api/search/random?count=$count"

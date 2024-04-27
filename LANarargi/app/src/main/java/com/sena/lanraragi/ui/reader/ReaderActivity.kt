@@ -96,12 +96,13 @@ class ReaderActivity : BaseActivity() {
             binding.contentReader.seekbar.progress = page
             binding.contentReader.curPage.text = (page + 1).toString()
 
-            when (pair.second) {
-                PosSource.Seekbar, PosSource.PreviewFragment, PosSource.Other -> {
+            when (val source = pair.second) {
+                PosSource.Seekbar, PosSource.PreviewFragment, PosSource.Other, PosSource.SelectedPage -> {
                     if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
                         binding.contentReader.recyclerView.scrollToPosition(page)
                     } else {
-                        binding.contentReader.viewPager.setCurrentItem(page, false)
+                        val showAnim = source != PosSource.PreviewFragment && source != PosSource.SelectedPage
+                        binding.contentReader.viewPager.setCurrentItem(page, showAnim)
                     }
                 }
                 else -> {}
@@ -136,7 +137,7 @@ class ReaderActivity : BaseActivity() {
                             .isDestroyOnDismiss(true)
                             .asCustom(ReaderFullScreenPopup(this@ReaderActivity, pos, list).apply {
                                 setOnPageSelectedListener {
-                                    vm.setCurPosition(it, PosSource.Other)
+                                    vm.setCurPosition(it, PosSource.SelectedPage)
                                 }
                             })
                             .show()
@@ -195,7 +196,6 @@ class ReaderActivity : BaseActivity() {
             var isHuman = false
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                vm.setCurPosition(position, PosSource.ViewPager)
                 if (isHuman) {
                     vm.setCurPosition(position, PosSource.ViewPager)
                     isHuman = false
@@ -218,6 +218,7 @@ class ReaderActivity : BaseActivity() {
         binding.contentReader.viewPager.apply {
             layoutDirection = if (AppConfig.enableRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
             registerOnPageChangeCallback(pageChangeListener)
+            offscreenPageLimit = 5
             adapter = viewPagerAdapter
         }
     }

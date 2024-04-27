@@ -42,6 +42,8 @@ class PreviewAdapter : BaseQuickAdapter<Pair<String, String>, PreviewAdapter.VH>
             binding.page.text  = (pos + 1).toString()
             ImageLoad.Builder(context)
                 .loadPreview(id, pageName)
+                // 服务端可能解压失败，返回默认的无缩略图图片
+                .isIgnoreDiskCache(true)
                 .into(binding.image)
                 .execute()
         }

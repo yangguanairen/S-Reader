@@ -81,21 +81,25 @@ class PreviewFragment : BaseFragment() {
                 DebugLog.e("PreviewFragment: 数据库中不存在此数据: $id")
                 return@launch
             }
-            // 服务器强行提取缩略图
-            withContext(Dispatchers.IO) {
-                NewHttpHelper.extractManga(id)
-            }
-
             mArchive = archive
-            val pageCount = archive.pagecount
-            if (pageCount != null) {
-                val list = (0 until pageCount).map {
-                    Pair(archive.arcid, "${it + 1}")
-                }
-                mAdapter.submitList(list)
+            extractManga(id)
+        }
+    }
+
+    private suspend fun extractManga(id: String) {
+        // 服务器强行提取缩略图
+        val result = withContext(Dispatchers.IO) {
+            NewHttpHelper.extractManga(id)
+        }
+        if (result != null) {
+            (1..result.size).map { index ->
+                Pair(id, "$index")
+            }.let {
+                mAdapter.submitList(it)
             }
         }
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -111,6 +115,14 @@ class PreviewFragment : BaseFragment() {
                         mNewArchiveListener?.onGenerateArchive(randomArchive)
                     } else {
                         Toast.makeText(requireContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            R.id.refresh -> {
+                mId?.let {
+                    lifecycleScope.launch {
+                        extractManga(it)
                     }
                 }
             }

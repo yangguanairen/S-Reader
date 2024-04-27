@@ -46,6 +46,7 @@
     <string name="detail_introduce_cancel_bookmark" translatable="false">取消书签</string>
     <string name="detail_toolbar_random" translatable="false">查看随机档案</string>
     <string name="detail_toolbar_refresh" translatable="false">强制刷新缩略图</string>
+    <string name="detail_toolbar_refresh_preview" translatable="false">强制刷新预览图</string>
     <string name="detail_toolbar_goto_top" translatable="false">跳转顶部</string>
     <string name="detail_toolbar_goto_bottom" translatable="false">跳转底部</string>
     <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
