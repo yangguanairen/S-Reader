@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.NewHttpHelper
+import com.sena.lanraragi.utils.PosSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,8 +23,7 @@ class ReaderVM : ViewModel() {
 
     val fileNameList = MutableLiveData<List<String>>()
 
-    val curPos = MutableLiveData<Int>()
-    var fromWebtoon: Boolean = false
+    val curPos = MutableLiveData<Pair<Int, PosSource>>()
 
 
     suspend fun initData(arcId: String) {
@@ -40,7 +40,11 @@ class ReaderVM : ViewModel() {
         }
     }
 
-    fun setCurPosition(page: Int) {
+    fun setCurPosition(page: Int, source: PosSource) {
+        if (source == PosSource.PreviewFragment) {
+            curPos.value = Pair(page, source)
+            return
+        }
         // 校验page正确性
         val totalCount = fileNameList.value?.size ?: 0
         if (page < 0) {
@@ -52,20 +56,30 @@ class ReaderVM : ViewModel() {
             DebugLog.d("ReaderActivity: 错误的当前位置: $page")
             return
         }
-        curPos.value = page
+        curPos.value = Pair(page, source)
+    }
+
+    fun upPage() {
+        val pos = curPos.value?.first ?: 0
+        curPos.value = Pair(pos + 1, PosSource.Other)
+    }
+
+    fun downPage() {
+        val pos = curPos.value?.first ?: 0
+        curPos.value = Pair(pos - 1, PosSource.Other)
     }
 
     fun setFileNameList(list: List<String>) {
         fileNameList.value = list
     }
 
-    fun updateList() {
-        val cPos = curPos.value ?: 0
-        curPos.value = cPos
+    fun updateList(source: PosSource) {
+        val cPos: Int = curPos.value?.first ?: 0
+        curPos.value = Pair(cPos, source)
     }
 
     fun updateThumb(id: String) {
-        val page = (curPos.value ?: 0) + 1
+        val page = (curPos.value?.first ?: 0) + 1
         viewModelScope.launch {
             val isSuccess = withContext(Dispatchers.IO) {
                 NewHttpHelper.updateServerThumb(id, page)

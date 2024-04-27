@@ -2,10 +2,11 @@ package com.sena.lanraragi.ui.widet
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import android.widget.LinearLayout
+import com.google.android.flexbox.FlexboxLayout
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ItemTagBinding
 import com.sena.lanraragi.databinding.ItemTagLayoutBinding
@@ -41,23 +42,26 @@ class TagsViewer @JvmOverloads constructor(
     private fun redrawTagView(s: String) {
         binding.tagLayout.removeAllViews()
 
-        parseTagsToMap(s).entries.forEach { entry ->
+        parseTagsToMap(s).entries.sortedBy {
+            it.key
+        }.forEach { entry ->
             val lB = ItemTagLayoutBinding.inflate(LayoutInflater.from(mContext), binding.tagLayout, true)
             addHeaderTag(lB.headerLayout, entry.key)
-            addContentTag(lB.contentLayout, entry.key, entry.value, )
+            addContentTag(lB.contentLayout, entry.key, entry.value)
         }
     }
 
-    private fun addHeaderTag( headerLayout: LinearLayout, s: String) {
+    private fun addHeaderTag(headerLayout: FlexboxLayout, s: String) {
         val tB = ItemTagBinding.inflate(LayoutInflater.from(mContext), headerLayout, true)
         tB.textView.apply {
             text = s
-            setBackgroundResource(R.drawable.bg_tag_headers)
+            if (s.lowercase() == "artist") setTextColor(Color.parseColor("#22a7f0"))
+            if (s.lowercase() == "group") setTextColor(Color.parseColor("#36d7b7"))
         }
     }
 
     @SuppressLint("InflateParams")
-    private fun addContentTag(contentLayout: LinearLayout, header: String, list: List<String>) {
+    private fun addContentTag(contentLayout: FlexboxLayout, header: String, list: List<String>) {
         list.forEach { s ->
             val tB = ItemTagBinding.inflate(LayoutInflater.from(mContext), contentLayout, true)
             tB.textView.apply {

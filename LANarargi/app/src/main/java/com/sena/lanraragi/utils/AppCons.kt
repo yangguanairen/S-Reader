@@ -32,5 +32,13 @@ enum class TouchZone {
     Center
 }
 
+enum class PosSource {
+    ViewPager,
+    Webtoon,
+    Seekbar,
+    PreviewFragment,
+    Other
+}
+
 
 

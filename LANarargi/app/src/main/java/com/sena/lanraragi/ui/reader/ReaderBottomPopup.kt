@@ -21,6 +21,7 @@ import com.sena.lanraragi.utils.getThemeColor
 class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
 
     private val mContext = context
+    private var lastType = AppConfig.scaleMethod
 
     private var mScaleTypeChangeListener: OnScaleTypeChangeListener? = null
     private var mOnItemClickListener: OnItemClickListener? = null
@@ -103,13 +104,13 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
         changeFitStatus(AppConfig.scaleMethod, false)
     }
 
-    private fun changeFitStatus(scaleType: ScaleType, needCallback: Boolean = true) {
+    private fun changeFitStatus(newType: ScaleType, needCallback: Boolean = true) {
 
         mMap.forEach {
             val view = it.key
             val type = it.value
             view?.apply {
-                if (scaleType == type) {
+                if (newType == type) {
                     mContext.getThemeColor(R.attr.textColor3)?.let { color -> setTextColor(color) }
                     setBackgroundResource(R.drawable.bg_reader_fit_method_selected)
                 } else {
@@ -120,18 +121,19 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
 
         }
 
-        AppConfig.scaleMethod = scaleType
-        DataStoreHelper.updateValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, scaleType)
+        AppConfig.scaleMethod = newType
+        DataStoreHelper.updateValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, newType)
 
         if (needCallback) {
-            mScaleTypeChangeListener?.onScaleTypeChange(scaleType)
+            mScaleTypeChangeListener?.onScaleTypeChange(lastType, newType)
         }
+        lastType = newType
     }
 
-    fun setOnScaleTypeChangeListener(func: (scaleType: ScaleType) -> Unit) {
+    fun setOnScaleTypeChangeListener(func: (oldType: ScaleType, newType: ScaleType) -> Unit) {
         mScaleTypeChangeListener = object : OnScaleTypeChangeListener {
-            override fun onScaleTypeChange(scaleType: ScaleType) {
-                func.invoke(scaleType)
+            override fun onScaleTypeChange(oldType: ScaleType, newType: ScaleType) {
+                func.invoke(oldType, newType)
             }
         }
     }
@@ -145,7 +147,7 @@ class ReaderBottomPopup(context: Context) : BottomPopupView(context) {
     }
 
     private interface OnScaleTypeChangeListener {
-        fun onScaleTypeChange(scaleType: ScaleType)
+        fun onScaleTypeChange(oldType: ScaleType, newType: ScaleType)
     }
 
     private interface OnItemClickListener {

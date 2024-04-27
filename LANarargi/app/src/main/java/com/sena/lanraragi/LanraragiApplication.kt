@@ -59,16 +59,8 @@ class LanraragiApplication : Application() {
             isNew = DataStoreHelper.getValue(context, DataStoreHelper.KEY.FILTER_NEW, false)
             sort = DataStoreHelper.getValue(context, DataStoreHelper.KEY.FILTER_SORT, LanraragiDB.DBHelper.SORT.TIME)
             order = DataStoreHelper.getValue(context, DataStoreHelper.KEY.FILTER_ORDER, LanraragiDB.DBHelper.ORDER.DESC)
-
-            // 测试使用
-            serverHost = "http://192.168.0.102:3003"
-            randomCount = 10
         }
     }
-
-
-
-
 
     companion object {
 

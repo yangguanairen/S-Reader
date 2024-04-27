@@ -30,6 +30,7 @@ import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_POS
+import com.sena.lanraragi.utils.PosSource
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.TouchZone
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,6 @@ class ReaderActivity : BaseActivity() {
 
     private var mId: String? = null
     private var mArchive: Archive? = null
-    private var mPos: Int = -1
 
     private val binding: ActivityReaderBinding by lazy { ActivityReaderBinding.inflate(layoutInflater) }
     private val vm: ReaderVM by viewModels()
@@ -55,7 +55,6 @@ class ReaderActivity : BaseActivity() {
         setContentView(binding.root)
 
         mId = intent.getStringExtra(INTENT_KEY_ARCID)
-        mPos = intent.getIntExtra(INTENT_KEY_POS, -1)
 
         if (mId == null) {
             DebugLog.e("ReaderActivity.onCreate(): arcId is null")
@@ -80,44 +79,32 @@ class ReaderActivity : BaseActivity() {
                     recyclerView.visibility = View.VISIBLE
                     viewPager.visibility = View.INVISIBLE
                     webtoonAdapter.submitList(list)
-                    if (mPos > 0) {
-                        vm.setCurPosition(mPos)
-                        mPos = -1
-                    } else {
-                        vm.updateList()
-                    }
-                    webtoonAdapter.onScaleChange(AppConfig.scaleMethod)
+                    vm.updateList(PosSource.Webtoon)
                 } else {
                     recyclerView.visibility = View.INVISIBLE
                     viewPager.visibility = View.VISIBLE
                     viewPagerAdapter.submitList(list)
-                    if (mPos > 0) {
-                        vm.setCurPosition(mPos)
-                        mPos = -1
-                    } else {
-                        vm.updateList()
-                    }
-                    viewPagerAdapter.onScaleChange(AppConfig.scaleMethod)
+                    vm.updateList(PosSource.ViewPager)
                 }
             }
-
         }
-        vm.curPos.observe(this) { page ->
+        vm.curPos.observe(this) { pair ->
+            val page = pair.first
             val title = mArchive?.title
             val subtitle = "${page + 1}/${vm.fileNameList.value?.size ?: 0}页"
             setAppBarText(title, subtitle)
-            binding.contentReader.apply {
-                seekbar.progress = page
-                curPage.text = (page + 1).toString()
-                if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
-                    if (!vm.fromWebtoon) {
-                        recyclerView.scrollToPosition(page)
+            binding.contentReader.seekbar.progress = page
+            binding.contentReader.curPage.text = (page + 1).toString()
+
+            when (pair.second) {
+                PosSource.Seekbar, PosSource.PreviewFragment, PosSource.Other -> {
+                    if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
+                        binding.contentReader.recyclerView.scrollToPosition(page)
                     } else {
-                        vm.fromWebtoon = false
+                        binding.contentReader.viewPager.setCurrentItem(page, false)
                     }
-                } else {
-                    viewPager.setCurrentItem(page, false)
                 }
+                else -> {}
             }
         }
     }
@@ -126,8 +113,13 @@ class ReaderActivity : BaseActivity() {
         initToolbar()
         // 初始popup
         val customPopup = ReaderBottomPopup(this).apply {
-            setOnScaleTypeChangeListener {
-                vm.setFileNameList(vm.fileNameList.value ?: emptyList())
+            setOnScaleTypeChangeListener { oldType , newType ->
+                val tList = ScaleType.values().filter { it != ScaleType.WEBTOON }
+                if (oldType in tList && newType in tList) {
+                    viewPagerAdapter.onScaleChange(AppConfig.scaleMethod)
+                } else {
+                    vm.setFileNameList(vm.fileNameList.value ?: emptyList())
+                }
             }
             setOnItemClickListener { layoutId: Int ->
                 when (layoutId) {
@@ -136,7 +128,7 @@ class ReaderActivity : BaseActivity() {
                     }
                     R.id.selectPage -> {
                         val size = vm.fileNameList.value ?.size
-                        val pos = vm.curPos.value ?: 0
+                        val pos = vm.curPos.value?.first ?: 0
                         val id = mId
                         if (size == null || size <= 0 || size - 1 < pos || id == null) return@setOnItemClickListener
                         val list = (1..size).map { Pair(id, it.toString()) }
@@ -144,7 +136,7 @@ class ReaderActivity : BaseActivity() {
                             .isDestroyOnDismiss(true)
                             .asCustom(ReaderFullScreenPopup(this@ReaderActivity, pos, list).apply {
                                 setOnPageSelectedListener {
-                                    vm.setCurPosition(it)
+                                    vm.setCurPosition(it, PosSource.Other)
                                 }
                             })
                             .show()
@@ -174,7 +166,7 @@ class ReaderActivity : BaseActivity() {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    vm.setCurPosition(progress)
+                    vm.setCurPosition(progress, PosSource.Seekbar)
                 }
             }
 
@@ -203,8 +195,9 @@ class ReaderActivity : BaseActivity() {
             var isHuman = false
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+                vm.setCurPosition(position, PosSource.ViewPager)
                 if (isHuman) {
-                    vm.setCurPosition(position)
+                    vm.setCurPosition(position, PosSource.ViewPager)
                     isHuman = false
                 }
             }
@@ -245,8 +238,7 @@ class ReaderActivity : BaseActivity() {
                 val lastVisiblePos = lm.findLastVisibleItemPosition()
                 val finalPos = if (dy >= 0) lastVisiblePos else firstVisiblePos
                 if (isHuman) {
-                    vm.fromWebtoon = true
-                    vm.setCurPosition(finalPos)
+                    vm.setCurPosition(finalPos, PosSource.Webtoon)
                     isHuman = false
                 }
             }
@@ -289,7 +281,6 @@ class ReaderActivity : BaseActivity() {
             }
 
             mArchive = archive
-//            binding.contentReader.toolbar.title = archive.title
             val pageCount = archive.pagecount
             if (pageCount != null) {
                 val emptyList = (0 until pageCount).map { "" }
@@ -297,7 +288,12 @@ class ReaderActivity : BaseActivity() {
             }
 
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                vm.initData(archive.arcid)
+                withContext(Dispatchers.Main) {
+                    vm.initData(archive.arcid)
+                }
+                val pos = intent.getIntExtra(INTENT_KEY_POS, -1)
+                if (pos > -1) vm.setCurPosition(pos, PosSource.PreviewFragment)
+                intent.putExtra(INTENT_KEY_POS, -1)
             }
         }
     }
@@ -338,6 +334,8 @@ class ReaderActivity : BaseActivity() {
         super.onConfigurationChanged(newConfig)
         if (AppConfig.scaleMethod != ScaleType.WEBTOON) {
             viewPagerAdapter.onConfigChange()
+        } else {
+            webtoonAdapter.onConfigChange()
         }
     }
 
@@ -345,14 +343,12 @@ class ReaderActivity : BaseActivity() {
         when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 if (!AppConfig.enableVoice) return false
-                val cPos = vm.curPos.value ?: 0
-                vm.setCurPosition(cPos + 1)
+                vm.upPage()
                 return true
             }
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
                 if (!AppConfig.enableVoice) return false
-                val cPos = vm.curPos.value ?: 0
-                vm.setCurPosition(cPos - 1)
+                vm.downPage()
                 return true
             }
         }
@@ -386,11 +382,10 @@ class ReaderActivity : BaseActivity() {
             return
         }
         val isRtl = AppConfig.enableRtl
-        val curPos = vm.curPos.value ?: return
         if (zone == TouchZone.Left) {
-            vm.setCurPosition(if (isRtl) curPos + 1 else curPos - 1)
+            if (isRtl) vm.upPage() else vm.downPage()
         } else if (zone == TouchZone.Right) {
-            vm.setCurPosition(if (isRtl) curPos - 1 else curPos + 1)
+            if (isRtl) vm.downPage() else vm.upPage()
         }
     }
 

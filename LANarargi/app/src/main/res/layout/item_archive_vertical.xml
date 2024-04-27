@@ -30,7 +30,7 @@
         <ImageView
             android:id="@+id/cover"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="250dp"
             android:scaleType="centerCrop"
             android:layout_margin="8dp"
             android:contentDescription="@string/content_cover" />
