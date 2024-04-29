@@ -2,11 +2,19 @@ package com.sena.lanraragi.utils
 
 import android.content.Context
 import android.util.TypedValue
+import android.view.View
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.sena.lanraragi.database.archiveData.Archive
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStream
+import java.util.concurrent.atomic.AtomicLong
 
 
 /**
@@ -103,4 +111,28 @@ fun Context.getThemeColor(id: Int): Int? {
     val isSuccess = theme.resolveAttribute(id, typedValue, true)
     return if (isSuccess) typedValue.data else null
 }
+
+//fun <T> Flow<T>.throttleFirst(time: Long): Flow<T> {
+//    val lastTime = AtomicLong(0)
+//    return filter {
+//        val cTime = System.currentTimeMillis()
+//        if (cTime - lastTime.get() >= time) {
+//            lastTime.set(cTime)
+//            true
+//        } else {
+//            false
+//        }
+//    }
+//}
+//
+//fun View.setOnThrottledClickListener(duration: Long, scope: LifecycleCoroutineScope, func: () -> Unit) {
+//    val view = this
+//    val clickFLow = callbackFlow {
+//        view.setOnClickListener { trySend(Unit).isSuccess }
+//        awaitClose { view.setOnClickListener(null) }
+//    }
+//    scope.launch {
+//        clickFLow.throttleFirst(duration).collect { func.invoke() }
+//    }
+//}
 

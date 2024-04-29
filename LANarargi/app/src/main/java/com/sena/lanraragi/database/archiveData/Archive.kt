@@ -2,6 +2,7 @@ package com.sena.lanraragi.database.archiveData
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.Gson
 import java.io.Serializable
 
 @Entity(tableName = "Archive")
@@ -12,7 +13,7 @@ data class Archive(
     val isnew: Boolean?,
     val extension: String?,
     val pagecount: Int?,
-    val progress: Int?,
+    var progress: Int?,
     val tags: String?,
     val lastreadtime: Long?,
     val title: String?,
@@ -20,7 +21,8 @@ data class Archive(
     var isBookmark: Boolean = false
 ) : Serializable {
     override fun toString(): String {
-        return "arcid: $arcid, title: $title, data_added: $data_added, isnew: $isnew, extension: $extension, pagecount: $pagecount, progress: $progress, tags: $tags, lastereadtime: $lastreadtime, isBookmark: $isBookmark"
+//        return "arcid: $arcid, title: $title, data_added: $data_added, isnew: $isnew, extension: $extension, pagecount: $pagecount, progress: $progress, tags: $tags, lastereadtime: $lastreadtime, isBookmark: $isBookmark"
+        return Gson().toJson(this)
     }
 
 }

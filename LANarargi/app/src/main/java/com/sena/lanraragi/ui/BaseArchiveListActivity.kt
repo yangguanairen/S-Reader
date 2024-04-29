@@ -34,6 +34,9 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
 
     protected var mRecyclerView: RecyclerView? = null
     protected val mAdapter: MainAdapter = MainAdapter()
+    // 对于所有Item共享同一份防抖
+    // 即500ms内只有一个item的第一个点击会被成功响应
+    private var lastItemCalledTime = -1L
 
 
     override fun onStart() {
@@ -57,8 +60,12 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
         mRecyclerView?.layoutManager = getListLayoutManager()
         mRecyclerView?.adapter = mAdapter
         mAdapter.setOnItemClickListener { a, v, p ->
-            a.getItem(p)?.let { archive ->
-                goToDetail(v, archive)
+            val cTime = System.currentTimeMillis()
+            if (cTime - lastItemCalledTime > 500) {
+                lastItemCalledTime = cTime
+                a.getItem(p)?.let { archive ->
+                    goToDetail(v, archive)
+                }
             }
         }
         mAdapter.setOnItemLongClickListener { a, _, p ->

@@ -249,7 +249,15 @@ class SettingActivity : BaseActivity() {
             AppConfig.enableScreenLight = finStatus
             DataStoreHelper.updateValue(this, DataStoreHelper.KEY.READ_KEEP_SCREEN_LIGHT, finStatus)
         }
-
+        val enableSyn = AppConfig.enableSyn
+        binding.reader.synButton.isChecked = enableSyn
+        binding.reader.synLayout.setOnClickListener {
+            val curStatus = binding.reader.synButton.isChecked
+            val finStatus = !curStatus
+            binding.reader.synButton.isChecked = finStatus
+            AppConfig.enableSyn = finStatus
+            DataStoreHelper.updateValue(this, DataStoreHelper.KEY.READ_SYN_PROGRESS, finStatus)
+        }
     }
 
     private fun initSearch() {

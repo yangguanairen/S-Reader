@@ -24,6 +24,7 @@ import com.sena.lanraragi.ui.reader.ReaderActivity
 import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCID
+import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
 import com.sena.lanraragi.utils.ImageLoad
 import com.sena.lanraragi.utils.NewHttpHelper
@@ -82,6 +83,8 @@ class IntroduceFragment : BaseFragment() {
         binding.startRead.setOnClickListener {
             val intent = Intent(requireContext(), ReaderActivity::class.java)
             intent.putExtra(INTENT_KEY_ARCID, mId)
+            // 存储的是page(1开始计数), 阅读页用的是pos(0开始计数)
+            mArchive?.progress?.let { p -> intent.putExtra(INTENT_KEY_POS, p - 1) }
             startActivity(intent)
         }
         binding.bookmark.setOnClickListener {
@@ -113,6 +116,7 @@ class IntroduceFragment : BaseFragment() {
             val archive = withContext(Dispatchers.IO) {
                 LanraragiDB.queryArchiveById(id)
             }
+            mArchive = archive
             if (archive != null) {
                 binding.bookmark.text = bookmarkTextMap[archive.isBookmark]
             }

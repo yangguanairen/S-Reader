@@ -122,15 +122,19 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         orderDescButton.isChecked = AppConfig.order == LanraragiDB.DBHelper.ORDER.DESC
 
         sortTimeButton.setOnClickListener {
+            intent.putExtra(INTENT_KEY_POS, 0)
             vm.setSort(LanraragiDB.DBHelper.SORT.TIME)
         }
         sortTitleButton.setOnClickListener {
+            intent.putExtra(INTENT_KEY_POS, 0)
             vm.setSort(LanraragiDB.DBHelper.SORT.TITLE)
         }
         orderAscButton.setOnClickListener {
+            intent.putExtra(INTENT_KEY_POS, 0)
             vm.setOrder(LanraragiDB.DBHelper.ORDER.ASC)
         }
         orderDescButton.setOnClickListener {
+            intent.putExtra(INTENT_KEY_POS, 0)
             vm.setOrder(LanraragiDB.DBHelper.ORDER.DESC)
         }
     }
@@ -217,14 +221,11 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
         vm.dataList.observe(this) {
             mAdapter.submitList(it) {
-                var pos = 0
                 val historyPos = intent.getIntExtra(INTENT_KEY_POS, -1)
                 if (historyPos > -1) {
                     intent.putExtra(INTENT_KEY_POS, -1)
-                    pos = historyPos
+                    mRecyclerView?.layoutManager?.scrollToPosition(historyPos)
                 }
-                mRecyclerView?.layoutManager?.scrollToPosition(pos)
-
             }
         }
         vm.queryText.observe(this) {
@@ -263,7 +264,10 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             item.textView.apply {
                 text = category.name
                 theme.getDrawable(R.drawable.bg_category_content)?.let { background = it }
-                setOnClickListener { vm.setCategory(if(vm.curCategory.value?.name == category.name) null else category) }
+                setOnClickListener {
+                    intent.putExtra(INTENT_KEY_POS, 0)
+                    vm.setCategory(if(vm.curCategory.value?.name == category.name) null else category)
+                }
             }
         }
     }
@@ -278,6 +282,8 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
          when (item.itemId) {
             R.id.refresh -> {
+                intent.putExtra(INTENT_KEY_POS, 0)
+                vm.setCategory(null)
                 vm.forceRefreshData()
             }
 

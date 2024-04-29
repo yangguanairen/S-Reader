@@ -30,6 +30,7 @@ import com.sena.lanraragi.ui.widet.BookmarkView
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_POS
+import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.PosSource
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.TouchZone
@@ -67,6 +68,23 @@ class ReaderActivity : BaseActivity() {
         initVM()
         initView()
         mId?.let { initData(it) }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        lifecycleScope.launch {
+            val curPos = vm.curPos.value
+            val id = mId
+            if (curPos == null || id == null) return@launch
+            val page = curPos.first + 1
+            withContext(Dispatchers.IO) {
+                LanraragiDB.updateReadingProgress(id, page)
+                if (AppConfig.enableSyn) {
+                    NewHttpHelper.updateReadingProgress(id, page)
+                }
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")

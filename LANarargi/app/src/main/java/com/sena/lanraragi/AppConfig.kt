@@ -30,6 +30,7 @@ object AppConfig {
     var mergeMethod: String = ""
     var scaleMethod: ScaleType = ScaleType.FIT_WIDTH
     var enableScreenLight: Boolean = false
+    var enableSyn: Boolean = false
 
     // 搜索
     var enableLocalSearch: Boolean = false  // 是否启用本地搜索

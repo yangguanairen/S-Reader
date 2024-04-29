@@ -145,6 +145,7 @@ class SearchView @JvmOverloads constructor(
             } else {
                 listPop.setAdapter(ListPopAdapter(mContext, result, inputText))
                 listPop.setOnItemClickListener { _, _, position, _ ->
+                    mHandler.removeMessages(WHAT_INPUT)
                     val s = result[position].splicingText
                     mRelatedListener?.onRelatedSelected(s)
                     listPop.dismiss()

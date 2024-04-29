@@ -10,6 +10,7 @@ import com.sena.lanraragi.database.category.Category
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.NewHttpHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -24,6 +25,10 @@ class MainVM : ViewModel() {
 
     val categories = MutableLiveData<List<Category>>()
     val curCategory = MutableLiveData<Category?>()
+
+    // forceRefreshData()作为App整个数据的基本来源
+    // 不参与管理
+    private var lastJob: Job? = null
 
     fun forceRefreshData() {
         viewModelScope.launch {
@@ -72,9 +77,9 @@ class MainVM : ViewModel() {
     }
 
     fun setQueryText(query: String) {
-        viewModelScope.launch {
-            queryText.value  = query
-            curCategory.value = null
+        queryText.value  = query
+        curCategory.value = null
+        mainVMInvoke("setQueryText() $query") {
             val result = NewHttpHelper.queryArchiveByTag(query)
             dataList.value = result
             if (serverArchiveCount.value != result.size) {
@@ -88,7 +93,7 @@ class MainVM : ViewModel() {
         AppConfig.sort = sort
         val query = queryText.value ?: ""
 
-        viewModelScope.launch {
+        mainVMInvoke("setSort(): ${sort.name}") {
             val cCategory = curCategory.value
             if (cCategory != null) {
                 setCategory(cCategory)
@@ -106,7 +111,7 @@ class MainVM : ViewModel() {
         AppConfig.order = order
         val query = queryText.value ?: ""
 
-        viewModelScope.launch {
+        mainVMInvoke("setOrder(): ${order.name}") {
             val cCategory = curCategory.value
             if (cCategory != null) {
                 setCategory(cCategory)
@@ -124,11 +129,16 @@ class MainVM : ViewModel() {
         AppConfig.isNew = b
         val query = queryText.value ?: ""
 
-        viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                LanraragiDB.queryArchivesWithTag(query)
+        mainVMInvoke("setNewState(): $b") {
+            val cCategory = curCategory.value
+            if (cCategory != null) {
+                setCategory(cCategory)
+            } else {
+                val result = withContext(Dispatchers.IO) {
+                    LanraragiDB.queryArchivesWithTag(query)
+                }
+                dataList.value = result
             }
-            dataList.value = result
         }
     }
 
@@ -137,7 +147,7 @@ class MainVM : ViewModel() {
             curCategory.value = null
             setQueryText("")
         } else {
-            viewModelScope.launch {
+            mainVMInvoke("setCategory(): \n$category") {
                 val result = withContext(Dispatchers.IO) {
                     LanraragiDB.queryArchivesByIdList(category.archives)
                 }
@@ -155,6 +165,23 @@ class MainVM : ViewModel() {
     suspend fun getSingleRandomArchive(): Archive? {
         val result = NewHttpHelper.getRandomArchive(1)
         return result.getOrNull(0)
+    }
+
+
+    private fun mainVMInvoke(log: String? = null, func: suspend () -> Unit) {
+        val lastJobIsFinish = lastJob?.isCompleted
+        if (lastJobIsFinish == true) {
+            DebugLog.i("MainVM: $log 上一个任务已经完成")
+        } else {
+            lastJob?.cancel()
+            val lastCancelResult = lastJob?.isCancelled
+            DebugLog.i("MainVM: Log: $log 取消结果: $lastCancelResult")
+        }
+
+        val newJob = viewModelScope.launch {
+            func.invoke()
+        }
+        lastJob = newJob
     }
 
 }

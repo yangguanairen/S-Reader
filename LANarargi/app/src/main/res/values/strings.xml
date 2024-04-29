@@ -102,6 +102,8 @@
     </string-array>
     <string name="setting_read_keep_screen_light_title" translatable="false">保持常亮</string>
     <string name="setting_read_keep_screen_light_subtitle" translatable="false">阅读时不息屏</string>
+    <string name="setting_read_syn_progress_title" translatable="false">同步阅读进度</string>
+    <string name="setting_read_syn_progress_subtitle" translatable="false">开启同步本地阅读进度至服务端\n同时更新档案时本地进度会被覆盖</string>
     // 设置--搜索
     <string name="setting_search_theme" translatable="false">搜索</string>
     <string name="setting_search_local_title" translatable="false">本地搜索</string>

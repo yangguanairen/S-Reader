@@ -123,6 +123,19 @@ object NewHttpHelper {
         return result
     }
 
+    suspend fun updateReadingProgress(id: String, page: Int): Boolean {
+        val url = AppConfig.serverHost + "/api/archives/$id/progress/$page"
+
+        val mBuilder = Build().url(url).method("put")
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val s = response?.body?.string()
+            DebugLog.d("updateReadingProgress response: \n$s")
+            response?.code == 200
+        }
+        return result
+    }
+
     suspend fun getAllTags(): List<Stats>? {
         val url = AppConfig.serverHost + "/api/database/stats"
 

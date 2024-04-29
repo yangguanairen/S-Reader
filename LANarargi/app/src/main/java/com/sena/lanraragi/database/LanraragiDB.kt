@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
  * https://juejin.cn/post/7218743537495998524
  */
 
-@Database(entities = [Archive::class, Stats::class, Category::class], version = 4, exportSchema = false)
+@Database(entities = [Archive::class, Stats::class, Category::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class LanraragiDB : RoomDatabase() {
 
@@ -61,8 +61,6 @@ abstract class LanraragiDB : RoomDatabase() {
                     })
                     .addMigrations(
                         MIGRATION_1_2,
-//                        MIGRATION_2_3,
-//                        MIGRATION_3_4
                     )
                     .build()
                 INSTANCE = instance
@@ -75,30 +73,15 @@ abstract class LanraragiDB : RoomDatabase() {
             }
         }
 
-//        private val MIGRATION_2_3 = object : Migration(2, 3) {
-//            override fun migrate(db: SupportSQLiteDatabase) {
-//                db.execSQL("CREATE TABLE IF NOT EXISTS 'Stats' " +
-//                        "('splicingText' TEXT PRIMARY KEY NOT NULL, " +
-//                        "'nameSpace' TEXT, 'text' TEXT, 'weight' INTEGER)"
-//                )
-//            }
-//        }
-
-//        private val MIGRATION_3_4 = object : Migration(3, 4) {
-//            override fun migrate(db: SupportSQLiteDatabase) {
-//                db.execSQL("CREATE TABLE IF NOT EXISTS 'Category' " +
-//                        "('id' TEXT PRIMARY KEY NOT NULL, " +
-//                        "'name' TEXT, 'archives' TEXT, " +
-//                        "'lastUsed' INTEGER , 'pinned' INTEGER, 'search' TEXT)"
-//                )
-//            }
-//        }
-
         suspend fun updateArchiveList(archives: List<Archive>) = dbInvoke(Unit) {
             it.archiveDao().apply {
                 val oldData = getAll()
                 archives.forEach { a ->
-                    a.isBookmark = oldData.firstOrNull { o -> o.arcid == a.arcid }?.isBookmark ?: false
+                    val oldItem = oldData.firstOrNull { o -> o.arcid == a.arcid }
+                    a.isBookmark = oldItem?.isBookmark ?: false
+                    if (!AppConfig.enableSyn) {
+                        oldItem?.let { a.progress = oldItem.progress }
+                    }
                 }
                 clearTable()
                 insertAll(archives)
@@ -114,24 +97,14 @@ abstract class LanraragiDB : RoomDatabase() {
             val dao = it.archiveDao()
             val order = AppConfig.order
             val sort = AppConfig.sort
-            val isNew = AppConfig.isNew
+            val isNew = if (AppConfig.isNew) listOf(1) else listOf(0, 1)
 
-            if (isNew) {
-                when {
-                    order == ORDER.ASC && sort == SORT.TITLE -> dao.queryArchivesWithTagByTitleAscNew(query)
-                    order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryArchivesWithTagByTitleDescNew(query)
-                    order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryArchivesWithTagByAddTimeAscNew(query)
-                    order == ORDER.DESC && sort == SORT.TIME -> dao.queryArchivesWithTagByAddTimeDescNew(query)
-                    else -> emptyList()
-                }
-            } else {
-                when {
-                    order == ORDER.ASC && sort == SORT.TITLE -> dao.queryArchivesWithTagByTitleAsc(query)
-                    order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryArchivesWithTagByTitleDesc(query)
-                    order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryArchivesWithTagByAddTimeAsc(query)
-                    order == ORDER.DESC && sort == SORT.TIME -> dao.queryArchivesWithTagByAddTimeDesc(query)
-                    else -> emptyList()
-                }
+            when {
+                order == ORDER.ASC && sort == SORT.TITLE -> dao.queryByTagTitleAsc(query, isNew)
+                order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryByTagTitleDesc(query, isNew)
+                order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryByTagDateAsc(query, isNew)
+                order == ORDER.DESC && sort == SORT.TIME -> dao.queryByTagDateDesc(query, isNew)
+                else -> emptyList()
             }
         }
 
@@ -160,6 +133,10 @@ abstract class LanraragiDB : RoomDatabase() {
 
         suspend fun getBookmarkedArchives(): List<Archive> = dbInvoke(emptyList()) {
            it.archiveDao().queryBookmarkedArchives()
+        }
+
+        suspend fun updateReadingProgress(id: String, page: Int) = dbInvoke(Unit) {
+            it.archiveDao().updateReadingProgress(id, page)
         }
 
         suspend fun updateStatsTable(list: List<Stats>) = dbInvoke(Unit) {

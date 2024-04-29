@@ -28,6 +28,7 @@ object DataStoreHelper {
         READ_MERGE_METHOD("read_merge_method"),
         READ_SCALE_METHOD("read_scale_method"),
         READ_KEEP_SCREEN_LIGHT("read_keep_screen_light"),
+        READ_SYN_PROGRESS("read_syn_progress"),
 
         SEARCH_LOCAL("search_local"),
         SEARCH_DELAY("search_delay"),
