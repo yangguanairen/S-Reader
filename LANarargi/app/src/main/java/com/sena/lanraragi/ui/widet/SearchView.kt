@@ -12,10 +12,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import androidx.appcompat.widget.ListPopupWindow
 import com.sena.lanraragi.AppConfig
+import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ViewSearchBinding
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.getOrNull
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -23,6 +30,9 @@ import com.sena.lanraragi.utils.getOrNull
  * Author: JiaoCan
  * Date: 2024/3/26
  */
+
+private const val WHAT_INPUT = 1
+private const val WHAT_POPUP = 2
 
 @SuppressLint("ViewConstructor", "InflateParams")
 class SearchView @JvmOverloads constructor(
@@ -36,18 +46,38 @@ class SearchView @JvmOverloads constructor(
     private var mFinishListener: OnInputFinishListener? = null
     private var mClearListener: OnClearTextListener? = null
     private var mDoneListener: OnSearchDoneListener? = null
+    private var mRelatedListener: OnRelatedSelectedListener? = null
 
-    private val mWhat = 1
     private var delayTime = AppConfig.searchDelay.toLong()
+    private var lastJob: Job? = null
+
+
+    val listPop by lazy {
+        ListPopupWindow(mContext).apply {
+            anchorView = this@SearchView
+        }
+    }
+
     private val mHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
-            val what = msg.what
-            if (what != mWhat) return
-            val text = getOrNull { msg.obj.toString() }
-            DebugLog.i("SearchView 接收: $text")
-            if (text == null)  return
-            mFinishListener?.onInputFinish(text)
+
+            when (msg.what) {
+                WHAT_INPUT -> {
+                    val text = getOrNull { msg.obj.toString() }
+                    DebugLog.i("SearchView 接收: $text")
+                    if (text == null)  return
+                    mFinishListener?.onInputFinish(text)
+                }
+                WHAT_POPUP -> {
+                    lastJob?.cancel()
+                    val text = getOrNull { msg.obj.toString() }
+                    text?.let {
+                        if (it.length >= 2) lastJob = handleRelated(it)
+                        else listPop.dismiss()
+                    }
+                }
+            }
         }
     }
 
@@ -61,11 +91,20 @@ class SearchView @JvmOverloads constructor(
             DebugLog.i("SearchView 输入: $s")
             if (s == null) return
 
-            val message = Message()
-            message.what = mWhat
-            message.obj = s
-            mHandler.removeMessages(mWhat)
-            mHandler.sendMessageDelayed(message, delayTime)
+            val inputMessage = Message().apply {
+                what = WHAT_INPUT
+                obj = s
+            }
+            mHandler.removeMessages(WHAT_INPUT)
+            mHandler.sendMessageDelayed(inputMessage, delayTime)
+
+            // 处理关联词
+            val popupMessage = Message().apply {
+                what = WHAT_POPUP
+                obj = s
+            }
+            mHandler.removeMessages(WHAT_POPUP)
+            mHandler.sendMessageDelayed(popupMessage, 200)
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -76,7 +115,6 @@ class SearchView @JvmOverloads constructor(
     init {
         initView()
     }
-
 
     private fun initView() {
         binding.input.addTextChangedListener(mTextChangeListener)
@@ -92,6 +130,27 @@ class SearchView @JvmOverloads constructor(
         binding.clear.setOnClickListener {
             binding.input.setText("")
             mClearListener?.onClearText()
+        }
+
+
+    }
+
+    private fun handleRelated(inputText: String): Job {
+        return CoroutineScope(Dispatchers.Main).launch {
+            val result = withContext(Dispatchers.IO) {
+                LanraragiDB.getRelatedTags(inputText)
+            }
+            if (result.isEmpty()) {
+                listPop.dismiss()
+            } else {
+                listPop.setAdapter(ListPopAdapter(mContext, result, inputText))
+                listPop.setOnItemClickListener { _, _, position, _ ->
+                    val s = result[position].splicingText
+                    mRelatedListener?.onRelatedSelected(s)
+                    listPop.dismiss()
+                }
+                listPop.show()
+            }
         }
     }
 
@@ -131,10 +190,20 @@ class SearchView @JvmOverloads constructor(
         }
     }
 
+    fun setOnRelatedSelectedListener(func: (s: String) -> Unit) {
+        mRelatedListener = object : OnRelatedSelectedListener {
+            override fun onRelatedSelected(s: String) {
+                func.invoke(s)
+            }
+        }
+    }
+
     fun setText(s: String) {
         // 设置文本前取消监听, 否则会无限死亡回调
         binding.input.removeTextChangedListener(mTextChangeListener)
         binding.input.setText(s)
+        // setText后光标会自动移动至0位
+        binding.input.setSelection(s.length)
         binding.input.addTextChangedListener(mTextChangeListener)
         binding.clear.visibility = if (s.isNotEmpty()) View.VISIBLE else View.INVISIBLE
     }
@@ -150,6 +219,10 @@ class SearchView @JvmOverloads constructor(
 
     private interface OnSearchDoneListener {
         fun onSearchDone(s: String)
+    }
+
+    interface OnRelatedSelectedListener {
+        fun onRelatedSelected(s: String)
     }
 
 

@@ -2,6 +2,7 @@ package com.sena.lanraragi.ui.detail
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
+import android.view.Menu
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -46,8 +47,6 @@ class DetailActivity : BaseActivity() {
         val fragments = arrayListOf(introduceFragment, previewFragment)
 
         val tabTitles = arrayListOf("详细", "预览图")
-        binding.viewPager.currentItem = 0
-        binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
             override fun getItemCount(): Int {
                 return fragments.size
@@ -70,11 +69,17 @@ class DetailActivity : BaseActivity() {
                 }
             }
         })
+//        binding.viewPager.offscreenPageLimit = 2
+        binding.viewPager.currentItem = 0
         // tabLayout和viewPager2联动
         // https://www.jianshu.com/p/0cde01392eb0
         TabLayoutMediator(binding.tableLayout, binding.viewPager) {
             tab, position -> tab.text = tabTitles[position]
         }.attach()
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        return super.onPrepareOptionsMenu(menu)
     }
 
     private fun onNewRandomArchive(newArchive: Archive) {

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
+import com.sena.lanraragi.database.category.Category
+import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.NewHttpHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +21,9 @@ class MainVM : ViewModel() {
     val filterOrder = MutableLiveData<LanraragiDB.DBHelper.ORDER>()
     val queryText = MutableLiveData<String>()
     val isNew = MutableLiveData<Boolean>()
+
+    val categories = MutableLiveData<List<Category>>()
+    val curCategory = MutableLiveData<Category?>()
 
     fun forceRefreshData() {
         viewModelScope.launch {
@@ -36,9 +41,40 @@ class MainVM : ViewModel() {
         }
     }
 
+    fun refreshTagsData() {
+        viewModelScope.launch {
+            val result  = withContext(Dispatchers.IO) {
+                NewHttpHelper.getAllTags()
+            }
+            if (result == null) {
+                DebugLog.e("List为空, 不更新Stats表")
+            } else {
+                LanraragiDB.updateStatsTable(result)
+            }
+        }
+    }
+
+    fun refreshCategoriesData() {
+        viewModelScope.launch {
+            val result  = withContext(Dispatchers.IO) {
+                NewHttpHelper.getAllCategories()
+            }
+            if (result == null) {
+                DebugLog.e("List为空, 不更新Stats表")
+            } else {
+                LanraragiDB.updateCategoryTable(result)
+            }
+            val dbResult = withContext(Dispatchers.IO) {
+                LanraragiDB.queryAllCategories()
+            }
+            categories.value = dbResult
+        }
+    }
+
     fun setQueryText(query: String) {
         viewModelScope.launch {
             queryText.value  = query
+            curCategory.value = null
             val result = NewHttpHelper.queryArchiveByTag(query)
             dataList.value = result
             if (serverArchiveCount.value != result.size) {
@@ -53,10 +89,15 @@ class MainVM : ViewModel() {
         val query = queryText.value ?: ""
 
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                LanraragiDB.queryArchivesWithTag(query)
+            val cCategory = curCategory.value
+            if (cCategory != null) {
+                setCategory(cCategory)
+            } else {
+                val result = withContext(Dispatchers.IO) {
+                    LanraragiDB.queryArchivesWithTag(query)
+                }
+                dataList.value = result
             }
-            dataList.value = result
         }
     }
 
@@ -66,10 +107,15 @@ class MainVM : ViewModel() {
         val query = queryText.value ?: ""
 
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                LanraragiDB.queryArchivesWithTag(query)
+            val cCategory = curCategory.value
+            if (cCategory != null) {
+                setCategory(cCategory)
+            } else {
+                val result = withContext(Dispatchers.IO) {
+                    LanraragiDB.queryArchivesWithTag(query)
+                }
+                dataList.value = result
             }
-            dataList.value = result
         }
     }
 
@@ -83,6 +129,26 @@ class MainVM : ViewModel() {
                 LanraragiDB.queryArchivesWithTag(query)
             }
             dataList.value = result
+        }
+    }
+
+    fun setCategory(category: Category?) {
+        if (category == null) {
+            curCategory.value = null
+            setQueryText("")
+        } else {
+            viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    LanraragiDB.queryArchivesByIdList(category.archives)
+                }
+
+                dataList.value = result
+                curCategory.value = category
+                queryText.value = ""
+                if (serverArchiveCount.value != result.size) {
+                    serverArchiveCount.value = result.size
+                }
+            }
         }
     }
 

@@ -1,19 +1,24 @@
 package com.sena.lanraragi.ui
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.RadioButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.flexbox.FlexboxLayout
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.category.Category
+import com.sena.lanraragi.databinding.ItemTagBinding
 import com.sena.lanraragi.ui.detail.DetailActivity
 import com.sena.lanraragi.ui.random.RandomActivity
 import com.sena.lanraragi.ui.setting.SettingActivity
@@ -37,6 +42,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     private lateinit var sortTitleButton: RadioButton
     private lateinit var orderAscButton: RadioButton
     private lateinit var orderDescButton: RadioButton
+    private lateinit var categoryLayout: FlexboxLayout
 
     private var queryFromDetail: String? = null
 
@@ -108,6 +114,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             sortTitleButton = findViewById(R.id.sortTitle)
             orderAscButton = findViewById(R.id.orderAsc)
             orderDescButton = findViewById(R.id.orderDesc)
+            categoryLayout = findViewById(R.id.categoryLayout)
         }
         sortTimeButton.isChecked = AppConfig.sort == LanraragiDB.DBHelper.SORT.TIME
         sortTitleButton.isChecked = AppConfig.sort == LanraragiDB.DBHelper.SORT.TITLE
@@ -142,6 +149,9 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             vm.setQueryText("")
         }
         binding.contentMain.searchView.setOnSearchDoneListener {
+            vm.setQueryText(it)
+        }
+        binding.contentMain.searchView.setOnRelatedSelectedListener {
             vm.setQueryText(it)
         }
 
@@ -188,9 +198,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
                     orderAscButton.isChecked = false
                     orderDescButton.isChecked = true
                 }
-                else -> {
-
-                }
+                else -> {}
             }
 
         }
@@ -204,19 +212,19 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
                     sortTimeButton.isChecked = false
                     sortTitleButton.isChecked = true
                 }
-                else -> {
-
-                }
+                else -> {}
             }
         }
         vm.dataList.observe(this) {
             mAdapter.submitList(it) {
-//                mRecyclerView?.layoutManager?.scrollToPosition(0)
+                var pos = 0
                 val historyPos = intent.getIntExtra(INTENT_KEY_POS, -1)
                 if (historyPos > -1) {
                     intent.putExtra(INTENT_KEY_POS, -1)
-                    mRecyclerView?.layoutManager?.scrollToPosition(historyPos)
+                    pos = historyPos
                 }
+                mRecyclerView?.layoutManager?.scrollToPosition(pos)
+
             }
         }
         vm.queryText.observe(this) {
@@ -224,6 +232,16 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
         vm.isNew.observe(this) {
             binding.contentMain.isNew.isChecked = it
+        }
+        vm.categories.observe(this) {
+            onCategoriesValueChange(it)
+        }
+        vm.curCategory.observe(this) {
+            for (i in 0 until categoryLayout.childCount) {
+                val tv = categoryLayout.getChildAt(i).findViewById<TextView>(R.id.textView)
+                val text = tv.text.toString()
+                tv.setTextColor(Color.parseColor(if (text == it?.name) "#22a7f0" else "#ffffff"))
+            }
         }
     }
 
@@ -233,6 +251,20 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
         queryFromDetail?:let{
             vm.forceRefreshData()
+        }
+        vm.refreshTagsData()
+        vm.refreshCategoriesData()
+    }
+
+    private fun onCategoriesValueChange(list: List<Category>) {
+        categoryLayout.removeAllViews()
+        list.forEach { category ->
+            val item = ItemTagBinding.inflate(layoutInflater, categoryLayout, true)
+            item.textView.apply {
+                text = category.name
+                theme.getDrawable(R.drawable.bg_category_content)?.let { background = it }
+                setOnClickListener { vm.setCategory(if(vm.curCategory.value?.name == category.name) null else category) }
+            }
         }
     }
 

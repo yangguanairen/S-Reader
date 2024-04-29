@@ -160,6 +160,7 @@ class IntroduceFragment : BaseFragment() {
         inflater.inflate(R.menu.menu_detail_introduce, menu)
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.random -> {

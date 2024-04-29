@@ -65,4 +65,15 @@ interface ArchiveDao {
     @Query("UPDATE ARCHIVE set isBookmark = 0")
     suspend fun resetBookmark()
 
+    @Query("SELECT * FROM ARCHIVE WHERE arcid IN (:idList) AND isnew IN (:isNew) ORDER BY title ASC")
+    suspend fun queryByIdListTitleAsc(idList: List<String>, isNew: List<Int>): List<Archive>
+
+    @Query("SELECT * FROM ARCHIVE WHERE arcid IN (:idList) AND isnew IN (:isNew) ORDER BY title DESC")
+    suspend fun queryByIdListTitleDesc(idList: List<String>, isNew: List<Int>): List<Archive>
+
+    @Query("SELECT * FROM ARCHIVE WHERE arcid IN (:idList) AND isnew IN (:isNew) ORDER BY data_added ASC")
+    suspend fun queryByIdListDateAsc(idList: List<String>, isNew: List<Int>): List<Archive>
+
+    @Query("SELECT * FROM ARCHIVE WHERE arcid IN (:idList) AND isnew IN (:isNew) ORDER BY data_added DESC")
+    suspend fun queryByIdListDateDesc(idList: List<String>, isNew: List<Int>): List<Archive>
 }

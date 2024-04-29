@@ -16,6 +16,7 @@
     <string name="main_left_nav_setting" translatable="false">设置</string>
     <string name="main_left_nav_bookmark" translatable="false">书签</string>
     // 主页_右Nav
+    <string name="main_right_nav_category" translatable="false">分类</string>
     <string name="main_right_nav_filter" translatable="false">筛选</string>
     <string name="main_right_nav_order" translatable="false">排序方式</string>
     <string name="main_right_nav_order_title">标题</string>

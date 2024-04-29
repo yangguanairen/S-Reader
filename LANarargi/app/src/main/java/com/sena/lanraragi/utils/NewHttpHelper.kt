@@ -2,8 +2,11 @@ package com.sena.lanraragi.utils
 
 import android.util.Base64
 import com.sena.lanraragi.AppConfig
+import com.sena.lanraragi.database.Converters
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
+import com.sena.lanraragi.database.category.Category
+import com.sena.lanraragi.database.statsData.Stats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Dispatcher
@@ -116,6 +119,64 @@ object NewHttpHelper {
             val s = response?.body?.string()
             DebugLog.d("updateServerThumb response: \n$s")
             response?.code == 200
+        }
+        return result
+    }
+
+    suspend fun getAllTags(): List<Stats>? {
+        val url = AppConfig.serverHost + "/api/database/stats"
+
+        val mBuilder = Build().url(url)
+        var result: ArrayList<Stats>? = arrayListOf()
+        withContext(Dispatchers.IO) {
+            val response = kotlin.runCatching {
+                mBuilder.execute()
+            }.onFailure {
+                it.printStackTrace()
+                result = null
+            }.getOrNull()
+            val jsonArray = response?.body?.byteStream()?.toJSONArray()
+            jsonArray?.let {
+                for (i in 0 until it.length()) {
+                    val jsonObject = it.getJSONObject(i)
+                    val nameSpace = getOrNull { jsonObject.getString("namespace") } ?: continue
+                    val text = getOrNull { jsonObject.getString("text") } ?: continue
+                    val weight = getOrNull { jsonObject.getInt("weight") } ?: 0
+                    val splicingText = "$nameSpace:$text"
+                    val stats = Stats(splicingText, nameSpace, text, weight)
+                    result?.add(stats)
+                }
+            }
+        }
+        return result
+    }
+
+    suspend fun getAllCategories(): List<Category>? {
+        val url = AppConfig.serverHost + "/api/categories"
+
+        val mBuilder = Build().url(url)
+        var result: ArrayList<Category>? = arrayListOf()
+        withContext(Dispatchers.IO) {
+            val response = kotlin.runCatching {
+                mBuilder.execute()
+            }.onFailure {
+                it.printStackTrace()
+                result = null
+            }.getOrNull()
+            val jsonArray = response?.body?.byteStream()?.toJSONArray()
+            jsonArray?.let {
+                for (i in 0 until it.length()) {
+                    val jsonObject = it.getJSONObject(i)
+                    val id = getOrNull { jsonObject.getString("id") } ?: continue
+                    val name = getOrNull { jsonObject.getString("name") } ?: continue
+                    val archives = getOrNull { Converters().fromString(jsonObject.getString("archives")) } ?: emptyList()
+                    val lastUsed = getOrNull { jsonObject.getInt("last_used") } ?: -1
+                    val pinned = getOrNull { jsonObject.getInt("pinned") } ?: -1
+                    val search = getOrNull { jsonObject.getString("search") } ?: ""
+                    val category = Category(id, name, archives, lastUsed, pinned, search)
+                    result?.add(category)
+                }
+            }
         }
         return result
     }
