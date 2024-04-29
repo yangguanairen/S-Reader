@@ -47,6 +47,7 @@ class LanraragiApplication : Application() {
             mergeMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_MERGE_METHOD, getString(R.string.setting_read_merge_method_select_1))
             scaleMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, ScaleType.FIT_WIDTH)
             enableScreenLight = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_KEEP_SCREEN_LIGHT, false)
+            enableSyn = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SYN_PROGRESS, false)
 
             enableLocalSearch = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SEARCH_LOCAL, false)
             searchDelay = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SEARCH_DELAY, 750)
