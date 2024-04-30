@@ -33,6 +33,7 @@
             android:layout_height="250dp"
             android:scaleType="centerCrop"
             android:layout_margin="8dp"
+            android:src="@drawable/bg_placeholder"
             android:contentDescription="@string/content_cover" />
 
     </LinearLayout>

@@ -20,6 +20,7 @@
             android:adjustViewBounds="true"
             android:maxWidth="150dp"
             android:scaleType="fitStart"
+            android:src="@drawable/bg_placeholder"
             android:contentDescription="@string/content_cover" />
 
 
@@ -28,7 +29,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="8dp">
-
 
             <TextView
                 android:id="@+id/title"

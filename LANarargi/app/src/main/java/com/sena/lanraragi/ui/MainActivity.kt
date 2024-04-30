@@ -46,6 +46,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     private lateinit var categoryLayout: FlexboxLayout
     private var forceRefreshButton: MenuItem? = null
 
+    private var lastHost: String = AppConfig.serverHost
     private var queryFromDetail: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +68,20 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         } else {
             binding.contentMain.errorLayout.visibility = View.INVISIBLE
             binding.contentMain.listLayout.visibility = View.VISIBLE
-            initData()
+
+            if (AppConfig.serverHost != lastHost) { // ServerHost被更新
+                lastHost = AppConfig.serverHost
+                setAppBarSubtitle(null)
+                mAdapter.submitList(emptyList())
+                if (!vm.queryText.value.isNullOrBlank()) {
+                    callQueryTextChange("")
+                } else if (vm.categories.value != null) {
+                    callOnCategoryChange(null)
+                }
+                vm.refreshData(true)
+            } else {
+                initData()
+            }
         }
     }
 
@@ -216,7 +230,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     }
 
     private fun onDataListChanged(list: List<Archive>) {
-        setAppBarText(null, String.format(getString(R.string.main_toolbar_subtitle), list.size))
+        setAppBarSubtitle(String.format(getString(R.string.main_toolbar_subtitle), list.size))
         mAdapter.submitList(list) {
             val historyPos = intent.getIntExtra(INTENT_KEY_POS, -1)
             if (historyPos > -1) {
