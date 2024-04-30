@@ -143,6 +143,7 @@ class SearchView @JvmOverloads constructor(
             return@setOnEditorActionListener true
         }
 
+        binding.clear.visibility = View.INVISIBLE
         binding.clear.setOnClickListener {
             binding.input.setText("")
             mClearListener?.onClearText()

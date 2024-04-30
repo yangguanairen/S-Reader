@@ -187,6 +187,8 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     }
 
     private fun callQueryTextChange(text: String) {
+        val isShow = (text.isBlank() && queryFromDetail == null)
+        forceRefreshButton?.isVisible = isShow
         intent.putExtra(INTENT_KEY_POS, 0)
         vm.setQueryText(text)
     }
@@ -207,6 +209,8 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     }
 
     private fun callOnCategoryChange(category: Category?) {
+        val isShow = (category == null && queryFromDetail == null)
+        forceRefreshButton?.isVisible = isShow
         intent.putExtra(INTENT_KEY_POS, 0)
         vm.setCategory(if(vm.curCategory.value?.name == category?.name) null else category)
     }
@@ -223,11 +227,6 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
     }
 
     private fun onQueryTextChanged(text: String) {
-        val isHiddenRefresh = when { // 控制强制刷新的显现与否
-            text.isNotEmpty() || queryFromDetail != null -> true
-            else -> false
-        }
-        forceRefreshButton?.isVisible = isHiddenRefresh
         binding.contentMain.searchView.setText(text)
     }
 
@@ -273,14 +272,13 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         callQueryTextChange(query)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         menu?.let {
             forceRefreshButton = it.findItem(R.id.refresh).apply {
                 isVisible = queryFromDetail == null
             }
         }
-        return true
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
