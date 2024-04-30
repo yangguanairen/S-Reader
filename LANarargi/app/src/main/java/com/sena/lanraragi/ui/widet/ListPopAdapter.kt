@@ -28,6 +28,8 @@ class ListPopAdapter(context: Context, list: List<Stats>, inputText: String) : L
     private val mList = list
     private val mInputText = inputText
 
+    fun getList() = mList
+
     @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
 

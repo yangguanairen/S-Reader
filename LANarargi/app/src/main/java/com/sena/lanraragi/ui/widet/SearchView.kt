@@ -8,15 +8,19 @@ import android.os.Message
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
-import androidx.appcompat.widget.ListPopupWindow
+import android.widget.ListPopupWindow
+import android.widget.TextView
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ViewSearchBinding
 import com.sena.lanraragi.utils.DebugLog
+import com.sena.lanraragi.utils.dp2Px
 import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +38,7 @@ import kotlinx.coroutines.withContext
 private const val WHAT_INPUT = 1
 private const val WHAT_POPUP = 2
 
-@SuppressLint("ViewConstructor", "InflateParams")
+@SuppressLint("ViewConstructor", "InflateParams", "Range")
 class SearchView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyle: Int = 0
 ) : FrameLayout(context, attrs, defStyle) {
@@ -52,11 +56,23 @@ class SearchView @JvmOverloads constructor(
     private var lastJob: Job? = null
 
 
-    val listPop by lazy {
+    private val listPop by lazy {
         ListPopupWindow(mContext).apply {
             anchorView = this@SearchView
+            height = 200
         }
     }
+    private val itemHeight by lazy {
+        val textView = TextView(mContext).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+        }
+        val wMS = MeasureSpec.makeMeasureSpec(800, MeasureSpec.EXACTLY)
+        val hMS = MeasureSpec.makeMeasureSpec(ViewGroup.LayoutParams.WRAP_CONTENT, MeasureSpec.AT_MOST)
+        textView.measure(wMS, hMS)
+        val mHeight = textView.measuredHeight
+        mHeight + mContext.dp2Px(9)
+    }
+    private val maxSize = 5.5f
 
     private val mHandler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -135,6 +151,8 @@ class SearchView @JvmOverloads constructor(
 
     }
 
+    private var mAdapter: ListPopAdapter? = null
+
     private fun handleRelated(inputText: String): Job {
         return CoroutineScope(Dispatchers.Main).launch {
             val result = withContext(Dispatchers.IO) {
@@ -143,11 +161,15 @@ class SearchView @JvmOverloads constructor(
             if (result.isEmpty()) {
                 listPop.dismiss()
             } else {
-                listPop.setAdapter(ListPopAdapter(mContext, result, inputText))
+                mAdapter = ListPopAdapter(mContext, result, inputText)
+                val showSize = if (result.size > maxSize) maxSize else result.size.toFloat()
+                listPop.setAdapter(mAdapter)
+                listPop.height = (showSize * itemHeight).toInt()
                 listPop.setOnItemClickListener { _, _, position, _ ->
                     mHandler.removeMessages(WHAT_INPUT)
-                    val s = result[position].splicingText
-                    mRelatedListener?.onRelatedSelected(s)
+                    mAdapter?.getList()?.getOrNull(position)?.splicingText?.let {
+                        mRelatedListener?.onRelatedSelected(it)
+                    }
                     listPop.dismiss()
                 }
                 listPop.show()

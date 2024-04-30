@@ -119,7 +119,7 @@ class ReaderActivity : BaseActivity() {
                     if (AppConfig.scaleMethod == ScaleType.WEBTOON) {
                         binding.contentReader.recyclerView.scrollToPosition(page)
                     } else {
-                        val showAnim = source != PosSource.PreviewFragment && source != PosSource.SelectedPage
+                        val showAnim = source == PosSource.Other
                         binding.contentReader.viewPager.setCurrentItem(page, showAnim)
                     }
                 }

@@ -80,14 +80,13 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 supportActionBar?.run {
-                    this.title = title
-                    this.subtitle = subtitle
+                    title?.let { this.title = it }
+                    subtitle?.let { this.subtitle = it }
                 }
                 // 切换文本动画
                 mToolbar?.apply { layoutTransition = LayoutTransition() }
             }
         }
-
     }
 
     protected fun setNavigation(@DrawableRes id: Int) {

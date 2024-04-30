@@ -16,7 +16,6 @@ import kotlinx.coroutines.withContext
 
 class MainVM : ViewModel() {
 
-    val serverArchiveCount = MutableLiveData<Int>()
     val dataList = MutableLiveData<List<Archive>>()
     val filterSort = MutableLiveData<LanraragiDB.DBHelper.SORT>()
     val filterOrder = MutableLiveData<LanraragiDB.DBHelper.ORDER>()
@@ -29,51 +28,49 @@ class MainVM : ViewModel() {
     // forceRefreshData()作为App整个数据的基本来源
     // 不参与管理
     private var lastJob: Job? = null
+    private var lastInitJob: Job? = null
+    private var isInitialized: Boolean = false
 
-    fun forceRefreshData() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+    fun refreshData(isForce: Boolean) {
+        if (isInitialized && !isForce) return
+        isInitialized = true
+        lastJob?.cancel()
+        lastInitJob?.cancel()
+        val newJob = viewModelScope.launch {
+            dataList.value = withContext(Dispatchers.IO) {
                 NewHttpHelper.queryAllArchive()
+                NewHttpHelper.queryArchiveByTag("")
             }
-            val text = queryText.value ?: ""
-            val result = withContext(Dispatchers.IO) {
-                NewHttpHelper.queryArchiveByTag(text)
-            }
-            dataList.value = result
-            if (serverArchiveCount.value != result.size) {
-                serverArchiveCount.value = result.size
-            }
+            refreshTagsData()
+            refreshCategoriesData()
+        }
+        lastInitJob = newJob
+    }
+
+    private suspend fun refreshTagsData() {
+        val result  = withContext(Dispatchers.IO) {
+            NewHttpHelper.getAllTags()
+        }
+        if (result == null) {
+            DebugLog.e("List为空, 不更新Stats表")
+        } else {
+            LanraragiDB.updateStatsTable(result)
         }
     }
 
-    fun refreshTagsData() {
-        viewModelScope.launch {
-            val result  = withContext(Dispatchers.IO) {
-                NewHttpHelper.getAllTags()
-            }
-            if (result == null) {
-                DebugLog.e("List为空, 不更新Stats表")
-            } else {
-                LanraragiDB.updateStatsTable(result)
-            }
+    private suspend fun refreshCategoriesData() {
+        val result  = withContext(Dispatchers.IO) {
+            NewHttpHelper.getAllCategories()
         }
-    }
-
-    fun refreshCategoriesData() {
-        viewModelScope.launch {
-            val result  = withContext(Dispatchers.IO) {
-                NewHttpHelper.getAllCategories()
-            }
-            if (result == null) {
-                DebugLog.e("List为空, 不更新Stats表")
-            } else {
-                LanraragiDB.updateCategoryTable(result)
-            }
-            val dbResult = withContext(Dispatchers.IO) {
-                LanraragiDB.queryAllCategories()
-            }
-            categories.value = dbResult
+        if (result == null) {
+            DebugLog.e("List为空, 不更新Stats表")
+        } else {
+            LanraragiDB.updateCategoryTable(result)
         }
+        val dbResult = withContext(Dispatchers.IO) {
+            LanraragiDB.queryAllCategories()
+        }
+        categories.value = dbResult
     }
 
     fun setQueryText(query: String) {
@@ -82,13 +79,11 @@ class MainVM : ViewModel() {
         mainVMInvoke("setQueryText() $query") {
             val result = NewHttpHelper.queryArchiveByTag(query)
             dataList.value = result
-            if (serverArchiveCount.value != result.size) {
-                serverArchiveCount.value = result.size
-            }
         }
     }
 
     fun setSort(sort: LanraragiDB.DBHelper.SORT) {
+        if (filterSort.value == sort) return
         filterSort.value = sort
         AppConfig.sort = sort
         val query = queryText.value ?: ""
@@ -107,6 +102,7 @@ class MainVM : ViewModel() {
     }
 
     fun setOrder(order: LanraragiDB.DBHelper.ORDER) {
+        if (filterOrder.value == order) return
         filterOrder.value = order
         AppConfig.order = order
         val query = queryText.value ?: ""
@@ -151,13 +147,9 @@ class MainVM : ViewModel() {
                 val result = withContext(Dispatchers.IO) {
                     LanraragiDB.queryArchivesByIdList(category.archives)
                 }
-
                 dataList.value = result
                 curCategory.value = category
                 queryText.value = ""
-                if (serverArchiveCount.value != result.size) {
-                    serverArchiveCount.value = result.size
-                }
             }
         }
     }

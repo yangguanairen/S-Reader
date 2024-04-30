@@ -2,19 +2,11 @@ package com.sena.lanraragi.utils
 
 import android.content.Context
 import android.util.TypedValue
-import android.view.View
-import androidx.lifecycle.LifecycleCoroutineScope
 import com.sena.lanraragi.database.archiveData.Archive
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStream
-import java.util.concurrent.atomic.AtomicLong
 
 
 /**
@@ -135,4 +127,12 @@ fun Context.getThemeColor(id: Int): Int? {
 //        clickFLow.throttleFirst(duration).collect { func.invoke() }
 //    }
 //}
+
+//fun Context.sp2Px(sp: Int): Float {
+//    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.toFloat(), resources.displayMetrics)
+//}
+
+fun Context.dp2Px(dp: Int): Float {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), resources.displayMetrics)
+}
 

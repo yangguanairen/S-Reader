@@ -3,8 +3,10 @@ package com.sena.lanraragi.ui
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
@@ -17,6 +19,7 @@ import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.database.category.Category
 import com.sena.lanraragi.databinding.ItemTagBinding
 import com.sena.lanraragi.ui.detail.DetailActivity
@@ -36,16 +39,14 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
 
     private val vm: MainVM by viewModels()
 
-    private lateinit var settingLayout: LinearLayout
-    private lateinit var bookmarkView: BookmarkView
     private lateinit var sortTimeButton: RadioButton
     private lateinit var sortTitleButton: RadioButton
     private lateinit var orderAscButton: RadioButton
     private lateinit var orderDescButton: RadioButton
     private lateinit var categoryLayout: FlexboxLayout
+    private var forceRefreshButton: MenuItem? = null
 
     private var queryFromDetail: String? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +71,16 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
     }
 
+    private fun initViewModel() {
+        vm.filterOrder.observe(this) { onOrderChanged(it) }
+        vm.filterSort.observe(this) { onSortChanged(it) }
+        vm.dataList.observe(this) { onDataListChanged(it) }
+        vm.queryText.observe(this) { onQueryTextChanged(it) }
+        vm.isNew.observe(this) { onNewChanged(it) }
+        vm.categories.observe(this) { onCategoriesChanged(it) }
+        vm.curCategory.observe(this) { onCategoryChanged(it) }
+    }
+
     private fun initView() {
         setAppBarText(getString(R.string.main_toolbar_title), null)
         setNavigation(if (queryFromDetail != null) R.drawable.ic_arrow_back_24 else R.drawable.ic_menu_24) {
@@ -85,7 +96,14 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         initContentView()
     }
 
+    private fun initData() {
+        queryFromDetail?.let { callQueryTextChange(it) }
+        queryFromDetail?:let { vm.refreshData(false) }
+    }
+
     private fun initLeftNavigationView() {
+        val settingLayout: LinearLayout
+        val bookmarkView: BookmarkView
         binding.leftNav.getHeaderView(0).apply {
             settingLayout = findViewById(R.id.settingLayout)
             bookmarkView = findViewById(R.id.bookmarkView)
@@ -115,28 +133,19 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             orderAscButton = findViewById(R.id.orderAsc)
             orderDescButton = findViewById(R.id.orderDesc)
             categoryLayout = findViewById(R.id.categoryLayout)
+            if (queryFromDetail != null) findViewById<LinearLayout>(R.id.categoryRootLayout).apply {
+                visibility = View.GONE
+            }
         }
         sortTimeButton.isChecked = AppConfig.sort == LanraragiDB.DBHelper.SORT.TIME
         sortTitleButton.isChecked = AppConfig.sort == LanraragiDB.DBHelper.SORT.TITLE
         orderAscButton.isChecked = AppConfig.order == LanraragiDB.DBHelper.ORDER.ASC
         orderDescButton.isChecked = AppConfig.order == LanraragiDB.DBHelper.ORDER.DESC
 
-        sortTimeButton.setOnClickListener {
-            intent.putExtra(INTENT_KEY_POS, 0)
-            vm.setSort(LanraragiDB.DBHelper.SORT.TIME)
-        }
-        sortTitleButton.setOnClickListener {
-            intent.putExtra(INTENT_KEY_POS, 0)
-            vm.setSort(LanraragiDB.DBHelper.SORT.TITLE)
-        }
-        orderAscButton.setOnClickListener {
-            intent.putExtra(INTENT_KEY_POS, 0)
-            vm.setOrder(LanraragiDB.DBHelper.ORDER.ASC)
-        }
-        orderDescButton.setOnClickListener {
-            intent.putExtra(INTENT_KEY_POS, 0)
-            vm.setOrder(LanraragiDB.DBHelper.ORDER.DESC)
-        }
+        sortTimeButton.setOnClickListener { callSortChange(LanraragiDB.DBHelper.SORT.TIME) }
+        sortTitleButton.setOnClickListener { callSortChange(LanraragiDB.DBHelper.SORT.TITLE) }
+        orderAscButton.setOnClickListener { callOrderChange(LanraragiDB.DBHelper.ORDER.ASC) }
+        orderDescButton.setOnClickListener { callOrderChange(LanraragiDB.DBHelper.ORDER.DESC) }
     }
 
     private fun initContentView() {
@@ -145,28 +154,18 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             intent.putExtra(INTENT_KEY_OPERATE, OPERATE_KEY_VALUE1)
             startActivity(intent)
         }
-
-        binding.contentMain.searchView.setOnAfterInputFinishListener {
-            vm.setQueryText(it)
-        }
-        binding.contentMain.searchView.setOnClearTextListener {
-            vm.setQueryText("")
-        }
-        binding.contentMain.searchView.setOnSearchDoneListener {
-            vm.setQueryText(it)
-        }
-        binding.contentMain.searchView.setOnRelatedSelectedListener {
-            vm.setQueryText(it)
+        binding.contentMain.searchView.apply {
+            setOnAfterInputFinishListener { callQueryTextChange(it) }
+            setOnClearTextListener { callQueryTextChange("") }
+            setOnSearchDoneListener { callQueryTextChange(it) }
+            setOnRelatedSelectedListener { callQueryTextChange(it) }
         }
 
         if (queryFromDetail != null) {
             binding.contentMain.isNew.visibility = View.GONE
             binding.contentMain.random.visibility = View.GONE
         }
-
-        binding.contentMain.isNew.setOnClickListener {
-            vm.setNewState(binding.contentMain.isNew.isChecked)
-        }
+        binding.contentMain.isNew.setOnClickListener { callOnNewChange((it as CheckBox).isChecked) }
         binding.contentMain.random.setOnClickListener {
             val count = AppConfig.randomCount
             if (count == 1) {
@@ -187,120 +186,120 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
         }
     }
 
-    private fun initViewModel() {
-        vm.serverArchiveCount.observe(this) { n: Int? ->
-            binding.contentMain.toolbar.subtitle = String.format(getString(R.string.main_toolbar_subtitle), n ?: 0)
-        }
-        vm.filterOrder.observe(this) {
-            when (it) {
-                LanraragiDB.DBHelper.ORDER.ASC -> {
-                    orderAscButton.isChecked = true
-                    orderDescButton.isChecked = false
+    private fun callQueryTextChange(text: String) {
+        intent.putExtra(INTENT_KEY_POS, 0)
+        vm.setQueryText(text)
+    }
 
-                }
-                LanraragiDB.DBHelper.ORDER.DESC -> {
-                    orderAscButton.isChecked = false
-                    orderDescButton.isChecked = true
-                }
-                else -> {}
-            }
+    private fun callSortChange(sort: LanraragiDB.DBHelper.SORT) {
+        intent.putExtra(INTENT_KEY_POS, 0)
+        vm.setSort(sort)
+    }
 
-        }
-        vm.filterSort.observe(this) {
-            when (it) {
-                LanraragiDB.DBHelper.SORT.TIME -> {
-                    sortTimeButton.isChecked = true
-                    sortTitleButton.isChecked = false
-                }
-                LanraragiDB.DBHelper.SORT.TITLE -> {
-                    sortTimeButton.isChecked = false
-                    sortTitleButton.isChecked = true
-                }
-                else -> {}
-            }
-        }
-        vm.dataList.observe(this) {
-            mAdapter.submitList(it) {
-                val historyPos = intent.getIntExtra(INTENT_KEY_POS, -1)
-                if (historyPos > -1) {
-                    intent.putExtra(INTENT_KEY_POS, -1)
-                    mRecyclerView?.layoutManager?.scrollToPosition(historyPos)
-                }
-            }
-        }
-        vm.queryText.observe(this) {
-            binding.contentMain.searchView.setText(it)
-        }
-        vm.isNew.observe(this) {
-            binding.contentMain.isNew.isChecked = it
-        }
-        vm.categories.observe(this) {
-            onCategoriesValueChange(it)
-        }
-        vm.curCategory.observe(this) {
-            for (i in 0 until categoryLayout.childCount) {
-                val tv = categoryLayout.getChildAt(i).findViewById<TextView>(R.id.textView)
-                val text = tv.text.toString()
-                tv.setTextColor(Color.parseColor(if (text == it?.name) "#22a7f0" else "#ffffff"))
+    private fun callOrderChange(order: LanraragiDB.DBHelper.ORDER) {
+        intent.putExtra(INTENT_KEY_POS, 0)
+        vm.setOrder(order)
+    }
+
+    private fun callOnNewChange(status: Boolean) {
+        intent.putExtra(INTENT_KEY_POS, 0)
+        vm.setNewState(status)
+    }
+
+    private fun callOnCategoryChange(category: Category?) {
+        intent.putExtra(INTENT_KEY_POS, 0)
+        vm.setCategory(if(vm.curCategory.value?.name == category?.name) null else category)
+    }
+
+    private fun onDataListChanged(list: List<Archive>) {
+        setAppBarText(null, String.format(getString(R.string.main_toolbar_subtitle), list.size))
+        mAdapter.submitList(list) {
+            val historyPos = intent.getIntExtra(INTENT_KEY_POS, -1)
+            if (historyPos > -1) {
+                intent.putExtra(INTENT_KEY_POS, -1)
+                mRecyclerView?.layoutManager?.scrollToPosition(historyPos)
             }
         }
     }
 
-    private fun initData() {
-        queryFromDetail?.let {
-            vm.setQueryText(it)
+    private fun onQueryTextChanged(text: String) {
+        val isHiddenRefresh = when { // 控制强制刷新的显现与否
+            text.isNotEmpty() || queryFromDetail != null -> true
+            else -> false
         }
-        queryFromDetail?:let{
-            vm.forceRefreshData()
-        }
-        vm.refreshTagsData()
-        vm.refreshCategoriesData()
+        forceRefreshButton?.isVisible = isHiddenRefresh
+        binding.contentMain.searchView.setText(text)
     }
 
-    private fun onCategoriesValueChange(list: List<Category>) {
+    private fun onSortChanged(sort: LanraragiDB.DBHelper.SORT) {
+        val isTime = sort == LanraragiDB.DBHelper.SORT.TIME
+        sortTimeButton.isChecked = isTime
+        sortTitleButton.isChecked = !isTime
+    }
+
+    private fun onOrderChanged(order: LanraragiDB.DBHelper.ORDER) {
+        val isAsc = order == LanraragiDB.DBHelper.ORDER.ASC
+        orderAscButton.isChecked = isAsc
+        orderDescButton.isChecked = !isAsc
+    }
+
+    private fun onNewChanged(status: Boolean) {
+        binding.contentMain.isNew.isChecked = status
+    }
+
+    private fun onCategoriesChanged(list: List<Category>) {
         categoryLayout.removeAllViews()
         list.forEach { category ->
             val item = ItemTagBinding.inflate(layoutInflater, categoryLayout, true)
             item.textView.apply {
                 text = category.name
                 theme.getDrawable(R.drawable.bg_category_content)?.let { background = it }
-                setOnClickListener {
-                    intent.putExtra(INTENT_KEY_POS, 0)
-                    vm.setCategory(if(vm.curCategory.value?.name == category.name) null else category)
-                }
+                setOnClickListener { callOnCategoryChange(category) }
             }
+        }
+    }
+
+    private fun onCategoryChanged(category: Category?) {
+        for (i in 0 until categoryLayout.childCount) {
+            val tv = categoryLayout.getChildAt(i).findViewById<TextView>(R.id.textView)
+            val text = tv.text.toString()
+            tv.setTextColor(Color.parseColor(if (text == category?.name) "#22a7f0" else "#ffffff"))
         }
     }
 
     override fun onTagSelected(header: String, content: String) {
         super.onTagSelected(header, content)
         val query = if (header.isBlank()) content else "$header:$content"
-        vm.setQueryText(query)
+        callQueryTextChange(query)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        menu?.let {
+            forceRefreshButton = it.findItem(R.id.refresh).apply {
+                isVisible = queryFromDetail == null
+            }
+        }
+        return true
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
          when (item.itemId) {
             R.id.refresh -> {
-                intent.putExtra(INTENT_KEY_POS, 0)
-                vm.setCategory(null)
-                vm.forceRefreshData()
+                callOnCategoryChange(null)
+                vm.refreshData(true)
             }
-
             R.id.filter -> {
                 binding.drawerLayout.openDrawer(binding.rightNav)
             }
-
             R.id.gotoTop -> {
                 mRecyclerView?.layoutManager?.scrollToPosition(0)
             }
-
             R.id.gotoBottom -> {
                 mRecyclerView?.layoutManager?.scrollToPosition(mAdapter.items.size - 1)
             }
         }
         return super.onOptionsItemSelected(item)
-
     }
 
     override fun onThemeChanged(theme: Int) {
