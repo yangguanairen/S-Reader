@@ -138,6 +138,7 @@
     <!-- ******************************************** 自定义组件 ******************************************** -->
     // 标签查看器
     <string name="tag_view_title" translatable="false">标签</string>
+    <string name="category_view_title" translatable="false">分类</string>
 
 
     // Reader底部弹窗

@@ -84,15 +84,38 @@
             app:layout_constraintTop_toBottomOf="@+id/detailLayout"/>
 
         <LinearLayout
+            android:id="@+id/tageViewLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             app:layout_constraintTop_toBottomOf="@id/line"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintBottom_toTopOf="@id/line2">
 
 
             <com.sena.lanraragi.ui.widet.TagsViewer
                 android:id="@+id/tageViewer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/line2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/bg_divider"
+            app:layout_constraintTop_toBottomOf="@+id/tageViewLayout"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintTop_toBottomOf="@id/line2"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.sena.lanraragi.ui.widet.TagsViewer
+                android:id="@+id/categoryViewer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

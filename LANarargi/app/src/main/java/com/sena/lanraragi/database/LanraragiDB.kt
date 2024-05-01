@@ -10,6 +10,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.database.archiveData.ArchiveDao
+import com.sena.lanraragi.database.bookmarkData.Bookmark
+import com.sena.lanraragi.database.bookmarkData.BookmarkDao
 import com.sena.lanraragi.database.category.Category
 import com.sena.lanraragi.database.category.CategoryDao
 import com.sena.lanraragi.database.statsData.Stats
@@ -26,13 +28,14 @@ import kotlinx.coroutines.withContext
  * https://juejin.cn/post/7218743537495998524
  */
 
-@Database(entities = [Archive::class, Stats::class, Category::class], version = 2, exportSchema = false)
+@Database(entities = [Archive::class, Stats::class, Category::class, Bookmark::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class LanraragiDB : RoomDatabase() {
 
     abstract fun archiveDao(): ArchiveDao
     abstract fun statsDao(): StatsDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object DBHelper {
         @Volatile
@@ -78,7 +81,7 @@ abstract class LanraragiDB : RoomDatabase() {
                 val oldData = getAll()
                 archives.forEach { a ->
                     val oldItem = oldData.firstOrNull { o -> o.arcid == a.arcid }
-                    a.isBookmark = oldItem?.isBookmark ?: false
+//                    a.isBookmark = oldItem?.isBookmark ?: false
                     if (!AppConfig.enableSyn) {
                         oldItem?.let { a.progress = oldItem.progress }
                     }
@@ -127,16 +130,9 @@ abstract class LanraragiDB : RoomDatabase() {
             }
         }
 
-        suspend fun updateArchiveBookmark(id: String, status: Boolean) = dbInvoke(Unit) {
-            it.archiveDao().updateBookmarkByArcid(id, status)
-        }
-
-        suspend fun getBookmarkedArchives(): List<Archive> = dbInvoke(emptyList()) {
-           it.archiveDao().queryBookmarkedArchives()
-        }
-
         suspend fun updateReadingProgress(id: String, page: Int) = dbInvoke(Unit) {
             it.archiveDao().updateReadingProgress(id, page)
+            it.bookmarkDao().updateProgress(id, page)
         }
 
         suspend fun updateStatsTable(list: List<Stats>) = dbInvoke(Unit) {
@@ -157,6 +153,31 @@ abstract class LanraragiDB : RoomDatabase() {
 
         suspend fun queryAllCategories() = dbInvoke(emptyList()) {
             it.categoryDao().getAll()
+        }
+
+        suspend fun queryCategoriesById(id: String) = dbInvoke(emptyList()) {
+            it.categoryDao().queryCategoriesById(id)
+        }
+
+        suspend fun updateBookmark(id: String, isBookmark: Boolean) = dbInvoke(Unit) {
+            if (isBookmark) {
+                it.archiveDao().findByArcid(id)?.let { archive ->
+                    val newBookmark = Bookmark(archive.arcid, AppConfig.serverHost, archive.title, archive.tags, archive.progress)
+                    it.bookmarkDao().add(newBookmark)
+                }
+            } else {
+                it.bookmarkDao().remove(id)
+            }
+        }
+
+        suspend fun queryAllBookmark() = dbInvoke(emptyList()) {
+            val serverHost = AppConfig.serverHost
+            it.bookmarkDao().queryByServerHost(serverHost)
+        }
+
+        suspend fun isBookmarked(id: String) = dbInvoke(false) {
+            val bookmark = it.bookmarkDao().queryById(id)
+            bookmark != null
         }
 
         private suspend fun <T> dbInvoke(def: T, func: suspend (instance: LanraragiDB) -> T): T {

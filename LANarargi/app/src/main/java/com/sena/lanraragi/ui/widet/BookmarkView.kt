@@ -19,6 +19,7 @@ import com.sena.lanraragi.R
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.ui.BaseArchiveListActivity
 import com.sena.lanraragi.database.archiveData.Archive
+import com.sena.lanraragi.database.bookmarkData.Bookmark
 import com.sena.lanraragi.databinding.ItemBookmarkBinding
 import com.sena.lanraragi.databinding.ViewBookmarkBinding
 import com.sena.lanraragi.utils.ImageLoad
@@ -44,7 +45,7 @@ class BookmarkView @JvmOverloads constructor(
     private val binding = ViewBookmarkBinding.inflate(LayoutInflater.from(mContext), this, true)
     private val mAdapter = BookmarkAdapter()
 
-    private var mOnItemClickListener: BaseQuickAdapter.OnItemClickListener<Archive>? = null
+    private var mOnItemClickListener: ((archive: Archive) -> Unit)? = null
     private var mOnTagSelectedListener: TagsViewer.OnTagSelectedListener? = null
 
     private val simpleTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
@@ -55,16 +56,16 @@ class BookmarkView @JvmOverloads constructor(
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val pos = viewHolder.absoluteAdapterPosition
             val data = mAdapter.getItem(pos) ?: return
-            val id = data.arcid
+            val id = data.id
             mAdapter.removeAt(pos)
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.IO) {
-                    LanraragiDB.updateArchiveBookmark(id, false)
+                    LanraragiDB.updateBookmark(id, false)
                 }
                 showSnackBar(mContext.getString(R.string.bookmark_view_clear_single)) {
                     mAdapter.add(pos, data)
                     CoroutineScope(Dispatchers.IO).launch {
-                        LanraragiDB.updateArchiveBookmark(id, true)
+                        LanraragiDB.updateBookmark(id, true)
                     }
                 }
             }
@@ -76,8 +77,17 @@ class BookmarkView @JvmOverloads constructor(
     }
 
     private fun initView() {
-        mAdapter.setOnItemClickListener { a, v, p ->
-            mOnItemClickListener?.onClick(a, v, p)
+        mAdapter.setOnItemClickListener { a, _, p ->
+            a.getItem(p)?.id?.let {
+                CoroutineScope(Dispatchers.Main).launch {
+                    val result = withContext(Dispatchers.IO) {
+                        LanraragiDB.queryArchiveById(it)
+                    }
+                    if (result != null) {
+                        mOnItemClickListener?.invoke(result)
+                    }
+                }
+            }
         }
         mAdapter.setOnItemLongClickListener { a, _, p ->
             a.getItem(p)?.tags?.let { tags ->
@@ -111,14 +121,14 @@ class BookmarkView @JvmOverloads constructor(
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.IO) {
                     curData.forEach {
-                        LanraragiDB.updateArchiveBookmark(it.arcid, false)
+                        LanraragiDB.updateBookmark(it.id, false)
                     }
                 }
                 showSnackBar(mContext.getString(R.string.bookmark_view_clear_all)) {
                     mAdapter.submitList(curData)
                     CoroutineScope(Dispatchers.IO).launch {
                         curData.forEach {
-                            LanraragiDB.updateArchiveBookmark(it.arcid, false)
+                            LanraragiDB.updateBookmark(it.id, true)
                         }
                     }
                 }
@@ -136,7 +146,7 @@ class BookmarkView @JvmOverloads constructor(
     private fun initData() {
         CoroutineScope(Dispatchers.Main).launch {
             val result = withContext(Dispatchers.IO) {
-                LanraragiDB.getBookmarkedArchives()
+                LanraragiDB.queryAllBookmark()
             }
             mAdapter.submitList(result)
         }
@@ -150,10 +160,8 @@ class BookmarkView @JvmOverloads constructor(
             .show()
     }
 
-    fun setOnItemClickListener(func: (a: BaseQuickAdapter<Archive, *>, v: View, p: Int) -> Unit) {
-        mOnItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
-            func.invoke(adapter, view, position)
-        }
+    fun setOnItemClickListener(func: (archive: Archive) -> Unit) {
+        mOnItemClickListener = func
     }
 
     fun setOnTagSelectedListener(func: (header: String, content: String) -> Unit) {
@@ -164,9 +172,9 @@ class BookmarkView @JvmOverloads constructor(
         }
     }
 
-    class BookmarkAdapter : BaseQuickAdapter<Archive, BookmarkAdapter.VH>() {
+    class BookmarkAdapter : BaseQuickAdapter<Bookmark, BookmarkAdapter.VH>() {
 
-        override fun onBindViewHolder(holder: VH, position: Int, item: Archive?) {
+        override fun onBindViewHolder(holder: VH, position: Int, item: Bookmark?) {
             item?.let { holder.onBind(context, it) }
         }
 
@@ -176,11 +184,11 @@ class BookmarkView @JvmOverloads constructor(
 
         class VH(private val itemBinding: ItemBookmarkBinding) : RecyclerView.ViewHolder(itemBinding.root) {
 
-            fun onBind(context: Context, archive: Archive) {
-                itemBinding.title.text = archive.title
-                itemBinding.readCount.text = (archive.progress ?: 0).toString()
+            fun onBind(context: Context, bookmark: Bookmark) {
+                itemBinding.title.text = bookmark.title
+                itemBinding.readCount.text = (bookmark.progress ?: 0).toString()
                 ImageLoad.Builder(context)
-                    .loadThumb(archive.arcid)
+                    .loadThumb(bookmark.id)
                     .into(itemBinding.cover)
                     .execute()
             }

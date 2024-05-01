@@ -39,6 +39,10 @@ class TagsViewer @JvmOverloads constructor(
         redrawTagView(tags)
     }
 
+    fun setTitle(s: String) {
+        binding.title.text = s
+    }
+
     private fun redrawTagView(s: String) {
         binding.tagLayout.removeAllViews()
 

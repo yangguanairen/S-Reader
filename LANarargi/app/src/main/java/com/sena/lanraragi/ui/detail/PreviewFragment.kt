@@ -1,6 +1,7 @@
 package com.sena.lanraragi.ui.detail
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.sena.lanraragi.BaseFragment
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.LanraragiDB
@@ -21,6 +23,7 @@ import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.NewHttpHelper
+import com.sena.lanraragi.utils.getOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -62,7 +65,7 @@ class PreviewFragment : BaseFragment() {
 
         }
         binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(context, 2)
+            layoutManager = getListLayoutManager()
             adapter = mAdapter
         }
     }
@@ -99,6 +102,36 @@ class PreviewFragment : BaseFragment() {
             }
         }
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        binding.recyclerView.apply {
+            // 保存当前的浏览状态
+            val lm = getOrNull { layoutManager as LinearLayoutManager }
+            val scrollPos = lm?.findFirstVisibleItemPosition() ?: 0
+            val startView = getChildAt(0)
+            val scrollTopOffset = if (startView == null) 0 else paddingTop - startView.top
+            // 切换布局
+            layoutManager = getListLayoutManager()
+            // 恢复上次的浏览状态
+            layoutManager?.scrollToPosition(scrollPos)
+            lm?.scrollToPositionWithOffset(scrollPos, scrollTopOffset)
+        }
+    }
+
+    private fun getListLayoutManager(): LinearLayoutManager {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isTablet = resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK >=
+                Configuration.SCREENLAYOUT_SIZE_LARGE
+        return when {
+            isLandscape && isTablet -> GridLayoutManager(context, 4)
+            isLandscape && !isTablet -> GridLayoutManager(context, 3)
+            !isLandscape && isTablet -> GridLayoutManager(context, 3)
+            else -> GridLayoutManager(context, 2)
+        }
+    }
+
+
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

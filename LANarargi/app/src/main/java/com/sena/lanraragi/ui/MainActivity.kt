@@ -127,12 +127,10 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
             val intent = Intent(this, SettingActivity::class.java)
             startActivity(intent)
         }
-        bookmarkView.setOnItemClickListener { a, _, p ->
-            a.getItem(p)?.let {
-                val intent = Intent(this, DetailActivity::class.java)
-                intent.putExtra(INTENT_KEY_ARCHIVE, it)
-                startActivity(intent)
-            }
+        bookmarkView.setOnItemClickListener {
+            val intent = Intent(this, DetailActivity::class.java)
+            intent.putExtra(INTENT_KEY_ARCHIVE, it)
+            startActivity(intent)
         }
         bookmarkView.setOnTagSelectedListener { header, content ->
             binding.drawerLayout.closeDrawer(binding.leftNav)

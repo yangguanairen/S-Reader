@@ -80,6 +80,9 @@ class IntroduceFragment : BaseFragment() {
             intent.putExtra(INTENT_KEY_QUERY, query)
             startActivity(intent)
         }
+        binding.categoryViewer.setOnTagSelectedListener { header, content ->
+            // TODO: 跳转MainActivity
+        }
         binding.startRead.setOnClickListener {
             val intent = Intent(requireContext(), ReaderActivity::class.java)
             intent.putExtra(INTENT_KEY_ARCID, mId)
@@ -88,13 +91,12 @@ class IntroduceFragment : BaseFragment() {
             startActivity(intent)
         }
         binding.bookmark.setOnClickListener {
-            val isBookmarked = mArchive?.isBookmark ?: false
+            val isBookmarked = binding.bookmark.text.toString() == getString(R.string.detail_introduce_cancel_bookmark)
             val fStatus = !isBookmarked
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    LanraragiDB.updateArchiveBookmark(id, fStatus)
+                    LanraragiDB.updateBookmark(id, fStatus)
                 }
-                mArchive?.isBookmark = fStatus
                 binding.bookmark.text = bookmarkTextMap[fStatus]
             }
         }
@@ -113,13 +115,10 @@ class IntroduceFragment : BaseFragment() {
 
     private fun refreshBookmark(id: String) {
         lifecycleScope.launch {
-            val archive = withContext(Dispatchers.IO) {
-                LanraragiDB.queryArchiveById(id)
+            val isBookmark = withContext(Dispatchers.IO) {
+                LanraragiDB.isBookmarked(id)
             }
-            mArchive = archive
-            if (archive != null) {
-                binding.bookmark.text = bookmarkTextMap[archive.isBookmark]
-            }
+            binding.bookmark.text = bookmarkTextMap[isBookmark]
         }
     }
 
@@ -133,9 +132,13 @@ class IntroduceFragment : BaseFragment() {
                 return@launch
             }
 
+            val categories = withContext(Dispatchers.IO) {
+                LanraragiDB.queryCategoriesById(id)
+            }
+            val convertData = categories.joinToString(", ") { if (it.pinned == 0) "静态:${it.name}" else "动态:${it.name}" }
+
             mArchive = archive
             binding.title.text = archive.title
-            binding.bookmark.text = bookmarkTextMap[archive.isBookmark]
             ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
             ImageLoad.Builder(requireContext())
                 .loadThumb(archive.arcid)
@@ -146,6 +149,10 @@ class IntroduceFragment : BaseFragment() {
                 .execute()
             archive.tags?.let { s ->
                 binding.tageViewer.setTags(s)
+            }
+            binding.categoryViewer.apply {
+                setTitle(getString(R.string.category_view_title))
+                setTags(convertData)
             }
         }
     }

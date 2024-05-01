@@ -77,10 +77,10 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
 
         when {
             scaleImageSupportList.any { item.lowercase().endsWith(it) } -> {
-                holder.bindScaleView(item)
+                holder.bindScaleView(item, position)
             }
             photoImageSupportList.any { item.lowercase().endsWith(it) } -> {
-                holder.bindPhotoView(item)
+                holder.bindPhotoView(item, position)
             }
             item == "error" -> {
                 holder.bindErrorView(item)
@@ -118,6 +118,7 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
             isIndeterminate = true
             max = 100
         }
+        private val pageNumberView: TextView = rootView.findViewById(R.id.pageNumber)
 
 
 
@@ -130,9 +131,11 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
             }
         }
 
-        fun bindPhotoView(url: String) {
+        @SuppressLint("SetTextI18n")
+        fun bindPhotoView(url: String, pos: Int) {
             DebugLog.i("ReaderAdapter.VH.bindPhotoView():\n 加载资源:$url\n${firstScaleType.name}")
             mUrl = url
+            pageNumberView.text = (pos + 1).toString()
             mainView = PhotoView(context).also {
                 initView(it)
                 ImageLoad.Builder(context)
@@ -143,6 +146,7 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
                     }
                     .doOnSuccess {
                         progressBar.visibility = GONE
+                        pageNumberView.visibility = GONE
                         rootView.run {
                             setOnClickListener(null)
                             setOnLongClickListener(null)
@@ -159,9 +163,11 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
             }.also { setImageTapEvent(it) }
         }
 
-        fun bindScaleView(url: String) {
+        @SuppressLint("SetTextI18n")
+        fun bindScaleView(url: String, pos: Int) {
             DebugLog.i("ReaderAdapter.VH.bindScaleView(): 加载资源:$url${firstScaleType.name}")
             mUrl = url
+            pageNumberView.text = (pos + 1).toString()
             mainView = (if (firstScaleType == ScaleType.WEBTOON) {
                 WebtoonScaleImageView(context)
             } else {
@@ -179,6 +185,7 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
                     }
                     .doOnSuccess {
                         progressBar.visibility = GONE
+                        pageNumberView.visibility = GONE
                         rootView.run {
                             setOnClickListener(null)
                             setOnLongClickListener(null)
@@ -199,6 +206,7 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
             DebugLog.e("ReaderAdapter.VH.bindErrorView(): 不支持的资源:$url")
             mUrl = url
             progressBar.visibility = View.INVISIBLE
+            pageNumberView.visibility = View.INVISIBLE
             errorView.apply {
                 val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
                     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {

@@ -23,5 +23,8 @@ interface CategoryDao {
 
     @Query("SELECT * FROM Category")
     suspend fun getAll(): List<Category>
+
+    @Query("SELECT * FROM Category WHERE archives LIKE '%' || :id || '%'")
+    suspend fun queryCategoriesById(id: String): List<Category>
 }
 

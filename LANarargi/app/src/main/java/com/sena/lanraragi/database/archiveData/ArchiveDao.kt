@@ -41,16 +41,7 @@ interface ArchiveDao {
     suspend fun getRandomArchive(count: Int): List<Archive>
 
     @Query("SELECT * FROM Archive WHERE arcid = :arcId limit 1")
-    suspend fun findByArcid(arcId: String): Archive
-
-    @Query("UPDATE Archive SET isBookmark = :status WHERE arcid = :archive")
-    suspend fun updateBookmarkByArcid(archive: String, status: Boolean)
-
-    @Query("SELECT * FROM Archive WHERE isBookmark = 1")
-    suspend fun queryBookmarkedArchives(): List<Archive>
-
-    @Query("UPDATE ARCHIVE set isBookmark = 0")
-    suspend fun resetBookmark()
+    suspend fun findByArcid(arcId: String): Archive?
 
     @Query("SELECT * FROM ARCHIVE WHERE arcid IN (:idList) AND isnew IN (:isNew) ORDER BY title ASC")
     suspend fun queryByIdListTitleAsc(idList: List<String>, isNew: List<Int>): List<Archive>

@@ -282,7 +282,7 @@ class ReaderActivity : BaseActivity() {
 
     private fun initLeftNav() {
         val bookmarkView = binding.leftNav.getHeaderView(0).findViewById<BookmarkView>(R.id.bookmarkView)
-        bookmarkView.setOnItemClickListener { a, _, p ->
+        bookmarkView.setOnItemClickListener {
             // TODO: 更换数据源
            //  a.getItem(p)?.let { initData(it) }
         }
@@ -333,15 +333,16 @@ class ReaderActivity : BaseActivity() {
                 bottomPopup.show()
             }
             R.id.bookmark -> {
-                val archive = mArchive ?: return false
-                val isBookmarked = archive.isBookmark
-                val finStatus = !isBookmarked
-                val icon = if (finStatus) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
+                val id = mId ?: return false
                 lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        LanraragiDB.updateArchiveBookmark(archive.arcid, finStatus)
+                    val isBookmarked = withContext(Dispatchers.IO) {
+                        LanraragiDB.isBookmarked(id)
                     }
-                    mArchive?.isBookmark = finStatus
+                    val finStatus = !isBookmarked
+                    val icon = if (finStatus) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
+                    withContext(Dispatchers.IO) {
+                        LanraragiDB.updateBookmark(id, finStatus)
+                    }
                     item.setIcon(icon)
                 }
             }
@@ -379,8 +380,8 @@ class ReaderActivity : BaseActivity() {
             mId?.let { id ->
                 lifecycleScope.launch {
                     val isBookmarked = withContext(Dispatchers.IO) {
-                        LanraragiDB.queryArchiveById(id)
-                    }?.isBookmark ?: false
+                        LanraragiDB.isBookmarked(id)
+                    }
                     val icon = if (isBookmarked) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
                     bookmarkMenuItem.setIcon(icon)
                 }
