@@ -84,4 +84,6 @@ dependencies {
     // Gson
     def gson_version = "2.10.1"
     implementation "com.google.code.gson:gson:$gson_version"
+    def bar_version = "3.2.2"
+    implementation "com.geyifeng.immersionbar:immersionbar:$bar_version"
 }

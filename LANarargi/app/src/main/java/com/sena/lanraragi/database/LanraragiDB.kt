@@ -103,10 +103,10 @@ abstract class LanraragiDB : RoomDatabase() {
             val isNew = if (AppConfig.isNew) listOf(1) else listOf(0, 1)
 
             when {
-                order == ORDER.ASC && sort == SORT.TITLE -> dao.queryByTagTitleAsc(query, isNew)
-                order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryByTagTitleDesc(query, isNew)
-                order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryByTagDateAsc(query, isNew)
-                order == ORDER.DESC && sort == SORT.TIME -> dao.queryByTagDateDesc(query, isNew)
+                order == ORDER.ASC && sort == SORT.TITLE -> dao.queryByTextTitleAsc(query, isNew)
+                order ==ORDER.DESC && sort ==  SORT.TITLE -> dao.queryByTextTitleDesc(query, isNew)
+                order == ORDER.ASC && sort ==  SORT.TIME -> dao.queryByTextDateAsc(query, isNew)
+                order == ORDER.DESC && sort == SORT.TIME -> dao.queryByTextDateDesc(query, isNew)
                 else -> emptyList()
             }
         }

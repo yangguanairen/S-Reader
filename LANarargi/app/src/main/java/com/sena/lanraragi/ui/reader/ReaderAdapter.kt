@@ -305,10 +305,10 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
         private fun getTouchZone(x: Float, view: View) : TouchZone {
             val location = x / view.width
 
-            if (location <= 0.4)
+            if (location <= 0.25)
                 return TouchZone.Left
 
-            if (location >= 0.6)
+            if (location >= 0.75)
                 return TouchZone.Right
 
             return TouchZone.Center

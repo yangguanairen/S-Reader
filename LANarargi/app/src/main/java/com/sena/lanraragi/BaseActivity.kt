@@ -18,7 +18,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.sena.lanraragi.utils.LanguageHelper
 import kotlinx.coroutines.launch
 
 
@@ -41,7 +40,7 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
             getString(R.string.setting_common_apptheme_select_2) -> R.style.AppTheme_HVerse
             else -> R.style.AppTheme_Dark
         })
-        LanguageHelper.getAttachBaseContext(this)
+//        LanguageHelper.setAppLanguage(this)
         window.statusBarColor = Color.BLACK
     }
 

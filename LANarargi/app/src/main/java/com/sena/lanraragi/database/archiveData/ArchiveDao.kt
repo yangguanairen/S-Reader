@@ -25,17 +25,21 @@ interface ArchiveDao {
     @Query("SELECT * FROM Archive")
     suspend fun getAll(): List<Archive>
 
-    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew IN (:isNew) ORDER BY title ASC")
-    suspend fun queryByTagTitleAsc(query: String, isNew: List<Int>): List<Archive>
+    @Query("SELECT * FROM Archive WHERE (tags LIKE '%' || :query || '%' OR title LIKE '%' || :query || '%') " +
+            "AND isnew IN (:isNew) ORDER BY title ASC")
+    suspend fun queryByTextTitleAsc(query: String, isNew: List<Int>): List<Archive>
 
-    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew IN (:isNew) ORDER BY title DESC")
-    suspend fun queryByTagTitleDesc(query: String, isNew: List<Int>): List<Archive>
+    @Query("SELECT * FROM Archive WHERE (tags LIKE '%' || :query || '%' OR title LIKE '%' || :query || '%') " +
+            "AND isnew IN (:isNew) ORDER BY title DESC")
+    suspend fun queryByTextTitleDesc(query: String, isNew: List<Int>): List<Archive>
 
-    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew IN (:isNew) ORDER BY data_added ASC")
-    suspend fun queryByTagDateAsc(query: String, isNew: List<Int>): List<Archive>
+    @Query("SELECT * FROM Archive WHERE (tags LIKE '%' || :query || '%' OR title LIKE '%' || :query || '%') " +
+            "AND isnew IN (:isNew) ORDER BY data_added ASC")
+    suspend fun queryByTextDateAsc(query: String, isNew: List<Int>): List<Archive>
 
-    @Query("SELECT * FROM Archive WHERE tags LIKE '%' || :query || '%' AND isnew IN (:isNew) ORDER BY data_added DESC")
-    suspend fun queryByTagDateDesc(query: String, isNew: List<Int>): List<Archive>
+    @Query("SELECT * FROM Archive WHERE (tags LIKE '%' || :query || '%' OR title LIKE '%' || :query || '%') " +
+            "AND isnew IN (:isNew) ORDER BY data_added DESC")
+    suspend fun queryByTextDateDesc(query: String, isNew: List<Int>): List<Archive>
 
     @Query("SELECT * FROM Archive ORDER BY RANDOM() limit :count")
     suspend fun getRandomArchive(count: Int): List<Archive>

@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import com.gyf.immersionbar.BarHide
+import com.gyf.immersionbar.ImmersionBar
 import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.AppConfig
@@ -130,7 +132,61 @@ class ReaderActivity : BaseActivity() {
 
     private fun initView() {
         initToolbar()
-        // 初始popup
+        initPopup()
+        initViewPager()
+        initWebtoon()
+        initLeftNav()
+
+        binding.contentReader.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+
+            private var isHuman = false
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    vm.setCurPosition(progress, PosSource.Seekbar)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                isHuman = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                isHuman = false
+            }
+
+        })
+    }
+
+    private fun initData(id: String) {
+        lifecycleScope.launch {
+            val archive = withContext(Dispatchers.IO) {
+                LanraragiDB.queryArchiveById(id)
+            }
+            if (archive == null) {
+                DebugLog.e("ReaderActivity: 数据库中不存在此数据: $id")
+                return@launch
+            }
+
+            mArchive = archive
+            val pageCount = archive.pagecount
+            if (pageCount != null) {
+                val emptyList = (0 until pageCount).map { "" }
+                vm.setFileNameList(emptyList)
+            }
+
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                withContext(Dispatchers.Main) {
+                    vm.initData(archive.arcid)
+                }
+                val pos = intent.getIntExtra(INTENT_KEY_POS, -1)
+                if (pos > -1) vm.setCurPosition(pos, PosSource.PreviewFragment)
+                intent.putExtra(INTENT_KEY_POS, -1)
+            }
+        }
+    }
+
+    private fun initPopup() {
         val customPopup = ReaderBottomPopup(this).apply {
             setOnScaleTypeChangeListener { oldType , newType ->
                 val tList = ScaleType.values().filter { it != ScaleType.WEBTOON }
@@ -174,37 +230,11 @@ class ReaderActivity : BaseActivity() {
             .borderRadius(8f)
             .isDestroyOnDismiss(false)
             .asCustom(customPopup)
-
-        initViewPager()
-        initWebtoon()
-        initLeftNav()
-
-        binding.contentReader.seekbar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-
-            private var isHuman = false
-
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    vm.setCurPosition(progress, PosSource.Seekbar)
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                isHuman = true
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                isHuman = false
-            }
-
-        })
     }
 
     private fun initToolbar() {
-        // 初始Toolbar
         setNavigation(R.drawable.ic_arrow_back_24) { finish() }
-        binding.contentReader.appBar.visibility = View.INVISIBLE
-        binding.contentReader.seekbarLayout.visibility = View.INVISIBLE
+        displayToolbar()
     }
 
     private fun initViewPager() {
@@ -288,37 +318,6 @@ class ReaderActivity : BaseActivity() {
         }
     }
 
-
-    private fun initData(id: String) {
-        lifecycleScope.launch {
-            val archive = withContext(Dispatchers.IO) {
-                LanraragiDB.queryArchiveById(id)
-            }
-            if (archive == null) {
-                DebugLog.e("ReaderActivity: 数据库中不存在此数据: $id")
-                return@launch
-            }
-
-            mArchive = archive
-            val pageCount = archive.pagecount
-            if (pageCount != null) {
-                val emptyList = (0 until pageCount).map { "" }
-                vm.setFileNameList(emptyList)
-            }
-
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                withContext(Dispatchers.Main) {
-                    vm.initData(archive.arcid)
-                }
-                val pos = intent.getIntExtra(INTENT_KEY_POS, -1)
-                if (pos > -1) vm.setCurPosition(pos, PosSource.PreviewFragment)
-                intent.putExtra(INTENT_KEY_POS, -1)
-            }
-        }
-    }
-
-
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_reader, menu)
         menu?.let {
@@ -376,21 +375,30 @@ class ReaderActivity : BaseActivity() {
     }
 
     private fun displayToolbar() {
-        binding.contentReader.appBar.apply {
-            mId?.let { id ->
-                lifecycleScope.launch {
-                    val isBookmarked = withContext(Dispatchers.IO) {
-                        LanraragiDB.isBookmarked(id)
-                    }
-                    val icon = if (isBookmarked) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
-                    bookmarkMenuItem.setIcon(icon)
+        val appBar = binding.contentReader.appBar
+        if (appBar.visibility == View.VISIBLE) {
+            ImmersionBar.with(this@ReaderActivity)
+                .transparentBar()
+                .hideBar(BarHide.FLAG_HIDE_BAR)
+                .titleBarMarginTop(appBar)
+                .init()
+            appBar.visibility = View.INVISIBLE
+            binding.contentReader.seekbarLayout.visibility = View.INVISIBLE
+        } else {
+            val id = mId ?: return
+            lifecycleScope.launch {
+                val isBookmarked = withContext(Dispatchers.IO) {
+                    LanraragiDB.isBookmarked(id)
                 }
-            }
-            if (visibility == View.VISIBLE) {
-                visibility = View.INVISIBLE
-                binding.contentReader.seekbarLayout.visibility = View.INVISIBLE
-            } else {
-                visibility = View.VISIBLE
+                val icon = if (isBookmarked) R.drawable.ic_bookmarked_24 else R.drawable.ic_bookmark_border_24
+                bookmarkMenuItem.setIcon(icon)
+                ImmersionBar.with(this@ReaderActivity)
+                    .statusBarColor("#000000")
+                    .navigationBarColor("#ffffff")
+                    .titleBarMarginTop(appBar)
+                    .hideBar(BarHide.FLAG_SHOW_BAR)
+                    .init()
+                appBar.visibility = View.VISIBLE
                 binding.contentReader.seekbarLayout.visibility = View.VISIBLE
             }
         }
