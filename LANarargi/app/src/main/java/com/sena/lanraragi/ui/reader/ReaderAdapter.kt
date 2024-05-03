@@ -83,13 +83,13 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
                 holder.bindPhotoView(item, position)
             }
             item == "error" -> {
-                holder.bindErrorView(item)
+                holder.bindErrorView(item, context.getString(R.string.read_file_load_failed))
             }
             item.isBlank() -> {
-                holder.bindEmptyView()
+                holder.bindEmptyView(position)
             }
             else -> {
-                holder.bindErrorView(item)
+                holder.bindErrorView(item, context.getString(R.string.read_file_is_not_support))
             }
         }
     }
@@ -121,9 +121,6 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
         private val pageNumberView: TextView = rootView.findViewById(R.id.pageNumber)
 
 
-
-        var mUrl: String? = null
-
         init {
             rootView.apply {
                 setOnClickListener { mOnTapListener?.onTap(TouchZone.Center) }
@@ -134,7 +131,6 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
         @SuppressLint("SetTextI18n")
         fun bindPhotoView(url: String, pos: Int) {
             DebugLog.i("ReaderAdapter.VH.bindPhotoView():\n 加载资源:$url\n${firstScaleType.name}")
-            mUrl = url
             pageNumberView.text = (pos + 1).toString()
             mainView = PhotoView(context).also {
                 initView(it)
@@ -154,7 +150,7 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
                         updateScale(it, AppConfig.scaleMethod)
                     }
                     .doOnError {
-                        bindErrorView(url)
+                        bindErrorView(url, context.getString(R.string.read_file_load_failed))
                         it.visibility = GONE
                     }
                     .into(it)
@@ -166,7 +162,6 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
         @SuppressLint("SetTextI18n")
         fun bindScaleView(url: String, pos: Int) {
             DebugLog.i("ReaderAdapter.VH.bindScaleView(): 加载资源:$url${firstScaleType.name}")
-            mUrl = url
             pageNumberView.text = (pos + 1).toString()
             mainView = (if (firstScaleType == ScaleType.WEBTOON) {
                 WebtoonScaleImageView(context)
@@ -193,7 +188,7 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
                         updateScale(it, AppConfig.scaleMethod)
                     }
                     .doOnError {
-                        bindErrorView(url)
+                        bindErrorView(url, context.getString(R.string.read_file_load_failed))
                         it.visibility = GONE
                     }
                     .into(it)
@@ -202,9 +197,8 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
         }
 
         @SuppressLint("ClickableViewAccessibility")
-        fun bindErrorView(url: String) {
-            DebugLog.e("ReaderAdapter.VH.bindErrorView(): 不支持的资源:$url")
-            mUrl = url
+        fun bindErrorView(url: String, text: String) {
+            DebugLog.e("ReaderAdapter.VH.bindErrorView(): text: $text 不支持的资源:$url")
             progressBar.visibility = View.INVISIBLE
             pageNumberView.visibility = View.INVISIBLE
             errorView.apply {
@@ -219,15 +213,15 @@ class ReaderAdapter : BaseQuickAdapter<String, ReaderAdapter.VH>() {
                     true
                 }
                 setOnLongClickListener { mOnLongPressListener?.onLongClick(this) == true }
-                errorView.visibility = View.VISIBLE
+                visibility = View.VISIBLE
+                setText(text)
             }
         }
 
-        fun bindEmptyView() {
-//            progressLayout.visibility = View.VISIBLE
-//            errorView.visibility = View.INVISIBLE
-//            photoView.visibility = View.INVISIBLE
-//            scaleView.visibility = View.INVISIBLE
+        @SuppressLint("SetTextI18n")
+        fun bindEmptyView(pos: Int) {
+            pageNumberView.text = (pos + 1).toString()
+            progressBar.visibility = View.VISIBLE
         }
 
         @SuppressLint("ClickableViewAccessibility")

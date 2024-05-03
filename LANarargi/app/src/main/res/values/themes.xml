@@ -17,6 +17,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+        <item name="actionOverflowButtonStyle">@style/CustomOverflowStyle</item>
     </style>
 
     <style name="AppTheme.Dark" parent="AppTheme.Base">
@@ -43,8 +44,12 @@
         <item name="bgColor5">#4a4a4a</item> <!-- 分割线颜色 -->
     </style>
 
-    <style name="ToolbarPopTheme" parent="Widget.MaterialComponents.PopupMenu">
-        <item name="android:popupBackground">?attr/bgColor3</item>
+    <style name="CustomPopTheme" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:colorBackground">?attr/bgColor3</item>
         <item name="android:textColor">?attr/textColor1</item>
+    </style>
+
+    <style name="CustomOverflowStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_more_vert_24</item>
     </style>
 </resources>

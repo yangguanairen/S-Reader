@@ -18,6 +18,6 @@
         android:radius="8dp" />
 
     <solid
-        android:color="#4f535b" />
+        android:color="?attr/bgColor2" />
 
 </shape>

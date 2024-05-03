@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LANraragi</string>
+    <string name="app_name">S-Reader</string>
 
 
     <!-- ******************************************** 主页(MainActivity) ******************************************** -->
@@ -56,6 +56,7 @@
     <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
     // 阅读页
     <string name="read_file_is_not_support" translatable="false">图片不支持</string>
+    <string name="read_file_load_failed" translatable="false">加载失败</string>
     <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
 
 

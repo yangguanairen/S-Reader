@@ -13,14 +13,14 @@
         android:text="@string/read_file_is_not_support"
         android:textSize="28sp"
         android:padding="48dp"
-        android:textColor="?attr/textColor2"
+        android:textColor="#c8c8c8"
         android:gravity="center" />
 
     <TextView
         android:id="@+id/pageNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="?attr/textColor2"
+        android:textColor="#c8c8c8"
         android:textSize="28sp"
         android:textStyle="bold"
         android:layout_centerHorizontal="true"
