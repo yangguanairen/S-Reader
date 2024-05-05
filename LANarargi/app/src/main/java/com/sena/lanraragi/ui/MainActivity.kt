@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.FlexboxLayout
 import com.sena.lanraragi.AppConfig
+import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
 import com.sena.lanraragi.R
@@ -188,7 +189,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
                         i.putExtra(INTENT_KEY_ARCHIVE, result)
                         startActivity(i)
                     } else {
-                        Toast.makeText(this@MainActivity, "无法获取随机档案", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(LanraragiApplication.getContext(), "无法获取随机档案", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {

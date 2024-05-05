@@ -135,6 +135,10 @@ abstract class LanraragiDB : RoomDatabase() {
             it.bookmarkDao().updateProgress(id, page)
         }
 
+        suspend fun updateTags(id: String, tags: String) = dbInvoke(Unit) {
+            it.archiveDao().updateTags(id, tags)
+        }
+
         suspend fun updateStatsTable(list: List<Stats>) = dbInvoke(Unit) {
             it.statsDao().clearTable()
             it.statsDao().insertAll(list)

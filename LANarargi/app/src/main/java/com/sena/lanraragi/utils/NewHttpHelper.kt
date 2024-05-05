@@ -10,6 +10,7 @@ import com.sena.lanraragi.database.statsData.Stats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.Dispatcher
+import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
@@ -131,6 +132,22 @@ object NewHttpHelper {
             val response = mBuilder.execute()
             val s = response?.body?.string()
             DebugLog.d("updateReadingProgress response: \n$s")
+            response?.code == 200
+        }
+        return result
+    }
+
+    suspend fun updateArchiveTag(id: String, tags: String): Boolean {
+        val url = AppConfig.serverHost + "/api/archives/$id/metadata"
+        val bodyBuilder = FormBody.Builder()
+        bodyBuilder.add("tags", tags)
+        val body = bodyBuilder.build()
+
+        val mBuilder = Build().url(url).method("put", body)
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val s = response?.body?.string()
+            DebugLog.d("updateArchiveTag response: \n$s")
             response?.code == 200
         }
         return result
@@ -380,7 +397,7 @@ object NewHttpHelper {
             val mUrl = url ?: throw Exception("url is null")
             val build = Request.Builder()
                 .url(mUrl)
-                .method(method, null)
+                .method(method, body)
             val secretKey = AppConfig.serverSecretKey
             if (secretKey.isNotBlank()) {
                 val encodedStr = Base64.encodeToString(secretKey.toByteArray(), Base64.NO_WRAP)

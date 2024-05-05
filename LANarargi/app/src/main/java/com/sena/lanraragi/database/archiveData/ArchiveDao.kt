@@ -61,4 +61,7 @@ interface ArchiveDao {
 
     @Query("UPDATE ARCHIVE SET progress = :page WHERE arcid = :id")
     suspend fun updateReadingProgress(id: String, page: Int)
+
+    @Query("UPDATE Archive SET tags = :tags WHERE arcid = :id")
+    suspend fun updateTags(id: String, tags: String)
 }

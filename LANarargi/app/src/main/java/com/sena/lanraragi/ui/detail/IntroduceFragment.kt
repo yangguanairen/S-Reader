@@ -12,9 +12,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.ViewCompat
+import androidx.core.view.doOnAttach
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
+import com.lxj.xpopup.XPopup
+import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.BaseFragment
+import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
@@ -49,19 +53,23 @@ class IntroduceFragment : BaseFragment() {
         )
     }
 
+    private lateinit var editPopup: TagEditPopup
+    private lateinit var baseEditPopup: BasePopupView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         arguments?.let {
             mId = it.getString(ARG_ARCHIVE_ID)
         }
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentIntroduceBinding.inflate(inflater)
 
-        mId?.let { initView(it) }
+        mId?.let {
+            initView(it)
+            initPopup(it)
+        }
         return binding.root
     }
 
@@ -100,6 +108,29 @@ class IntroduceFragment : BaseFragment() {
                 binding.bookmark.text = bookmarkTextMap[fStatus]
             }
         }
+    }
+
+    private fun initPopup(id: String) {
+        editPopup = TagEditPopup(requireContext())
+        editPopup.setOnConfirmClickListener { tags ->
+            lifecycleScope.launch {
+                val isSuccess = withContext(Dispatchers.IO) {
+                    NewHttpHelper.updateArchiveTag(id, tags)
+                }
+                if (!isSuccess) {
+                    Toast.makeText(LanraragiApplication.getContext(), "更新标签失败...", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                withContext(Dispatchers.IO) {
+                    LanraragiDB.updateTags(id, tags)
+                }
+                mArchive?.tags = tags
+                binding.tageViewer.setTags(tags)
+            }
+        }
+        baseEditPopup = XPopup.Builder(requireContext())
+            .isDestroyOnDismiss(false)
+            .asCustom(editPopup)
     }
 
     override fun lazyLoad() {
@@ -180,7 +211,7 @@ class IntroduceFragment : BaseFragment() {
                     if (randomArchive != null) {
                         mNewArchiveListener?.onGenerateArchive(randomArchive)
                     } else {
-                        Toast.makeText(requireContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(LanraragiApplication.getContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -192,10 +223,14 @@ class IntroduceFragment : BaseFragment() {
                         .into(binding.cover)
                         .execute()
                 }
-
+            }
+            R.id.editTags -> {
+                mArchive?.tags?.let { tags ->
+                    baseEditPopup.doOnAttach { editPopup.setTags(tags) }
+                    baseEditPopup.show()
+                }
             }
         }
-
         return super.onOptionsItemSelected(item)
     }
 }

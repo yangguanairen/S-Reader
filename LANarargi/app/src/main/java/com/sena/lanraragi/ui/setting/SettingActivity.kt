@@ -16,6 +16,7 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.BaseActivity
+import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ActivitySettingBinding
 import com.sena.lanraragi.utils.DataStoreHelper
@@ -175,7 +176,7 @@ class SettingActivity : BaseActivity() {
             commonViewMethodPop.show()
         }
         binding.common.clearPreCacheLayout.setOnClickListener {
-            Toast.makeText(this, "清理缓存...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(LanraragiApplication.getContext(), "清理缓存...", Toast.LENGTH_SHORT).show()
             FileUtils.clearAllCache(this)
         }
     }

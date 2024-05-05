@@ -12,4 +12,14 @@
         android:title="@string/detail_toolbar_refresh"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/editTags"
+        android:title="@string/detail_toolbar_edit_tags"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/editCategory"
+        android:title="@string/detail_toolbar_edit_category"
+        app:showAsAction="never" />
+
 </menu>

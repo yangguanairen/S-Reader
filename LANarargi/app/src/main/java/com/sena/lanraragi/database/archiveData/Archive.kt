@@ -14,7 +14,7 @@ data class Archive(
     val extension: String?,
     val pagecount: Int?,
     var progress: Int?,
-    val tags: String?,
+    var tags: String?,
     val lastreadtime: Long?,
     val title: String?,
     val data_added: Long?,

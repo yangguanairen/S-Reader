@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sena.lanraragi.BaseFragment
+import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
@@ -147,7 +148,7 @@ class PreviewFragment : BaseFragment() {
                     if (randomArchive != null) {
                         mNewArchiveListener?.onGenerateArchive(randomArchive)
                     } else {
-                        Toast.makeText(requireContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(LanraragiApplication.getContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
