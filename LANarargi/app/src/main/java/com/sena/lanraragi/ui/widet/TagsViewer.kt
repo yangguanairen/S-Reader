@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import com.google.android.flexbox.FlexboxLayout
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.category.Category
 import com.sena.lanraragi.databinding.ItemTagBinding
 import com.sena.lanraragi.databinding.ItemTagLayoutBinding
 import com.sena.lanraragi.databinding.ViewTagsBinding
@@ -37,6 +38,16 @@ class TagsViewer @JvmOverloads constructor(
         mTags = tags
         if (tags.isNullOrBlank()) return
         redrawTagView(tags)
+    }
+
+    fun setCategories(category: List<Category>) {
+        binding.tagLayout.removeAllViews()
+        category.forEach {
+            val header = if (it.pinned == 0) "静态" else "动态"
+            val lB = ItemTagLayoutBinding.inflate(LayoutInflater.from(mContext), binding.tagLayout, true)
+            addHeaderTag(lB.headerLayout, header)
+            addContentTag(lB.contentLayout, header, listOf(it.name))
+        }
     }
 
     fun setTitle(s: String) {

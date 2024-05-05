@@ -160,7 +160,35 @@ abstract class LanraragiDB : RoomDatabase() {
         }
 
         suspend fun queryCategoriesById(id: String) = dbInvoke(emptyList()) {
-            it.categoryDao().queryCategoriesById(id)
+            it.categoryDao().queryCategoriesByArcId(id)
+        }
+
+        suspend fun addArchiveToCategory(arcId: String, categoryId: String) = dbInvoke(Unit) {
+            val dao = it.categoryDao()
+            val category = dao.queryCategory(categoryId) ?: return@dbInvoke
+            if (!category.archives.contains(arcId)) {
+                val finList = category.archives.toMutableList()
+                finList.add(arcId)
+                dao.updateArchives(categoryId, finList)
+            }
+        }
+
+        suspend fun removeArchiveFromCategory(arcId: String, categoryId: String) = dbInvoke(Unit) {
+            val dao = it.categoryDao()
+            val category = dao.queryCategory(categoryId) ?: return@dbInvoke
+            if (category.archives.contains(arcId)) {
+                val finList = category.archives.toMutableList()
+                finList.remove(arcId)
+                dao.updateArchives(categoryId, finList)
+            }
+        }
+
+        suspend fun addNewCategory(category: Category) = dbInvoke(Unit) {
+            it.categoryDao().insert(category)
+        }
+
+        suspend fun deleteCategory(id: String) = dbInvoke(Unit) {
+            it.categoryDao().deleteCategory(id)
         }
 
         suspend fun updateBookmark(id: String, isBookmark: Boolean) = dbInvoke(Unit) {

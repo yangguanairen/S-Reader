@@ -53,8 +53,11 @@ class IntroduceFragment : BaseFragment() {
         )
     }
 
-    private lateinit var editPopup: TagEditPopup
-    private lateinit var baseEditPopup: BasePopupView
+    private lateinit var tagEditPop: TagEditPopup
+    private lateinit var baseTagEditPop: BasePopupView
+    private lateinit var categoryEditPop: CategoryEditPopup
+    private lateinit var baseCategoryEditPop: BasePopupView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -111,8 +114,8 @@ class IntroduceFragment : BaseFragment() {
     }
 
     private fun initPopup(id: String) {
-        editPopup = TagEditPopup(requireContext())
-        editPopup.setOnConfirmClickListener { tags ->
+        tagEditPop = TagEditPopup(requireContext())
+        tagEditPop.setOnConfirmClickListener { tags ->
             lifecycleScope.launch {
                 val isSuccess = withContext(Dispatchers.IO) {
                     NewHttpHelper.updateArchiveTag(id, tags)
@@ -128,9 +131,21 @@ class IntroduceFragment : BaseFragment() {
                 binding.tageViewer.setTags(tags)
             }
         }
-        baseEditPopup = XPopup.Builder(requireContext())
+        baseTagEditPop = XPopup.Builder(requireContext())
             .isDestroyOnDismiss(false)
-            .asCustom(editPopup)
+            .asCustom(tagEditPop)
+        categoryEditPop = CategoryEditPopup(requireContext(), id)
+        categoryEditPop.setOnDismissListener {
+            lifecycleScope.launch {
+                val categories = withContext(Dispatchers.IO) {
+                    LanraragiDB.queryCategoriesById(id)
+                }
+                binding.categoryViewer.setCategories(categories)
+            }
+        }
+        baseCategoryEditPop = XPopup.Builder(requireContext())
+            .isDestroyOnDismiss(false)
+            .asCustom(categoryEditPop)
     }
 
     override fun lazyLoad() {
@@ -166,7 +181,6 @@ class IntroduceFragment : BaseFragment() {
             val categories = withContext(Dispatchers.IO) {
                 LanraragiDB.queryCategoriesById(id)
             }
-            val convertData = categories.joinToString(", ") { if (it.pinned == 0) "静态:${it.name}" else "动态:${it.name}" }
 
             mArchive = archive
             binding.title.text = archive.title
@@ -183,7 +197,7 @@ class IntroduceFragment : BaseFragment() {
             }
             binding.categoryViewer.apply {
                 setTitle(getString(R.string.category_view_title))
-                setTags(convertData)
+                setCategories(categories)
             }
         }
     }
@@ -226,8 +240,17 @@ class IntroduceFragment : BaseFragment() {
             }
             R.id.editTags -> {
                 mArchive?.tags?.let { tags ->
-                    baseEditPopup.doOnAttach { editPopup.setTags(tags) }
-                    baseEditPopup.show()
+                    baseTagEditPop.doOnAttach { tagEditPop.setTags(tags) }
+                    baseTagEditPop.show()
+                }
+            }
+            R.id.editCategory -> {
+                lifecycleScope.launch {
+                    val categories = withContext(Dispatchers.IO) {
+                        LanraragiDB.queryAllCategories()
+                    }
+                    baseCategoryEditPop.doOnAttach { categoryEditPop.setCategories(categories) }
+                    baseCategoryEditPop.show()
                 }
             }
         }

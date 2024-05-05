@@ -211,6 +211,62 @@ object NewHttpHelper {
         return result
     }
 
+    suspend fun addArchiveToCategory(arcId: String, categoryId: String): Boolean {
+        val url = AppConfig.serverHost + "/api/categories/$categoryId/$arcId"
+
+        val mBuilder = Build().url(url).method("put")
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val s = response?.body?.string()
+            DebugLog.d("addArchiveToCategory response: \n$s")
+            response?.code == 200
+        }
+        return result
+    }
+
+    suspend fun removeArchiveFromCategory(arcId: String, categoryId: String): Boolean {
+        val url = AppConfig.serverHost + "/api/categories/$categoryId/$arcId"
+
+        val mBuilder = Build().url(url).method("delete")
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val s = response?.body?.string()
+            DebugLog.d("removeArchiveFromCategory response: \n$s")
+            response?.code == 200
+        }
+        return result
+    }
+
+    suspend fun createCategory(name: String): String? {
+        val url = AppConfig.serverHost + "/api/categories"
+        val body = FormBody.Builder().apply {
+            add("name", name)
+        }.build()
+
+        val mBuilder = Build().url(url).method("put", body)
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val jsonObject = response?.body?.byteStream()?.toJSONObject()
+            val categoryId = getOrNull { jsonObject?.getString("category_id") }
+            categoryId
+        }
+        DebugLog.d("createCategory response: $result")
+        return result
+    }
+
+    suspend fun deleteCategory(categoryId: String): Boolean {
+        val url = AppConfig.serverHost + "/api/categories/$categoryId"
+
+        val mBuilder = Build().url(url).method("delete")
+        val result =withContext(Dispatchers.IO) {
+            val response = mBuilder.execute()
+            val s = response?.body?.string()
+            DebugLog.d("deleteCategory response: \n$s")
+            response?.code == 200
+        }
+        return result
+    }
+
     /**
      * 注意不捕获异常
      */

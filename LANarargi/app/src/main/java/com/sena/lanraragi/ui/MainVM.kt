@@ -32,16 +32,17 @@ class MainVM : ViewModel() {
     private var isInitialized: Boolean = false
 
     fun refreshData(isForce: Boolean) {
-        if (isInitialized && !isForce) return
-        isInitialized = true
         lastJob?.cancel()
         lastInitJob?.cancel()
         val newJob = viewModelScope.launch {
-            dataList.value = withContext(Dispatchers.IO) {
-                NewHttpHelper.queryAllArchive()
-                NewHttpHelper.queryArchiveByTag("")
+            if (!isInitialized || isForce) {
+                isInitialized = true
+                dataList.value = withContext(Dispatchers.IO) {
+                    NewHttpHelper.queryAllArchive()
+                    NewHttpHelper.queryArchiveByTag("")
+                }
+                refreshTagsData()
             }
-            refreshTagsData()
             refreshCategoriesData()
         }
         lastInitJob = newJob
@@ -58,7 +59,7 @@ class MainVM : ViewModel() {
         }
     }
 
-    private suspend fun refreshCategoriesData() {
+    suspend fun refreshCategoriesData() {
         val result  = withContext(Dispatchers.IO) {
             NewHttpHelper.getAllCategories()
         }

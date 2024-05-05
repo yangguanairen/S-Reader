@@ -135,6 +135,7 @@
     // 设置--弹窗
     <string name="setting_popup_cancel" translatable="false">取消</string>
     <string name="setting_popup_confirm" translatable="false">确认</string>
+    <string name="setting_popup_finish" translatable="false">完成</string>
     <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
 
 
