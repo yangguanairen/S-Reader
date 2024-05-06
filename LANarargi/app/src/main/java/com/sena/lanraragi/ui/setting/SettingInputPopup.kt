@@ -6,6 +6,7 @@ import android.text.InputType
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.StringRes
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.OnInputConfirmListener
 import com.sena.lanraragi.R
@@ -20,10 +21,10 @@ import com.sena.lanraragi.utils.getThemeColor
 
 @SuppressLint("ViewConstructor")
 class SettingInputPopup(
-    context: Context, title: String, onlyNumber: Boolean = false
+    context: Context, @StringRes titleId: Int, onlyNumber: Boolean = false
 ) : CenterPopupView(context) {
 
-    private val mTitle = title
+    private val mTitleId = titleId
     private val mOnlyNumber = onlyNumber
 
     private lateinit var rootLayout: LinearLayout
@@ -48,7 +49,7 @@ class SettingInputPopup(
         cancelButton = findViewById(R.id.tv_cancel)
         confirmButton = findViewById(R.id.tv_confirm)
 
-        titleView.text = mTitle
+        titleView.text = context.getString(mTitleId)
         if (mOnlyNumber) {
             inputView.inputType = InputType.TYPE_CLASS_NUMBER
         }
@@ -66,6 +67,8 @@ class SettingInputPopup(
     // 应对多主题
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+
+        titleView.text = context.getString(mTitleId)
 
         context.getThemeColor(R.attr.textColor1)?.let {
             inputView.setTextColor(it)

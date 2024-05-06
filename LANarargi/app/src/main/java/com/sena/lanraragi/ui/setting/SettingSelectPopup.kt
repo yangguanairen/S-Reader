@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
+import androidx.annotation.ArrayRes
+import androidx.annotation.StringRes
 import androidx.core.view.get
 import com.lxj.xpopup.core.CenterPopupView
 import com.lxj.xpopup.interfaces.OnSelectListener
@@ -21,10 +23,11 @@ import com.sena.lanraragi.utils.getThemeColor
  */
 
 @SuppressLint("ViewConstructor")
-class SettingSelectPopup(context: Context, title: String, list: List<String>) : CenterPopupView(context) {
+class SettingSelectPopup(context: Context, @StringRes titleId: Int, @ArrayRes strArrayId: Int) : CenterPopupView(context) {
 
-    private val mTitle = title
-    private val mList = list
+    private val mTitleId = titleId
+    private val mStrArrayId = strArrayId
+    private var mList: Array<String> = emptyArray()
 
     private var mOnCancelClickListener: OnClickListener? = null
     private var mOnSelectedListener: OnSelectListener? = null
@@ -46,13 +49,14 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
         listLayout = findViewById(R.id.radioList)
         cancelButton = findViewById(R.id.tv_cancel)
 
-        titleView.text = mTitle
+        titleView.text = context.getString(mTitleId)
+        mList = resources.getStringArray(mStrArrayId)
         mList.forEachIndexed { index, s ->
             val itemBinding = ItemSettingSelectPopupBinding.inflate(LayoutInflater.from(context), listLayout, true)
             itemBinding.radioButton.text = s
             itemBinding.radioLayout.setOnClickListener {
                 dismiss()
-                mOnSelectedListener?.onSelect(index, s)
+                mOnSelectedListener?.onSelect(index, mList[index])
             }
         }
         cancelButton.setOnClickListener {
@@ -93,6 +97,7 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
 //    }
 
     fun updateSelected(s: String) {
+        mList = resources.getStringArray(mStrArrayId)
         val index = mList.indexOf(s)
         val radioCount = listLayout.childCount
         if (index < 0 || index >= radioCount) return
@@ -100,6 +105,7 @@ class SettingSelectPopup(context: Context, title: String, list: List<String>) : 
         for (i in 0 until radioCount) {
             val radioLayout = listLayout[i] as LinearLayout
             val radio = radioLayout.findViewById<RadioButton>(R.id.radioButton)
+            radio.text = mList[i]
             radio.isChecked = (i == index)
         }
     }

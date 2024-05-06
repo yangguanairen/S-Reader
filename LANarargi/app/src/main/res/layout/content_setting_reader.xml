@@ -37,74 +37,77 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/mergeLayout"
-        style="@style/setting_item_switch_layout">
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/mergeLayout"-->
+<!--        android:visibility="gone"-->
+<!--        style="@style/setting_item_switch_layout">-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/mergeTitle"
-                style="@style/setting_item_switch_title"
-                android:text="@string/setting_read_merge_title" />
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical">-->
+<!--            <TextView-->
+<!--                android:id="@+id/mergeTitle"-->
+<!--                style="@style/setting_item_switch_title"-->
+<!--                android:text="@string/setting_read_merge_title" />-->
 
-            <TextView
-                android:id="@+id/mergeText"
-                style="@style/setting_item_text_subtitle"
-                android:text="@string/setting_read_merge_subtitle"/>
+<!--            <TextView-->
+<!--                android:id="@+id/mergeText"-->
+<!--                style="@style/setting_item_text_subtitle"-->
+<!--                android:text="@string/setting_read_merge_subtitle"/>-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
 
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/mergerButton"
-            style="@style/setting_item_switch" />
+<!--        <androidx.appcompat.widget.SwitchCompat-->
+<!--            android:id="@+id/mergerButton"-->
+<!--            style="@style/setting_item_switch" />-->
 
-    </RelativeLayout>
+<!--    </RelativeLayout>-->
 
-    <RelativeLayout
-        android:id="@+id/reverseMergeLayout"
-        style="@style/setting_item_switch_layout">
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/reverseMergeLayout"-->
+<!--        android:visibility="gone"-->
+<!--        style="@style/setting_item_switch_layout">-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/reverseMergeTitle"
-                style="@style/setting_item_switch_title"
-                android:text="@string/setting_read_reverse_merge_title" />
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical">-->
+<!--            <TextView-->
+<!--                android:id="@+id/reverseMergeTitle"-->
+<!--                style="@style/setting_item_switch_title"-->
+<!--                android:text="@string/setting_read_reverse_merge_title" />-->
 
-            <TextView
-                android:id="@+id/reverseMergeText"
-                style="@style/setting_item_text_subtitle"
-                android:text="@string/setting_read_reverse_merge_subtitle"/>
+<!--            <TextView-->
+<!--                android:id="@+id/reverseMergeText"-->
+<!--                style="@style/setting_item_text_subtitle"-->
+<!--                android:text="@string/setting_read_reverse_merge_subtitle"/>-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/reverseMergerButton"
-            style="@style/setting_item_switch" />
+<!--        <androidx.appcompat.widget.SwitchCompat-->
+<!--            android:id="@+id/reverseMergerButton"-->
+<!--            style="@style/setting_item_switch" />-->
 
-    </RelativeLayout>
+<!--    </RelativeLayout>-->
 
-    <LinearLayout
-        android:id="@+id/mergeMethodLayout"
-        style="@style/setting_item_text_layout">
+<!--    <LinearLayout-->
+<!--        android:id="@+id/mergeMethodLayout"-->
+<!--        android:visibility="gone"-->
+<!--        style="@style/setting_item_text_layout">-->
 
-        <TextView
-            android:id="@+id/mergeMethodTitle"
-            style="@style/setting_item_text_title"
-            android:text="@string/setting_read_merge_method_title" />
+<!--        <TextView-->
+<!--            android:id="@+id/mergeMethodTitle"-->
+<!--            style="@style/setting_item_text_title"-->
+<!--            android:text="@string/setting_read_merge_method_title" />-->
 
-        <TextView
-            android:id="@+id/mergerMethodText"
-            style="@style/setting_item_text_subtitle" />
+<!--        <TextView-->
+<!--            android:id="@+id/mergerMethodText"-->
+<!--            style="@style/setting_item_text_subtitle" />-->
 
-    </LinearLayout>
+<!--    </LinearLayout>-->
 
     <LinearLayout
         android:id="@+id/scaleLayout"

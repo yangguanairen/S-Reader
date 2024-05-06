@@ -1,17 +1,189 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">S-Reader</string>
 
 
-    // 主页
-    <string name="main_item_view_tags" translatable="false">长按查看标签</string>
-
-    // 主页_右Nav
-    <string name="main_right_nav_filter" translatable="false">筛选</string>
-    <string name="main_right_nav_order" translatable="false">排序方式</string>
+    <!-- ******************************************** 主页(MainActivity) ******************************************** -->
+    // Main Page
+    <string name="main_item_view_tags">Long press to view tags</string>
+    <string name="main_toolbar_title">LANraragi</string>
+    <string name="main_toolbar_subtitle">%d files</string>
+    <string name="main_get_random_failed">Unable to get random file</string>
+    // Main Page Menu
+    <string name="main_menu_refresh">Force Refresh</string>
+    <string name="main_menu_filter">Filter</string>
+    <string name="main_menu_goto_top">Go to Top</string>
+    <string name="main_menu_goto_bottom">Go to Bottom</string>
+    // Main Page Left Nav
+    <string name="main_left_nav_setting">Settings</string>
+    <string name="main_left_nav_bookmark">Bookmark</string>
+    // Main Page Right Nav
+    <string name="main_right_nav_category">Category</string>
+    <string name="main_right_nav_filter">Filter</string>
+    <string name="main_right_nav_order">Sort Order</string>
     <string name="main_right_nav_order_title">Title</string>
-    <string name="main_right_nav_order_time">Time</string>
-    <string name="main_right_nav_sort" translatable="false">顺序</string>
-    <string name="main_right_nav_sort_asc" translatable="false">上升</string>
-    <string name="main_right_nav_sort_desc" translatable="false">下降</string>
+    <string name="main_right_nav_order_time">Date</string>
+    <string name="main_right_nav_sort">Order</string>
+    <string name="main_right_nav_sort_asc">Ascending</string>
+    <string name="main_right_nav_sort_desc">Descending</string>
+    // Main Page Content Main
+    <string name="main_content_no_host">Click to set server</string>
+    <string name="main_content_is_new">New</string>
+    <string name="main_content_random">Random</string>
+    <!-- ******************************************** 主页(MainActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
+    // Random Page
+    <string name="random_toolbar_title">Random</string>
+    <string name="random_toolbar_subtitle">%d files</string>
+    <string name="random_menu_refresh">Regenerate</string>
+    <string name="random_menu_change_random_count">Change Quantity</string>
+    <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
+    // Details Page
+    <string name="detail_introduce_title">Details</string>
+    <string name="detail_preview_title">Preview Image</string>
+    <string name="detail_introduce_start_read">Read</string>
+    <string name="detail_introduce_add_bookmark">Add Bookmark</string>
+    <string name="detail_introduce_cancel_bookmark">Remove Bookmark</string>
+    <string name="detail_toolbar_random">Random File</string>
+    <string name="detail_toolbar_refresh">Refresh Cover</string>
+    <string name="detail_toolbar_edit_tags">Edit Tags</string>
+    <string name="detail_toolbar_edit_category">Edit Category</string>
+    <string name="detail_toolbar_refresh_preview">Refresh Preview Image</string>
+    <string name="detail_toolbar_goto_top">Go to Top</string>
+    <string name="detail_toolbar_goto_bottom">Go to Bottom</string>
+    <string name="detail_category_pinned_0">Static</string>
+    <string name="detail_category_pinned_1">Dynamic</string>
+    <string name="detail_category_create_failed">Failed to create category…</string>
+    <string name="detail_category_delete_failed">Failed to delete category…</string>
+    <string name="detail_category_update_failed">Failed to update category…</string>
+    <string name="detail_tag_add_verify_failed">Header and Content must not be empty!!</string>
+    <string name="detail_tag_failed">Failed to update tags…</string>
+    <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
+    // Reading Page
+    <string name="read_file_is_not_support">Image not supported</string>
+    <string name="read_file_load_failed">Load failed</string>
+    <string name="read_no_pre_page">There is no previous page</string>
+    <string name="read_no_next_page">There is no next page</string>
+    <string name="read_set_thumb_success">Successfully set as page %d</string>
+    <string name="read_set_thumb_failed">Failed to set cover</string>
+    <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
+    // Settings Page
+    <string name="setting_toolbar_title">Settings</string>
+    // Settings--Server
+    <string name="setting_server_theme">Server</string>
+    <string name="setting_server_host_title">Server Address</string>
+    <string name="setting_server_key_title">API Key</string>
+    // Settings--Cache
+    <string name="setting_cache_theme">Cache</string>
+    <string name="setting_cache_clear_title">Clear Local Cache</string>
+    <string name="setting_cache_clearing">Clearing cache…</string>
+    <string name="setting_cache_clear_subtitle">%d MB</string>
+    // Settings--General
+    <string name="setting_common_theme">General</string>
+    <!--    <string name="setting_common_refresh_title">Enable Swipe to Refresh</string>-->
+    <string name="setting_common_app_theme_title">Theme</string>
+    <string-array name="setting_common_app_theme_select">
+        <item>Dark</item>
+        <item>H-Verse</item>
+    </string-array>
+    <string name="setting_common_view_method_title">Card Type</string>
+    <string-array name="setting_common_view_method_select">
+        <item>Horizontal Card</item>
+        <item>Vertical Card</item>
+    </string-array>
+    <string name="setting_common_app_language_title">Language</string>
+    <string-array name="setting_common_app_language_select">
+        <item>中文</item>
+        <item>日本語</item>
+        <item>English</item>
+    </string-array>
+    <string name="setting_common_clear_title">Clear Preview Image Cache</string>
+    <string name="setting_common_clear_subtitle">Click to delete preview image cache</string>
+    // Settings--Reading
+    <string name="setting_read_theme">Reading</string>
+    <string name="setting_read_rtl_title">Read from Right to Left</string>
+    <string name="setting_read_voice_title">Volume Keys for Page Turning</string>
+    <string name="setting_read_merge_title">Merge Double Pages</string>
+    <!--    <string name="setting_read_merge_subtitle">Merge vertical images when device is horizontal</string>-->
+    <!--    <string name="setting_read_reverse_merge_title">Reverse Merge Direction</string>-->
+    <!--    <string name="setting_read_reverse_merge_subtitle">Reverse RTL from overall RTL settings</string>-->
+    <!--    <string name="setting_read_merge_method_title">Page Merging Compression Method</string>-->
+    <!--    <string name="setting_read_merge_method_select_1">JPEG (Fast, Average Quality)</string>-->
+    <!--    <string name="setting_read_merge_method_select_2">PNG (Slow, High Quality)</string>-->
+    <string name="setting_read_scale_method_title">Page Scaling</string>
+    <string-array name="setting_read_scale_select">
+        <item>Fit to Page</item>
+        <item>Fit to Width</item>
+        <item>Fit to Height</item>
+        <item>Webtoon</item>
+    </string-array>
+    <string name="setting_read_keep_screen_light_title">Keep Screen On</string>
+    <string name="setting_read_keep_screen_light_subtitle">Prevent screen from turning off while reading</string>
+    <string name="setting_read_syn_progress_title">Sync Progress</string>
+    <string name="setting_read_syn_progress_subtitle">Synchronize local reading progress with server</string>
+    // Settings--Search
+    <string name="setting_search_theme">Search</string>
+    <string name="setting_search_local_title">Local Search</string>
+    <string name="setting_search_local_subtitle">Use built-in database for search, instead of sending requests to the server</string>
+    <string name="setting_search_delay_title">Search Delay</string>
+    <string name="setting_search_delay_subtitle">"Interval between searches in milliseconds\nCurrent: %d milliseconds"</string>
+    // Settings--Random Files
+    <string name="setting_random_theme">Random Files</string>
+    <string name="setting_random_count_title">Random File Count</string>
+    <string name="setting_random_count_subtitle">"Number of files generated per randomization, currently: %d"</string>
+    // Settings--Source Code
+    <string name="setting_source_theme">Source Code</string>
+    <string name="setting_source_licenses_title">Open Source Licenses</string>
+    <string name="setting_source_licenses_subtitle">Licenses used by this app</string>
+    <string name="setting_source_gplv3_title">Licensed under GPLv3</string>
+    <string name="setting_source_gplv3_subtitle">Tap to view</string>
+    <string name="setting_source_github_title">View on GitHub</string>
+    <string name="setting_source_github_subtitle">View source on GitHub</string>
+    // Settings--Debugging
+    <string name="setting_debug_theme">Debugging</string>
+    <string name="setting_debug_detail_title">Detailed Information</string>
+    <string name="setting_debug_detail_subtitle">Display more error messages</string>
+    <string name="setting_debug_crash_title">Enable Crash Logs</string>
+    <string name="setting_debug_copy_crash_title">Copy Crash Logs</string>
+    <string name="setting_debug_copy_crash_subtitle">Copy crash logs to clipboard</string>
+    // Settings--Popup
+    <string name="setting_popup_cancel">Cancel</string>
+    <string name="setting_popup_confirm">Confirm</string>
+    <string name="setting_popup_finish">Finish</string>
+    <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 自定义组件 ******************************************** -->
+    // Tag Viewer
+    <string name="tag_view_title">Tags</string>
+    <string name="category_view_title">Categories</string>
+
+    // Reader Bottom Popup
+    <string name="bottom_pop_goto_detail">Go Back to Detail Page</string>
+    <string name="bottom_pop_select_page">Jump to Page</string>
+    <string name="bottom_pop_display_bookmark">View Bookmarks</string>
+    <string name="bottom_pop_change_thumb">Set this Page as Cover</string>
+
+    // Bookmark Viewer
+    <string name="bookmark_view_clear_single">Bookmark Cleared</string>
+    <string name="bookmark_view_clear_all">All Bookmarks Cleared</string>
+    <string name="bookmark_view_revoke">Undo</string>
+    <!-- ******************************************** 自定义组件 ******************************************** -->
+
+
+    // Others
+    <string name="content_cover">Cover</string>
+    <string name="content_icon_search">Search</string>
+    <string name="content_icon_clear">Clear</string>
+    <string name="content_icon_input">Enter Search Content</string>
 </resources>

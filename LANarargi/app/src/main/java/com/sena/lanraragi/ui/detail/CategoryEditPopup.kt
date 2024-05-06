@@ -9,18 +9,17 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter4.BaseQuickAdapter
 import com.chad.library.adapter4.viewholder.QuickViewHolder
 import com.lxj.xpopup.core.CenterPopupView
-import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.category.Category
 import com.sena.lanraragi.utils.NewHttpHelper
+import com.sena.lanraragi.utils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -57,7 +56,7 @@ class CategoryEditPopup(context: Context, arcId: String) : CenterPopupView(conte
                     NewHttpHelper.deleteCategory(id)
                 }
                 if (!isSuccess) {
-                    Toast.makeText(LanraragiApplication.getContext(), "删除分类失败...", Toast.LENGTH_SHORT).show()
+                    toast(R.string.detail_category_delete_failed)
                     return@launch
                 }
                 withContext(Dispatchers.IO) {
@@ -96,7 +95,7 @@ class CategoryEditPopup(context: Context, arcId: String) : CenterPopupView(conte
                     NewHttpHelper.createCategory(content)
                 }
                 if (categoryId.isNullOrBlank()) {
-                    Toast.makeText(LanraragiApplication.getContext(), "创建分类失败...", Toast.LENGTH_SHORT).show()
+                    toast(R.string.detail_category_create_failed)
                     return@launch
                 }
                 val newCategory = Category(categoryId, content, emptyList(), 0-1, 0, "")
@@ -136,7 +135,7 @@ class CategoryEditPopup(context: Context, arcId: String) : CenterPopupView(conte
                     }
                 }
             } else {
-                Toast.makeText(LanraragiApplication.getContext(), "更新分类失败...", Toast.LENGTH_SHORT).show()
+                toast(R.string.detail_category_update_failed)
             }
         }
         job.invokeOnCompletion { allJob.remove(job) }
@@ -172,7 +171,7 @@ class CategoryEditPopup(context: Context, arcId: String) : CenterPopupView(conte
             } else {
                 holder.getView<EditText>(R.id.content).setText(item.name)
                 holder.getView<EditText>(R.id.header).setText(
-                    if (item.pinned == 0) "静态" else "动态"
+                    context.getString(if (item.pinned == 0) R.string.detail_category_pinned_0 else R.string.detail_category_pinned_1)
                 )
                 val isCheck = item.archives.contains(mArcId)
                 holder.getView<CheckBox>(R.id.checkBox).isChecked = isCheck

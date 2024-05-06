@@ -2,6 +2,9 @@ package com.sena.lanraragi.utils
 
 import android.content.Context
 import android.util.TypedValue
+import android.widget.Toast
+import androidx.annotation.StringRes
+import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.database.archiveData.Archive
 import org.json.JSONArray
 import org.json.JSONObject
@@ -134,5 +137,20 @@ fun Context.getThemeColor(id: Int): Int? {
 
 fun Context.dp2Px(dp: Int): Float {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), resources.displayMetrics)
+}
+
+fun toast(@StringRes textId: Int, vararg params: Any? = emptyArray()) {
+//    if (!AppConfig.enableShowDetail) return
+    LanraragiApplication.getContext().apply {
+        getOrNull {
+            if (params.isEmpty()) {
+                getString(textId)
+            } else {
+                String.format(getString(textId), params)
+            }
+        }?.let {
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+        }
+    }
 }
 

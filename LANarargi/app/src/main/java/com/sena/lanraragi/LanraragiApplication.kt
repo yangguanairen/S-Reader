@@ -3,6 +3,9 @@ package com.sena.lanraragi
 import android.app.Application
 import android.content.Context
 import com.sena.lanraragi.database.LanraragiDB
+import com.sena.lanraragi.utils.AppLanguage
+import com.sena.lanraragi.utils.AppTheme
+import com.sena.lanraragi.utils.CardType
 import com.sena.lanraragi.utils.DataStoreHelper
 import com.sena.lanraragi.utils.GlobalCrashUtils
 import com.sena.lanraragi.utils.ScaleType
@@ -37,14 +40,19 @@ class LanraragiApplication : Application() {
             serverHost = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SERVER_HOST, "")
             serverSecretKey = DataStoreHelper.getValue(context, DataStoreHelper.KEY.SERVER_SECRET_KEY, "")
 
+            /*
             enableScrollRefresh = DataStoreHelper.getValue(context, DataStoreHelper.KEY.COMMON_SCROLL_REFRESH, false)
-            theme = DataStoreHelper.getValue(context, DataStoreHelper.KEY.COMMON_THEME, getString(R.string.setting_common_apptheme_select_1))
-            viewMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.COMMON_VIEW_METHOD, getString(R.string.setting_common_view_method_select_1))
+             */
+            theme = DataStoreHelper.getValue(context, DataStoreHelper.KEY.COMMON_THEME, AppTheme.Dark)
+            language = DataStoreHelper.getValue(context, DataStoreHelper.KEY.COMMON_LANGUAGE, AppLanguage.CHINA)
+            viewMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.COMMON_VIEW_METHOD, CardType.LAND)
             enableRtl = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_RTL, false)
             enableVoice = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_VOICE, false)
+            /*
             enableMerge = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_MERGE, false)
             enableReverseMerge = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_REVERSE_MERGE, false)
             mergeMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_MERGE_METHOD, getString(R.string.setting_read_merge_method_select_1))
+             */
             scaleMethod = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SCALE_METHOD, ScaleType.FIT_WIDTH)
             enableScreenLight = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_KEEP_SCREEN_LIGHT, false)
             enableSyn = DataStoreHelper.getValue(context, DataStoreHelper.KEY.READ_SYN_PROGRESS, false)

@@ -1,17 +1,190 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">S-Reader</string>
 
 
-    // 主页
-    <string name="main_item_view_tags" translatable="false">长按查看标签</string>
+    <!-- ******************************************** 主页(MainActivity) ******************************************** -->
+    // ホームページ
+    <string name="main_item_view_tags">長押しでタグを表示</string>
+    <string name="main_toolbar_title">LANraragi</string>
+    <string name="main_toolbar_subtitle">%d件のアーカイブ</string>
+    <string name="main_get_random_failed">ランダムなアーカイブを取得できません</string>
+    // ホームページ_メニュー
+    <string name="main_menu_refresh">強制更新</string>
+    <string name="main_menu_filter">フィルター</string>
+    <string name="main_menu_goto_top">トップへ移動</string>
+    <string name="main_menu_goto_bottom">底へ移動</string>
+    // ホームページ_左ナビゲーション
+    <string name="main_left_nav_setting">設定</string>
+    <string name="main_left_nav_bookmark">ブックマーク</string>
+    // ホームページ_右ナビゲーション
+    <string name="main_right_nav_category">カテゴリ</string>
+    <string name="main_right_nav_filter">フィルター</string>
+    <string name="main_right_nav_order">並び替え方法</string>
+    <string name="main_right_nav_order_title">タイトル</string>
+    <string name="main_right_nav_order_time">日付</string>
+    <string name="main_right_nav_sort">順序</string>
+    <string name="main_right_nav_sort_asc">昇順</string>
+    <string name="main_right_nav_sort_desc">降順</string>
+    // ホームページ_コンテンツメイン
+    <string name="main_content_no_host">サーバー設定をクリック</string>
+    <string name="main_content_is_new">新しい</string>
+    <string name="main_content_random">ランダム</string>
+    <!-- ******************************************** 主页(MainActivity) ******************************************** -->
 
-    // 主页_右Nav
-    <string name="main_right_nav_filter" translatable="false">筛选</string>
-    <string name="main_right_nav_order" translatable="false">排序方式</string>
-    <string name="main_right_nav_order_title">標題</string>
-    <string name="main_right_nav_order_time">タイム</string>
-    <string name="main_right_nav_sort" translatable="false">顺序</string>
-    <string name="main_right_nav_sort_asc" translatable="false">上升</string>
-    <string name="main_right_nav_sort_desc" translatable="false">下降</string>
+
+    <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
+    // 随机页
+    // ランダムページ
+    <string name="random_toolbar_title">ランダム</string>
+    <string name="random_toolbar_subtitle">%d件のアーカイブ</string>
+    <string name="random_menu_refresh">再生成</string>
+    <string name="random_menu_change_random_count">数を変更</string>
+    <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
+    // 詳細ページ
+    <string name="detail_introduce_title">詳細</string>
+    <string name="detail_preview_title">プレビュー画像</string>
+    <string name="detail_introduce_start_read">読む</string>
+    <string name="detail_introduce_add_bookmark">ブックマークを追加</string>
+    <string name="detail_introduce_cancel_bookmark">ブックマークをキャンセル</string>
+    <string name="detail_toolbar_random">ランダムアーカイブ</string>
+    <string name="detail_toolbar_refresh">表紙をリフレッシュ</string>
+    <string name="detail_toolbar_edit_tags">タグを編集</string>
+    <string name="detail_toolbar_edit_category">カテゴリを編集</string>
+    <string name="detail_toolbar_refresh_preview">プレビュー画像をリフレッシュ</string>
+    <string name="detail_toolbar_goto_top">トップへ移動</string>
+    <string name="detail_toolbar_goto_bottom">底へ移動</string>
+    <string name="detail_category_pinned_0">静的</string>
+    <string name="detail_category_pinned_1">動的</string>
+    <string name="detail_category_create_failed">カテゴリの作成に失敗…</string>
+    <string name="detail_category_delete_failed">カテゴリの削除に失敗…</string>
+    <string name="detail_category_update_failed">カテゴリの更新に失敗…</string>
+    <string name="detail_tag_add_verify_failed">ヘッダーとコンテンツは空にできません!!</string>
+    <string name="detail_tag_failed">タグの更新に失敗…</string>
+    <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
+    // 閲覧ページ
+    <string name="read_file_is_not_support">画像はサポートされていません</string>
+    <string name="read_file_load_failed">ロード失敗</string>
+    <string name="read_no_pre_page">前のページはもうありません</string>
+    <string name="read_no_next_page">次のページはもうありません</string>
+    <string name="read_set_thumb_success">%dページ目を成功に設定</string>
+    <string name="read_set_thumb_failed">表紙の設定に失敗</string>
+    <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
+    // 設定ページ
+    <string name="setting_toolbar_title">設定</string>
+    // 設定--サーバー
+    <string name="setting_server_theme">サーバー</string>
+    <string name="setting_server_host_title">サーバーアドレス</string>
+    <string name="setting_server_key_title">APIキー</string>
+    // 設定--キャッシュ
+    <string name="setting_cache_theme">キャッシュ</string>
+    <string name="setting_cache_clear_title">ローカルキャッシュをクリア</string>
+    <string name="setting_cache_clearing">キャッシュをクリア中…</string>
+    <string name="setting_cache_clear_subtitle">%d MB</string>
+    // 設定--一般
+    <string name="setting_common_theme">一般</string>
+    <!--    <string name="setting_common_refresh_title">スワイプリフレッシュを有効にする</string>-->
+    <string name="setting_common_app_theme_title">テーマ</string>
+    <string-array name="setting_common_app_theme_select">
+        <item>ダーク</item>
+        <item>H-Verse</item>
+    </string-array>
+    <string name="setting_common_app_language_title">言語</string>
+    <string-array name="setting_common_app_language_select">
+        <item>中文</item>
+        <item>日本語</item>
+        <item>English</item>
+    </string-array>
+    <string name="setting_common_view_method_title">カードタイプ</string>
+    <string-array name="setting_common_view_method_select">
+        <item>横型カード</item>
+        <item>縦型カード</item>
+    </string-array>
+    <string name="setting_common_clear_title">プレビュー画像キャッシュをクリア</string>
+    <string name="setting_common_clear_subtitle">プレビュー画像キャッシュを削除するにはクリックしてください</string>
+    // 設定--読み取り
+    <string name="setting_read_theme">読み取り</string>
+    <string name="setting_read_rtl_title">右から左への読み取り</string>
+    <string name="setting_read_voice_title">音量キーでページをめくる</string>
+    <string name="setting_read_merge_title">ダブルページを統合</string>
+    <!--    <string name="setting_read_merge_subtitle">当设备为横向时合并纵向图像</string>-->
+    <!--    <string name="setting_read_reverse_merge_title">反转合并方向</string>-->
+    <!--    <string name="setting_read_reverse_merge_subtitle">从整体RTL设置反转RTL</string>-->
+    <!--    <string name="setting_read_merge_method_title">合并页面压缩方式</string>-->
+    <!--    <string name="setting_read_merge_method_select_1">JPEG(快速, 一般质量)</string>-->
+    <!--    <string name="setting_read_merge_method_select_2">PNG(慢速, 高质量)</string>-->
+    <string name="setting_read_scale_method_title">ページのズーム</string>
+    <string-array name="setting_read_scale_select">
+        <item>ページに合わせる</item>
+        <item>幅に合わせる</item>
+        <item>高さに合わせる</item>
+        <item>Webtoon</item>
+    </string-array>
+    <string name="setting_read_keep_screen_light_title">画面を常に点灯</string>
+    <string name="setting_read_keep_screen_light_subtitle">読むときに画面を暗くしない</string>
+    <string name="setting_read_syn_progress_title">進捗を同期</string>
+    <string name="setting_read_syn_progress_subtitle">ローカルの読書進捗をサーバーに同期する</string>
+    // 設定--検索
+    <string name="setting_search_theme">検索</string>
+    <string name="setting_search_local_title">ローカル検索</string>
+    <string name="setting_search_local_subtitle">サーバーにリクエストを送信するのではなく、組み込みデータベースを使用して検索します</string>
+    <string name="setting_search_delay_title">検索遅延</string>
+    <string name="setting_search_delay_subtitle">"2回の検索間の遅延（ミリ秒単位）\n現在の遅延時間: %dミリ秒"</string>
+    // 設定--ランダムアーカイブ
+    <string name="setting_random_theme">ランダムアーカイブ</string>
+    <string name="setting_random_count_title">ランダムアーカイブの数</string>
+    <string name="setting_random_count_subtitle">"ランダム生成されるアーカイブの数、現在は: %d"</string>
+    // 設定--ソースコード
+    <string name="setting_source_theme">ソースコード</string>
+    <string name="setting_source_licenses_title">Open Source Licenses</string>
+    <string name="setting_source_licenses_subtitle">Licences used by this app</string>
+    <string name="setting_source_gplv3_title">Licensed under GPLv3</string>
+    <string name="setting_source_gplv3_subtitle">Tap to view</string>
+    <string name="setting_source_github_title">View on GitHub</string>
+    <string name="setting_source_github_subtitle">View source on GitHub</string>
+    // 設定--デバッグ
+    <string name="setting_debug_theme">デバッグ</string>
+    <string name="setting_debug_detail_title">詳細情報</string>
+    <string name="setting_debug_detail_subtitle">より多くのエラーメッセージを表示</string>
+    <string name="setting_debug_crash_title">クラッシュログを有効にする</string>
+    <string name="setting_debug_copy_crash_title">クラッシュログをコピー</string>
+    <string name="setting_debug_copy_crash_subtitle">クラッシュログをクリップボードにコピー</string>
+    // 設定--ポップアップ
+    <string name="setting_popup_cancel">キャンセル</string>
+    <string name="setting_popup_confirm">確認</string>
+    <string name="setting_popup_finish">完了</string>
+    <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
+
+
+    <!-- ******************************************** 自定义组件 ******************************************** -->
+    // タグビューア
+    <string name="tag_view_title">タグ</string>
+    <string name="category_view_title">カテゴリ</string>
+
+    // リーダーの下部ポップアップ
+    <string name="bottom_pop_goto_detail">詳細ページに戻る</string>
+    <string name="bottom_pop_select_page">ページにジャンプ</string>
+    <string name="bottom_pop_display_bookmark">ブックマークを表示</string>
+    <string name="bottom_pop_change_thumb">このページを表紙に設定</string>
+
+    // ブックマークビューア
+    <string name="bookmark_view_clear_single">ブックマークをクリアしました</string>
+    <string name="bookmark_view_clear_all">すべてのブックマークがクリアされました</string>
+    <string name="bookmark_view_revoke">取り消し</string>
+    <!-- ******************************************** 自定义组件 ******************************************** -->
+
+
+    // その他
+    <string name="content_cover">表紙</string>
+    <string name="content_icon_search">検索</string>
+    <string name="content_icon_clear">クリア</string>
+    <string name="content_icon_input">検索内容を入力</string>
 </resources>

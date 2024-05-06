@@ -3,7 +3,6 @@ package com.sena.lanraragi.utils
 import android.content.Context
 import android.os.Build
 import android.os.LocaleList
-import androidx.annotation.RequiresApi
 import java.util.Locale
 
 
@@ -20,53 +19,53 @@ import java.util.Locale
 object LanguageHelper {
 
 
-    /**
-     * 设置应用语言跟随系统
-     */
-    fun setAppLanguageAuto(context: Context) {
-        setAppLanguage(context)
-    }
+//    /**
+//     * 设置应用语言跟随系统
+//     */
+//    fun setAppLanguageAuto(context: Context) {
+//        setAppLanguage(context)
+//    }
+//
+//    /**
+//     * 设置应用语言跟随用户选择
+//     */
+//    fun setAppLanguageByLocal(context: Context, code: String) {
+//        val locale = when (code) {
+//            Locale.CHINA.language -> Locale.CHINA
+//            Locale.JAPAN.language -> Locale.JAPAN
+//            Locale.ENGLISH.language -> Locale.ENGLISH
+//            else -> Locale.ENGLISH
+//        }
+//        setAppLanguage(context, locale)
+//    }
+//
+//
+//
+//    fun getAttachBaseContext(context: Context): Context {
+//        setAppLanguage(context)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            return setAppLanguageApi24(context)
+//        } else {
+//            setAppLanguage(context)
+//        }
+//        return context
+//    }
+//
+//    /**
+//     * 适配 7.0 以上
+//     * 实际上并没有用，只能拿返回的context去getString
+//     */
+//    @RequiresApi(Build.VERSION_CODES.N)
+//    private fun setAppLanguageApi24(context: Context): Context {
+//        val locale = getSystemLocale()
+//        val configuration = context.resources.configuration
+//        configuration.setLocale(locale)
+//        configuration.setLocales(LocaleList(locale))
+//        return context.createConfigurationContext(configuration)
+//    }
 
-    /**
-     * 设置应用语言跟随用户选择
-     */
-    fun setAppLanguageByLocal(context: Context, code: String) {
-        val locale = when (code) {
-            Locale.CHINA.language -> Locale.CHINA
-            Locale.JAPAN.language -> Locale.JAPAN
-            Locale.ENGLISH.language -> Locale.ENGLISH
-            else -> Locale.ENGLISH
-        }
-        setAppLanguage(context, locale)
-    }
 
-
-
-    fun getAttachBaseContext(context: Context): Context {
-        setAppLanguage(context)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return setAppLanguageApi24(context)
-        } else {
-            setAppLanguage(context)
-        }
-        return context
-    }
-
-    /**
-     * 适配 7.0 以上
-     * 实际上并没有用，只能拿返回的context去getString
-     */
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun setAppLanguageApi24(context: Context): Context {
-        val locale = getSystemLocale()
-        val configuration = context.resources.configuration
-        configuration.setLocale(locale)
-        configuration.setLocales(LocaleList(locale))
-        return context.createConfigurationContext(configuration)
-    }
-
-
-    private fun setAppLanguage(context: Context, locale: Locale? = null) {
+    fun setAppLanguage(context: Context, locale: Locale? = null) {
         val mLocale = locale ?: getSystemLocale()
         val resources = context.resources
         val displayMetrics = resources.displayMetrics

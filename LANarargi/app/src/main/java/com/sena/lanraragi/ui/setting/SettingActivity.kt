@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.core.view.doOnAttach
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,18 +15,23 @@ import com.lxj.xpopup.XPopup
 import com.lxj.xpopup.core.BasePopupView
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.BaseActivity
-import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
 import com.sena.lanraragi.databinding.ActivitySettingBinding
+import com.sena.lanraragi.utils.AppLanguage
+import com.sena.lanraragi.utils.AppTheme
+import com.sena.lanraragi.utils.CardType
 import com.sena.lanraragi.utils.DataStoreHelper
 import com.sena.lanraragi.utils.FileUtils
 import com.sena.lanraragi.utils.GlobalCrashUtils
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
+import com.sena.lanraragi.utils.LanguageHelper
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getThemeColor
+import com.sena.lanraragi.utils.toast
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class SettingActivity : BaseActivity() {
 
@@ -40,11 +44,15 @@ class SettingActivity : BaseActivity() {
 
     private lateinit var commonAppThemeCustomPop: SettingSelectPopup
     private lateinit var commonAppThemePop: BasePopupView
+    private lateinit var commonAppLanguageCustomPop: SettingSelectPopup
+    private lateinit var commonAppLanguagePop: BasePopupView
     private lateinit var commonViewMethodCustomPop: SettingSelectPopup
     private lateinit var commonViewMethodPop: BasePopupView
 
+    /*
     private lateinit var readMergeMethodCustomPop: SettingSelectPopup
     private lateinit var readMergeMethodPop: BasePopupView
+     */
     private lateinit var readScaleMethodCustomPop: SettingSelectPopup
     private lateinit var readScaleMethodPop: BasePopupView
 
@@ -53,13 +61,6 @@ class SettingActivity : BaseActivity() {
 
     private lateinit var randomCountCustomPop: SettingInputPopup
     private lateinit var randomCountPop: BasePopupView
-
-    private val appTheme2StrMap by lazy {
-        mapOf(
-            getString(R.string.setting_common_apptheme_select_1) to R.style.AppTheme_Dark,
-            getString(R.string.setting_common_apptheme_select_2) to R.style.AppTheme_HVerse
-        )
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -150,6 +151,7 @@ class SettingActivity : BaseActivity() {
     }
 
     private fun initCommon() {
+        /*
         val enableScrollRefresh = AppConfig.enableScrollRefresh
         binding.common.refreshButton.isChecked = enableScrollRefresh
         binding.common.scrollRefreshLayout.setOnClickListener {
@@ -159,24 +161,42 @@ class SettingActivity : BaseActivity() {
             AppConfig.enableScrollRefresh = finStatus
             DataStoreHelper.updateValue(this, DataStoreHelper.KEY.COMMON_SCROLL_REFRESH, finStatus)
         }
+         */
         val theme = AppConfig.theme
-        binding.common.themeText.text = theme
+        val themeIndex = AppTheme.values().indexOf(theme)
+        binding.common.themeText.text = resources.getStringArray(R.array.setting_common_app_theme_select).let {
+            it.getOrNull(themeIndex) ?: it[0]
+        }
         binding.common.themeLayout.setOnClickListener {
             commonAppThemePop.doOnAttach {
-                commonAppThemeCustomPop.updateSelected(theme)
+                commonAppThemeCustomPop.updateSelected(binding.common.themeText.text.toString())
             }
             commonAppThemePop.show()
         }
+        val language = AppConfig.language
+        val languageIndex = AppLanguage.values().indexOf(language)
+        binding.common.languageText.text = resources.getStringArray(R.array.setting_common_app_language_select).let {
+            it.getOrNull(languageIndex) ?: it[0]
+        }
+        binding.common.languageLayout.setOnClickListener {
+            commonAppLanguagePop.doOnAttach {
+                commonAppLanguageCustomPop.updateSelected(binding.common.languageText.text.toString())
+            }
+            commonAppLanguagePop.show()
+        }
         val viewMethod = AppConfig.viewMethod
-        binding.common.viewMethodText.text = viewMethod.ifBlank { getString(R.string.setting_common_view_method_select_1) }
+        val cardIndex = CardType.values().indexOf(viewMethod)
+        binding.common.viewMethodText.text = resources.getStringArray(R.array.setting_common_view_method_select).let {
+            it.getOrNull(cardIndex) ?: it[0]
+        }
         binding.common.viewMethodLayout.setOnClickListener {
             commonViewMethodPop.doOnAttach {
-                commonViewMethodCustomPop.updateSelected(AppConfig.viewMethod)
+                commonViewMethodCustomPop.updateSelected(binding.common.viewMethodText.text.toString())
             }
             commonViewMethodPop.show()
         }
         binding.common.clearPreCacheLayout.setOnClickListener {
-            Toast.makeText(LanraragiApplication.getContext(), "清理缓存...", Toast.LENGTH_SHORT).show()
+            toast(R.string.setting_cache_clearing)
             FileUtils.clearAllCache(this)
         }
     }
@@ -200,6 +220,7 @@ class SettingActivity : BaseActivity() {
             AppConfig.enableVoice = finStatus
             DataStoreHelper.updateValue(this, DataStoreHelper.KEY.READ_VOICE, finStatus)
         }
+        /*
         val enableMerge = AppConfig.enableMerge
         binding.reader.mergerButton.isChecked = enableMerge
         binding.reader.mergeLayout.setOnClickListener {
@@ -230,6 +251,7 @@ class SettingActivity : BaseActivity() {
         }
         changeViewStatus(binding.reader.reverseMergeLayout, enableMerge)
         changeViewStatus(binding.reader.mergeMethodLayout, enableMerge)
+        */
         val scaleMethod = AppConfig.scaleMethod
         val scaleIndex = ScaleType.values().indexOf(scaleMethod)
         binding.reader.scaleText.text = resources.getStringArray(R.array.setting_read_scale_select).let {
@@ -337,7 +359,7 @@ class SettingActivity : BaseActivity() {
     }
 
     private fun initServerPop() {
-        serverHostCustomPop = SettingInputPopup(this, getString(R.string.setting_server_host_title))
+        serverHostCustomPop = SettingInputPopup(this, R.string.setting_server_host_title)
         serverHostCustomPop.setOnConfirmClickListener { t ->
             var finalText = t
             if (!t.startsWith("http://") && !t.startsWith("https://")) {
@@ -356,7 +378,7 @@ class SettingActivity : BaseActivity() {
             .moveUpToKeyboard(true)
             .asCustom(serverHostCustomPop)
 
-        serverKeyCustomPop = SettingInputPopup(this, getString(R.string.setting_server_key_title))
+        serverKeyCustomPop = SettingInputPopup(this, R.string.setting_server_key_title)
         serverKeyCustomPop.setOnConfirmClickListener { t ->
             binding.server.keyText.apply {
                 visibility = if (t.isBlank()) View.GONE else View.VISIBLE
@@ -373,34 +395,49 @@ class SettingActivity : BaseActivity() {
     }
 
     private fun initCommonPop() {
-
-        commonAppThemeCustomPop = SettingSelectPopup(this, getString(R.string.setting_common_apptheme_title), appTheme2StrMap.keys.toList())
-        commonAppThemeCustomPop.setOnSelectedListener { _, s ->
+        commonAppThemeCustomPop = SettingSelectPopup(this, R.string.setting_common_app_theme_title, R.array.setting_common_app_theme_select)
+        commonAppThemeCustomPop.setOnSelectedListener { pos, s ->
             binding.common.themeText.text = s
-            val themeId = appTheme2StrMap[s] ?: R.style.AppTheme_Dark
-            AppConfig.theme = s
-            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_THEME, s)
+            AppConfig.theme = AppTheme.values().getOrNull(pos) ?: AppTheme.Dark
+            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_THEME, AppConfig.theme)
+            val themeId = when (AppConfig.theme) {
+                AppTheme.HVerse -> R.style.AppTheme_HVerse
+                else -> R.style.AppTheme_Dark
+            }
             setTheme(themeId)
             onThemeChanged(themeId)
         }
         commonAppThemePop = XPopup.Builder(this)
             .asCustom(commonAppThemeCustomPop)
 
-        val viewMethodList = arrayListOf(
-            getString(R.string.setting_common_view_method_select_1),
-            getString(R.string.setting_common_view_method_select_2)
-        )
-        commonViewMethodCustomPop = SettingSelectPopup(this, getString(R.string.setting_common_view_method_title), viewMethodList)
-        commonViewMethodCustomPop.setOnSelectedListener { _, s ->
+        commonAppLanguageCustomPop = SettingSelectPopup(this, R.string.setting_common_app_language_title, R.array.setting_common_app_language_select)
+        commonAppLanguageCustomPop.setOnSelectedListener { pos, s ->
+            binding.common.languageText.text = s
+            AppConfig.language = AppLanguage.values().getOrNull(pos) ?: AppLanguage.CHINA
+            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_LANGUAGE, AppConfig.language)
+            val realLanguage = when (AppConfig.language) {
+                AppLanguage.CHINA -> Locale.CHINA
+                AppLanguage.JAPAN -> Locale.JAPAN
+                else -> Locale.ENGLISH
+            }
+            LanguageHelper.setAppLanguage(this, realLanguage)
+            onLanguageChange()
+        }
+        commonAppLanguagePop = XPopup.Builder(this)
+            .asCustom(commonAppLanguageCustomPop)
+
+        commonViewMethodCustomPop = SettingSelectPopup(this, R.string.setting_common_view_method_title, R.array.setting_common_view_method_select)
+        commonViewMethodCustomPop.setOnSelectedListener { pos, s ->
             binding.common.viewMethodText.text = s
-            AppConfig.viewMethod = s
-            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_VIEW_METHOD, s)
+            AppConfig.viewMethod = CardType.values().getOrNull(pos) ?: CardType.LAND
+            DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.COMMON_VIEW_METHOD, AppConfig.viewMethod)
         }
         commonViewMethodPop = XPopup.Builder(this)
             .asCustom(commonViewMethodCustomPop)
     }
 
     private fun initReadPop() {
+        /*
         val mergeMethodList = arrayListOf(
             getString(R.string.setting_read_merge_method_select_1),
             getString(R.string.setting_read_merge_method_select_2)
@@ -413,9 +450,9 @@ class SettingActivity : BaseActivity() {
         }
         readMergeMethodPop = XPopup.Builder(this)
             .asCustom(readMergeMethodCustomPop)
+         */
 
-        val scaleMethodList = resources.getStringArray(R.array.setting_read_scale_select).toList()
-        readScaleMethodCustomPop = SettingSelectPopup(this, getString(R.string.setting_read_scale_method_title), scaleMethodList)
+        readScaleMethodCustomPop = SettingSelectPopup(this, R.string.setting_read_scale_method_title, R.array.setting_read_scale_select)
         readScaleMethodCustomPop.setOnSelectedListener { pos, s ->
             binding.reader.scaleText.text = s
             AppConfig.scaleMethod = ScaleType.values().getOrNull(pos) ?: ScaleType.FIT_PAGE
@@ -426,7 +463,7 @@ class SettingActivity : BaseActivity() {
     }
 
     private fun initSearchPop() {
-        searchDelayCustomPop = SettingInputPopup(this, getString(R.string.setting_search_delay_title), true)
+        searchDelayCustomPop = SettingInputPopup(this, R.string.setting_search_delay_title, true)
         searchDelayCustomPop.setOnConfirmClickListener { t ->
             val number = t.toIntOrNull() ?: return@setOnConfirmClickListener
             binding.search.searchDelayText.text = String.format(getString(R.string.setting_search_delay_subtitle), number)
@@ -441,7 +478,7 @@ class SettingActivity : BaseActivity() {
     }
 
     private fun initRandomPop() {
-        randomCountCustomPop = SettingInputPopup(this, getString(R.string.setting_random_count_title), true)
+        randomCountCustomPop = SettingInputPopup(this, R.string.setting_random_count_title, true)
         randomCountCustomPop.setOnConfirmClickListener { t ->
             var number = t.toIntOrNull() ?: return@setOnConfirmClickListener
             if (number <= 0) number = 1
@@ -457,6 +494,7 @@ class SettingActivity : BaseActivity() {
     }
 
 
+    /*
     private fun changeViewStatus(view: View, b: Boolean) {
         val mAlpha = if (b) 1f else 0.5f
         view.apply {
@@ -464,6 +502,7 @@ class SettingActivity : BaseActivity() {
             this.alpha = mAlpha
         }
     }
+     */
 
     override fun onThemeChanged(theme: Int) {
         super.onThemeChanged(theme)
@@ -479,11 +518,14 @@ class SettingActivity : BaseActivity() {
         val textColor1ViewList = arrayListOf(
             binding.server.hostTitle, binding.server.keyTitle,
             binding.cache.cacheTitle,
-            binding.common.refreshTitle, binding.common.themeTitle, binding.common.viewMethodTitle,
-            binding.common.previewCacheTitle,
-            binding.reader.rtlTitle, binding.reader.voiceTitle, binding.reader.mergeTitle,
-            binding.reader.reverseMergeTitle, binding.reader.mergeMethodTitle, binding.reader.scaleTitle,
-            binding.reader.keepLightTitle, binding.reader.synTitle,
+            /* binding.common.refreshTitle, */
+            binding.common.themeTitle, binding.common.viewMethodTitle,
+            binding.common.previewCacheTitle, binding.common.languageTitle,
+            binding.reader.rtlTitle, binding.reader.voiceTitle,
+            /*
+            binding.reader.mergeTitle, binding.reader.reverseMergeTitle, binding.reader.mergeMethodTitle,
+             */
+            binding.reader.scaleTitle, binding.reader.keepLightTitle, binding.reader.synTitle,
             binding.search.localSearchTitle, binding.search.searchDelayTitle,
             binding.random.randomCountTitle,
             binding.source.licensesTitle, binding.source.gplv3Title, binding.source.githubTitle,
@@ -494,7 +536,10 @@ class SettingActivity : BaseActivity() {
             binding.server.hostText, binding.server.keyText,
             binding.cache.cacheText,
             binding.common.themeText, binding.common.viewMethodText, binding.common.previewCacheText,
+            binding.common.languageText,
+            /*
             binding.reader.mergeText, binding.reader.reverseMergeText, binding.reader.mergerMethodText,
+             */
             binding.reader.scaleText, binding.reader.keepLightText, binding.reader.synText,
             binding.search.localSearchText, binding.search.searchDelayText,
             binding.random.randomCountText,
@@ -527,6 +572,53 @@ class SettingActivity : BaseActivity() {
         textColor3ViewList.forEach {
             it.setTextColor(textColor3)
         }
+    }
+
+    private fun onLanguageChange() {
+        setAppBarText(getString(R.string.setting_toolbar_title), null)
+        binding.server.serverTheme.text = getString(R.string.setting_server_theme)
+        binding.server.hostTitle.text = getString(R.string.setting_server_host_title)
+        binding.server.keyTitle.text = getString(R.string.setting_server_key_title)
+        binding.cache.cacheTheme.text = getString(R.string.setting_cache_theme)
+        binding.cache.cacheTitle.text = getString(R.string.setting_cache_clear_title)
+        binding.common.commonTheme.text = getString(R.string.setting_common_theme)
+        binding.common.themeTitle.text = getString(R.string.setting_common_app_theme_title)
+        binding.common.themeText.text = resources.getStringArray(R.array.setting_common_app_theme_select).let {
+            it.getOrNull(AppTheme.values().indexOf(AppConfig.theme)) ?: it[0]
+        }
+        binding.common.languageTitle.text = getString(R.string.setting_common_app_language_title)
+        binding.common.viewMethodTitle.text = getString(R.string.setting_common_view_method_title)
+        binding.common.viewMethodText.text = resources.getStringArray(R.array.setting_common_view_method_select).let {
+            it.getOrNull(CardType.values().indexOf(AppConfig.viewMethod)) ?: it[0]
+        }
+        binding.common.previewCacheTitle.text = getString(R.string.setting_common_clear_title)
+        binding.common.previewCacheText.text = getString(R.string.setting_common_clear_subtitle)
+        binding.reader.readerTheme.text = getString(R.string.setting_read_theme)
+        binding.reader.rtlTitle.text = getString(R.string.setting_read_rtl_title)
+        binding.reader.voiceTitle.text = getString(R.string.setting_read_voice_title)
+        binding.reader.scaleTitle.text = getString(R.string.setting_read_scale_method_title)
+        binding.reader.scaleText.text = resources.getStringArray(R.array.setting_read_scale_select).let {
+            it.getOrNull(ScaleType.values().indexOf(AppConfig.scaleMethod)) ?: it[0]
+        }
+        binding.reader.keepLightTitle.text = getString(R.string.setting_read_keep_screen_light_title)
+        binding.reader.keepLightText.text = getString(R.string.setting_read_keep_screen_light_subtitle)
+        binding.reader.synTitle.text = getString(R.string.setting_read_syn_progress_title)
+        binding.reader.synText.text = getString(R.string.setting_read_syn_progress_subtitle)
+        binding.search.searchTheme.text = getString(R.string.setting_search_theme)
+        binding.search.localSearchTitle.text = getString(R.string.setting_search_local_title)
+        binding.search.localSearchText.text = getString(R.string.setting_search_local_subtitle)
+        binding.search.searchDelayTitle.text = getString(R.string.setting_search_delay_title)
+        binding.search.searchDelayText.text = String.format(getString(R.string.setting_search_delay_subtitle), AppConfig.searchDelay)
+        binding.random.randomTheme.text = getString(R.string.setting_random_theme)
+        binding.random.randomCountTitle.text = getString(R.string.setting_random_count_title)
+        binding.random.randomCountText.text = String.format(getString(R.string.setting_random_count_subtitle), AppConfig.randomCount)
+        binding.source.sourceTheme.text = getString(R.string.setting_source_theme)
+        binding.debug.debugTheme.text = getString(R.string.setting_debug_theme)
+        binding.debug.detailTitle.text = getString(R.string.setting_debug_detail_title)
+        binding.debug.detailText.text = getString(R.string.setting_debug_detail_subtitle)
+        binding.debug.crashTitle.text = getString(R.string.setting_debug_crash_title)
+        binding.debug.copyCrashTitle.text = getString(R.string.setting_debug_copy_crash_title)
+        binding.debug.copyCrashText.text = getString(R.string.setting_debug_copy_crash_subtitle)
     }
 
 }

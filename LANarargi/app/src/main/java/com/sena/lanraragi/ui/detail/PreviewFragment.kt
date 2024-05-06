@@ -9,12 +9,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sena.lanraragi.BaseFragment
-import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
@@ -25,6 +23,7 @@ import com.sena.lanraragi.utils.INTENT_KEY_ARCID
 import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.getOrNull
+import com.sena.lanraragi.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -148,7 +147,7 @@ class PreviewFragment : BaseFragment() {
                     if (randomArchive != null) {
                         mNewArchiveListener?.onGenerateArchive(randomArchive)
                     } else {
-                        Toast.makeText(LanraragiApplication.getContext(), "获取随机档案失败...", Toast.LENGTH_SHORT).show()
+                        toast(R.string.main_get_random_failed)
                     }
                 }
             }

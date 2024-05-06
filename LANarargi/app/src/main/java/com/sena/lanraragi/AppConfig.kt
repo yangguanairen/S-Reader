@@ -1,7 +1,9 @@
 package com.sena.lanraragi
 
-import android.content.Context
 import com.sena.lanraragi.database.LanraragiDB
+import com.sena.lanraragi.utils.AppLanguage
+import com.sena.lanraragi.utils.AppTheme
+import com.sena.lanraragi.utils.CardType
 import com.sena.lanraragi.utils.ScaleType
 
 
@@ -18,16 +20,19 @@ object AppConfig {
     var serverSecretKey: String = ""
 
     // 通用
-    var enableScrollRefresh: Boolean = false
-    var theme: String = ""
-    var viewMethod: String = ""
+    /* var enableScrollRefresh: Boolean = false */
+    var theme: AppTheme = AppTheme.Dark
+    var language: AppLanguage = AppLanguage.CHINA
+    var viewMethod: CardType = CardType.LAND
 
     // 阅读
     var enableRtl: Boolean = false   // 是否启用从右向左阅读
     var enableVoice: Boolean = false // 是否启动音量键翻页
+    /*
     var enableMerge: Boolean = false
     var enableReverseMerge: Boolean = false
     var mergeMethod: String = ""
+     */
     var scaleMethod: ScaleType = ScaleType.FIT_WIDTH
     var enableScreenLight: Boolean = false
     var enableSyn: Boolean = false
@@ -49,6 +54,6 @@ object AppConfig {
     var order: LanraragiDB.DBHelper.ORDER = LanraragiDB.DBHelper.ORDER.DESC
 
 
-    fun isLandCard(context: Context) = viewMethod == context.getString(R.string.setting_common_view_method_select_2)
+    fun isVerticalCard() = viewMethod == CardType.VERTICAL
 }
 

@@ -43,7 +43,7 @@ class TagsViewer @JvmOverloads constructor(
     fun setCategories(category: List<Category>) {
         binding.tagLayout.removeAllViews()
         category.forEach {
-            val header = if (it.pinned == 0) "静态" else "动态"
+            val header = context.getString(if (it.pinned == 0) R.string.detail_category_pinned_0 else R.string.detail_category_pinned_1)
             val lB = ItemTagLayoutBinding.inflate(LayoutInflater.from(mContext), binding.tagLayout, true)
             addHeaderTag(lB.headerLayout, header)
             addContentTag(lB.contentLayout, header, listOf(it.name))

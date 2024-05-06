@@ -32,7 +32,7 @@ class MainAdapter : BaseDifferAdapter<Archive, MainAdapter.VH>(DiffCallback()) {
     }
 
     override fun onCreateViewHolder(context: Context, parent: ViewGroup, viewType: Int): VH {
-        return if (context.getString(R.string.setting_common_view_method_select_2) == AppConfig.viewMethod) {
+        return if (AppConfig.isVerticalCard()) {
             VH(LayoutInflater.from(context).inflate(R.layout.item_archive_vertical, parent, false))
         } else {
             VH(LayoutInflater.from(context).inflate(R.layout.item_archive, parent, false))
@@ -54,7 +54,7 @@ class MainAdapter : BaseDifferAdapter<Archive, MainAdapter.VH>(DiffCallback()) {
                 var builder = ImageLoad.Builder(context)
                     .loadThumb(archive.arcid)
 
-                if (AppConfig.isLandCard(context)) {
+                if (AppConfig.isVerticalCard()) {
                     builder = builder.setRadius(16f)
                 }
                 builder.into(coverView).execute()

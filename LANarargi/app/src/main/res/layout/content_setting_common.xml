@@ -7,21 +7,21 @@
         style="@style/setting_item_theme"
         android:text="@string/setting_common_theme" />
 
-    <RelativeLayout
-        android:visibility="gone"
-        android:id="@+id/scrollRefreshLayout"
-        style="@style/setting_item_switch_layout">
+<!--    <RelativeLayout-->
+<!--        android:visibility="gone"-->
+<!--        android:id="@+id/scrollRefreshLayout"-->
+<!--        style="@style/setting_item_switch_layout">-->
 
-        <TextView
-            android:id="@+id/refreshTitle"
-            style="@style/setting_item_switch_title"
-            android:text="@string/setting_common_refresh_title" />
+<!--        <TextView-->
+<!--            android:id="@+id/refreshTitle"-->
+<!--            style="@style/setting_item_switch_title"-->
+<!--            android:text="@string/setting_common_refresh_title" />-->
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/refreshButton"
-            style="@style/setting_item_switch" />
+<!--        <androidx.appcompat.widget.SwitchCompat-->
+<!--            android:id="@+id/refreshButton"-->
+<!--            style="@style/setting_item_switch" />-->
 
-    </RelativeLayout>
+<!--    </RelativeLayout>-->
 
 
     <LinearLayout
@@ -31,10 +31,24 @@
         <TextView
             android:id="@+id/themeTitle"
             style="@style/setting_item_text_title"
-            android:text="@string/setting_common_apptheme_title" />
+            android:text="@string/setting_common_app_theme_title" />
 
         <TextView
             android:id="@+id/themeText"
+            style="@style/setting_item_text_subtitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/languageLayout"
+        style="@style/setting_item_text_layout">
+
+        <TextView
+            android:id="@+id/languageTitle"
+            style="@style/setting_item_text_title"
+            android:text="@string/setting_common_app_language_title" />
+
+        <TextView
+            android:id="@+id/languageText"
             style="@style/setting_item_text_subtitle" />
     </LinearLayout>
 

@@ -26,6 +26,23 @@ enum class ScaleType {
     WEBTOON
 }
 
+enum class AppTheme {
+    Dark,
+    HVerse
+}
+
+enum class CardType {
+    LAND,
+    VERTICAL
+
+}
+
+enum class AppLanguage {
+    CHINA,
+    JAPAN,
+    ENGLISH
+}
+
 enum class TouchZone {
     Left,
     Right,

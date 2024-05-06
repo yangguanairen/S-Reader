@@ -135,14 +135,14 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
 
     private fun getListLayoutManager(): LinearLayoutManager {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val isLandCard = AppConfig.isLandCard(this)
+        val isVerticalCard = AppConfig.isVerticalCard()
         val isTablet = resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK >=
                 Configuration.SCREENLAYOUT_SIZE_LARGE
         return when {
-            isLandscape && isLandCard -> GridLayoutManager(this, if (isTablet) 4 else 3)
-            isLandscape && !isLandCard -> GridLayoutManager(this, if (isTablet) 3 else 2)
-            !isLandscape && isLandCard -> GridLayoutManager(this, if (isTablet) 3 else 2)
-            !isLandscape && !isLandCard -> if (isTablet) GridLayoutManager(this, 2) else LinearLayoutManager(this)
+            isLandscape && isVerticalCard -> GridLayoutManager(this, if (isTablet) 4 else 3)
+            isLandscape && !isVerticalCard -> GridLayoutManager(this, if (isTablet) 3 else 2)
+            !isLandscape && isVerticalCard -> GridLayoutManager(this, if (isTablet) 3 else 2)
+            !isLandscape && !isVerticalCard -> if (isTablet) GridLayoutManager(this, 2) else LinearLayoutManager(this)
             else -> LinearLayoutManager(this)
         }
     }

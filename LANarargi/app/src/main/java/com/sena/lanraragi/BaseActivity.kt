@@ -18,7 +18,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.sena.lanraragi.utils.AppLanguage
+import com.sena.lanraragi.utils.AppTheme
+import com.sena.lanraragi.utils.LanguageHelper
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 /**
@@ -33,14 +37,19 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
     private val mMenuId = menuId
 
     private var curTheme = AppConfig.theme
+    private var curLanguage = AppConfig.language
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(when (AppConfig.theme) {
-            getString(R.string.setting_common_apptheme_select_2) -> R.style.AppTheme_HVerse
+            AppTheme.HVerse -> R.style.AppTheme_HVerse
             else -> R.style.AppTheme_Dark
         })
-//        LanguageHelper.setAppLanguage(this)
+        LanguageHelper.setAppLanguage(this, when (AppConfig.language) {
+            AppLanguage.CHINA -> Locale.CHINA
+            AppLanguage.JAPAN -> Locale.JAPAN
+            else -> Locale.ENGLISH
+        })
         window.statusBarColor = Color.BLACK
     }
 
@@ -62,17 +71,26 @@ abstract class BaseActivity(@MenuRes menuId: Int? = null) : AppCompatActivity() 
         if (AppConfig.theme != curTheme) {
             curTheme = AppConfig.theme
             val theme = when (curTheme) {
-                getString(R.string.setting_common_apptheme_select_2) -> R.style.AppTheme_HVerse
+                AppTheme.HVerse -> R.style.AppTheme_HVerse
                 else -> R.style.AppTheme_Dark
             }
             setTheme(theme)
             onThemeChanged(theme)
         }
+        if (AppConfig.language != curLanguage) {
+            curLanguage = AppConfig.language
+            LanguageHelper.setAppLanguage(this, when (AppConfig.language) {
+                AppLanguage.CHINA -> Locale.CHINA
+                AppLanguage.JAPAN -> Locale.JAPAN
+                else -> Locale.ENGLISH
+            })
+            onLanguageChanged()
+        }
     }
 
-    open fun onThemeChanged(@StyleRes theme: Int) {
+    open fun onThemeChanged(@StyleRes theme: Int) {}
 
-    }
+    open fun onLanguageChanged() {}
 
     protected fun setAppBarText(title: String?, subtitle: String?) {
         // mToolbar的获取在onCreate()中执行

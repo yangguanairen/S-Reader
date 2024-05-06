@@ -4,164 +4,186 @@
 
     <!-- ******************************************** 主页(MainActivity) ******************************************** -->
     // 主页
-    <string name="main_item_view_tags" translatable="false">长按查看标签</string>
-    <string name="main_toolbar_title" translatable="false">LANraragi</string>
-    <string name="main_toolbar_subtitle" translatable="false">%d个档案</string>
+    <string name="main_item_view_tags">长按查看标签</string>
+    <string name="main_toolbar_title">LANraragi</string>
+    <string name="main_toolbar_subtitle">%d个档案</string>
+    <string name="main_get_random_failed">无法获取随机档案</string>
     // 主页_menu
-    <string name="main_menu_refresh" translatable="false">强制刷新</string>
-    <string name="main_menu_filter" translatable="false">筛选</string>
-    <string name="main_menu_goto_top" translatable="false">跳转顶部</string>
-    <string name="main_menu_goto_bottom" translatable="false">跳转底部</string>
+    <string name="main_menu_refresh">强制刷新</string>
+    <string name="main_menu_filter">筛选</string>
+    <string name="main_menu_goto_top">跳转顶部</string>
+    <string name="main_menu_goto_bottom">跳转底部</string>
     // 主页_左Nav
-    <string name="main_left_nav_setting" translatable="false">设置</string>
-    <string name="main_left_nav_bookmark" translatable="false">书签</string>
+    <string name="main_left_nav_setting">设置</string>
+    <string name="main_left_nav_bookmark">书签</string>
     // 主页_右Nav
-    <string name="main_right_nav_category" translatable="false">分类</string>
-    <string name="main_right_nav_filter" translatable="false">筛选</string>
-    <string name="main_right_nav_order" translatable="false">排序方式</string>
+    <string name="main_right_nav_category">分类</string>
+    <string name="main_right_nav_filter">筛选</string>
+    <string name="main_right_nav_order">排序方式</string>
     <string name="main_right_nav_order_title">标题</string>
     <string name="main_right_nav_order_time">日期</string>
-    <string name="main_right_nav_sort" translatable="false">顺序</string>
-    <string name="main_right_nav_sort_asc" translatable="false">上升</string>
-    <string name="main_right_nav_sort_desc" translatable="false">下降</string>
+    <string name="main_right_nav_sort">顺序</string>
+    <string name="main_right_nav_sort_asc">上升</string>
+    <string name="main_right_nav_sort_desc">下降</string>
     // 主页_contentMain
-    <string name="main_content_no_host" translatable="false">点击设置服务器</string>
-    <string name="main_content_is_new" translatable="false">新的</string>
-    <string name="main_content_random" translatable="false">随机</string>
+    <string name="main_content_no_host">点击设置服务器</string>
+    <string name="main_content_is_new">新的</string>
+    <string name="main_content_random">随机</string>
     <!-- ******************************************** 主页(MainActivity) ******************************************** -->
 
 
     <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
     // 随机页
-    <string name="random_toolbar_title" translatable="false">随机</string>
-    <string name="random_toolbar_subtitle" translatable="false">%d个档案</string>
-    <string name="random_menu_refresh" translatable="false">刷新档案</string>
-    <string name="random_menu_change_random_count" translatable="false">更改计数</string>
+    <string name="random_toolbar_title">随机</string>
+    <string name="random_toolbar_subtitle">%d个档案</string>
+    <string name="random_menu_refresh">重新生成</string>
+    <string name="random_menu_change_random_count">更改数量</string>
     <!-- ******************************************** 随机页(RandomActivity) ******************************************** -->
 
 
     <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
     // 详情页
-    <string name="detail_introduce_start_read" translatable="false">阅读</string>
-    <string name="detail_introduce_add_bookmark" translatable="false">添加书签</string>
-    <string name="detail_introduce_cancel_bookmark" translatable="false">取消书签</string>
-    <string name="detail_toolbar_random" translatable="false">查看随机档案</string>
-    <string name="detail_toolbar_refresh" translatable="false">强制刷新缩略图</string>
-    <string name="detail_toolbar_edit_tags" translatable="false">修改标签</string>
-    <string name="detail_toolbar_edit_category" translatable="false">修改分类</string>
-    <string name="detail_toolbar_refresh_preview" translatable="false">强制刷新预览图</string>
-    <string name="detail_toolbar_goto_top" translatable="false">跳转顶部</string>
-    <string name="detail_toolbar_goto_bottom" translatable="false">跳转底部</string>
+    <string name="detail_introduce_title">详细</string>
+    <string name="detail_preview_title">预览图</string>
+    <string name="detail_introduce_start_read">阅读</string>
+    <string name="detail_introduce_add_bookmark">添加书签</string>
+    <string name="detail_introduce_cancel_bookmark">取消书签</string>
+    <string name="detail_toolbar_random">随机档案</string>
+    <string name="detail_toolbar_refresh">刷新封面</string>
+    <string name="detail_toolbar_edit_tags">修改标签</string>
+    <string name="detail_toolbar_edit_category">修改分类</string>
+    <string name="detail_toolbar_refresh_preview">刷新预览图</string>
+    <string name="detail_toolbar_goto_top">跳转顶部</string>
+    <string name="detail_toolbar_goto_bottom">跳转底部</string>
+    <string name="detail_category_pinned_0">静态</string>
+    <string name="detail_category_pinned_1">动态</string>
+    <string name="detail_category_create_failed">创建分类失败…</string>
+    <string name="detail_category_delete_failed">删除分类失败…</string>
+    <string name="detail_category_update_failed">更新分类失败…</string>
+    <string name="detail_tag_add_verify_failed">Header和Content不得为空!!</string>
+    <string name="detail_tag_failed">更新标签失败…</string>
     <!-- ******************************************** 详情页(DetailActivity) ******************************************** -->
 
 
     <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
     // 阅读页
-    <string name="read_file_is_not_support" translatable="false">图片不支持</string>
-    <string name="read_file_load_failed" translatable="false">加载失败</string>
+    <string name="read_file_is_not_support">图片不支持</string>
+    <string name="read_file_load_failed">加载失败</string>
+    <string name="read_no_pre_page">已经没有前一页了哦</string>
+    <string name="read_no_next_page">已经没有后一页了哦</string>
+    <string name="read_set_thumb_success">成功设置为第%d页</string>
+    <string name="read_set_thumb_failed">设置封面失败</string>
     <!-- ******************************************** 阅读页(ReaderActivity) ******************************************** -->
 
 
     <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
     // 设置页
-    <string name="setting_toolbar_title" translatable="false">设置</string>
+    <string name="setting_toolbar_title">设置</string>
     // 设置--服务器
-    <string name="setting_server_theme" translatable="false">服务器</string>
-    <string name="setting_server_host_title" translatable="false">服务器地址</string>
-    <string name="setting_server_key_title" translatable="false">API密钥</string>
+    <string name="setting_server_theme">服务器</string>
+    <string name="setting_server_host_title">服务器地址</string>
+    <string name="setting_server_key_title">API密钥</string>
     // 设置--缓存
-    <string name="setting_cache_theme" translatable="false">缓存</string>
-    <string name="setting_cache_clear_title" translatable="false">清除本地缓存</string>
-    <string name="setting_cache_clear_subtitle" translatable="false">%d MB</string>
+    <string name="setting_cache_theme">缓存</string>
+    <string name="setting_cache_clear_title">清除本地缓存</string>
+    <string name="setting_cache_clearing">清理缓存…</string>
+    <string name="setting_cache_clear_subtitle">%d MB</string>
     // 设置--通用
-    <string name="setting_common_theme" translatable="false">通用</string>
-    <string name="setting_common_refresh_title" translatable="false">>启用滑动刷新</string>
-    <string name="setting_common_apptheme_title" translatable="false">主题</string>
-    <string name="setting_common_apptheme_select_1" translatable="false">暗</string>
-    <string name="setting_common_apptheme_select_2" translatable="false">H-Verse</string>
-    <string name="setting_common_apptheme_select_3" translatable="false">Material </string>
-    <string name="setting_common_view_method_title" translatable="false">列表显示</string>
-    <string name="setting_common_view_method_select_1" translatable="false">横向卡片</string>
-    <string name="setting_common_view_method_select_2" translatable="false">竖向卡片</string>
-    <string name="setting_common_clear_title" translatable="false">清理预览图缓存</string>
-    <string name="setting_common_clear_subtitle" translatable="false">点击以删除预览图缓存</string>
+    <string name="setting_common_theme">通用</string>
+<!--    <string name="setting_common_refresh_title">>启用滑动刷新</string>-->
+    <string name="setting_common_app_theme_title">主题</string>
+    <string-array name="setting_common_app_theme_select">
+        <item>暗</item>
+        <item>H-Verse</item>
+    </string-array>
+    <string name="setting_common_app_language_title">语言</string>
+    <string-array name="setting_common_app_language_select">
+        <item>中文</item>
+        <item>日本語</item>
+        <item>English</item>
+    </string-array>
+    <string name="setting_common_view_method_title">卡片类型</string>
+    <string-array name="setting_common_view_method_select">
+        <item>横向卡片</item>
+        <item>竖向卡片</item>
+    </string-array>
+    <string name="setting_common_clear_title">清理预览图缓存</string>
+    <string name="setting_common_clear_subtitle">点击以删除预览图缓存</string>
     // 设置--阅读
-    <string name="setting_read_theme" translatable="false">阅读</string>
-    <string name="setting_read_rtl_title" translatable="false">从右到左阅读</string>
-    <string name="setting_read_voice_title" translatable="false">音量键翻页</string>
-    <string name="setting_read_merge_title" translatable="false">合并双页</string>
-    <string name="setting_read_merge_subtitle" translatable="false">当设备为横向时合并纵向图像</string>
-    <string name="setting_read_reverse_merge_title" translatable="false">反转合并方向</string>
-    <string name="setting_read_reverse_merge_subtitle" translatable="false">从整体RTL设置反转RTL</string>
-    <string name="setting_read_merge_method_title" translatable="false">合并页面压缩方式</string>
-    <string name="setting_read_merge_method_select_1" translatable="false">JPEG(快速, 一般质量)</string>
-    <string name="setting_read_merge_method_select_2" translatable="false">PNG(慢速, 高质量)</string>
-    <string name="setting_read_scale_method_title" translatable="false">页面缩放</string>
-    <string-array name="setting_read_scale_select" translatable="false">
+    <string name="setting_read_theme">阅读</string>
+    <string name="setting_read_rtl_title">从右到左阅读</string>
+    <string name="setting_read_voice_title">音量键翻页</string>
+    <string name="setting_read_merge_title">合并双页</string>
+<!--    <string name="setting_read_merge_subtitle">当设备为横向时合并纵向图像</string>-->
+<!--    <string name="setting_read_reverse_merge_title">反转合并方向</string>-->
+<!--    <string name="setting_read_reverse_merge_subtitle">从整体RTL设置反转RTL</string>-->
+<!--    <string name="setting_read_merge_method_title">合并页面压缩方式</string>-->
+<!--    <string name="setting_read_merge_method_select_1">JPEG(快速, 一般质量)</string>-->
+<!--    <string name="setting_read_merge_method_select_2">PNG(慢速, 高质量)</string>-->
+    <string name="setting_read_scale_method_title">页面缩放</string>
+    <string-array name="setting_read_scale_select">
         <item>适应页面</item>
         <item>适应宽度</item>
         <item>适应高度</item>
         <item>Webtoon</item>
     </string-array>
-    <string name="setting_read_keep_screen_light_title" translatable="false">保持常亮</string>
-    <string name="setting_read_keep_screen_light_subtitle" translatable="false">阅读时不息屏</string>
-    <string name="setting_read_syn_progress_title" translatable="false">同步阅读进度</string>
-    <string name="setting_read_syn_progress_subtitle" translatable="false">开启同步本地阅读进度至服务端\n同时更新档案时本地进度会被覆盖</string>
+    <string name="setting_read_keep_screen_light_title">保持常亮</string>
+    <string name="setting_read_keep_screen_light_subtitle">阅读时不息屏</string>
+    <string name="setting_read_syn_progress_title">同步进度</string>
+    <string name="setting_read_syn_progress_subtitle">同步本地阅读进度至服务端</string>
     // 设置--搜索
-    <string name="setting_search_theme" translatable="false">搜索</string>
-    <string name="setting_search_local_title" translatable="false">本地搜索</string>
-    <string name="setting_search_local_subtitle" translatable="false">使用内置应用程序搜索进行搜索, 而不是向服务器发送请求</string>
-    <string name="setting_search_delay_title" translatable="false">搜索延迟</string>
-    <string name="setting_search_delay_subtitle" translatable="false">"在发出搜索请求之前, 两次按键之间要等待的时间(以毫秒为单位)\n当前 %d 毫秒"</string>
+    <string name="setting_search_theme">搜索</string>
+    <string name="setting_search_local_title">本地搜索</string>
+    <string name="setting_search_local_subtitle">使用内置数据库进行搜索, 而不是向服务器发送请求</string>
+    <string name="setting_search_delay_title">搜索延迟</string>
+    <string name="setting_search_delay_subtitle">"两次搜索的间隔(以毫秒为单位)\n当前 %d 毫秒"</string>
     // 设置--随机档案
-    <string name="setting_random_theme" translatable="false">随机档案</string>
-    <string name="setting_random_count_title" translatable="false">随机档案计数</string>
-    <string name="setting_random_count_subtitle" translatable="false">"按下随机按钮时应选择的随机档案数量, 当前为: %d"</string>
+    <string name="setting_random_theme">随机档案</string>
+    <string name="setting_random_count_title">随机档案数量</string>
+    <string name="setting_random_count_subtitle">"每次随机生成的档案数量, 当前为: %d"</string>
     // 设置--源码
-    <string name="setting_source_theme" translatable="false">源码</string>
-    <string name="setting_source_licenses_title" translatable="false">Open Source Licenses</string>
-    <string name="setting_source_licenses_subtitle" translatable="false">Licences used by this app</string>
-    <string name="setting_source_gplv3_title" translatable="false">Licensed under GPLv3</string>
-    <string name="setting_source_gplv3_subtitle" translatable="false">Tap to view</string>
-    <string name="setting_source_github_title" translatable="false">View on GitHub</string>
-    <string name="setting_source_github_subtitle" translatable="false">View source on GitHub</string>
+    <string name="setting_source_theme">源码</string>
+    <string name="setting_source_licenses_title">Open Source Licenses</string>
+    <string name="setting_source_licenses_subtitle">Licences used by this app</string>
+    <string name="setting_source_gplv3_title">Licensed under GPLv3</string>
+    <string name="setting_source_gplv3_subtitle">Tap to view</string>
+    <string name="setting_source_github_title">View on GitHub</string>
+    <string name="setting_source_github_subtitle">View source on GitHub</string>
     // 设置--调试
-    <string name="setting_debug_theme" translatable="false">调试</string>
-    <string name="setting_debug_detail_title" translatable="false">详细信息</string>
-    <string name="setting_debug_detail_subtitle" translatable="false">显示更多的错误消息</string>
-    <string name="setting_debug_crash_title" translatable="false">启用崩溃日志</string>
-    <string name="setting_debug_copy_crash_title" translatable="false">复制崩溃日志</string>
-    <string name="setting_debug_copy_crash_subtitle" translatable="false">复制崩溃日志到剪切板</string>
+    <string name="setting_debug_theme">调试</string>
+    <string name="setting_debug_detail_title">详细信息</string>
+    <string name="setting_debug_detail_subtitle">显示更多的错误消息</string>
+    <string name="setting_debug_crash_title">启用崩溃日志</string>
+    <string name="setting_debug_copy_crash_title">复制崩溃日志</string>
+    <string name="setting_debug_copy_crash_subtitle">复制崩溃日志到剪切板</string>
     // 设置--弹窗
-    <string name="setting_popup_cancel" translatable="false">取消</string>
-    <string name="setting_popup_confirm" translatable="false">确认</string>
-    <string name="setting_popup_finish" translatable="false">完成</string>
+    <string name="setting_popup_cancel">取消</string>
+    <string name="setting_popup_confirm">确认</string>
+    <string name="setting_popup_finish">完成</string>
     <!-- ******************************************** 设置页(SettingActivity) ******************************************** -->
 
 
     <!-- ******************************************** 自定义组件 ******************************************** -->
     // 标签查看器
-    <string name="tag_view_title" translatable="false">标签</string>
-    <string name="category_view_title" translatable="false">分类</string>
-
+    <string name="tag_view_title">标签</string>
+    <string name="category_view_title">分类</string>
 
     // Reader底部弹窗
-    <string name="bottom_pop_goto_detail" translatable="false">回到详情页</string>
-    <string name="bottom_pop_select_page" translatable="false">跳转页面</string>
-    <string name="bottom_pop_display_bookmark" translatable="false">查看书签</string>
-    <string name="bottom_pop_change_thumb" translatable="false">将此页面设置为封面</string>
-
+    <string name="bottom_pop_goto_detail">回到详情页</string>
+    <string name="bottom_pop_select_page">跳转页面</string>
+    <string name="bottom_pop_display_bookmark">查看书签</string>
+    <string name="bottom_pop_change_thumb">将此页面设置为封面</string>
 
     // 书签查看器
-    <string name="bookmark_view_clear_single" translatable="false">书签已清除</string>
-    <string name="bookmark_view_clear_all" translatable="false">所有书签已清除</string>
-    <string name="bookmark_view_revoke" translatable="false">撤销</string>
+    <string name="bookmark_view_clear_single">书签已清除</string>
+    <string name="bookmark_view_clear_all">所有书签已清除</string>
+    <string name="bookmark_view_revoke">撤销</string>
     <!-- ******************************************** 自定义组件 ******************************************** -->
 
 
     // 其他
-    <string name="content_cover" translatable="false">封面</string>
-    <string name="content_icon_search" translatable="false">搜索</string>
-    <string name="content_icon_clear" translatable="false">清除</string>
-    <string name="content_icon_input" translatable="false">输入搜索内容</string>
+    <string name="content_cover">封面</string>
+    <string name="content_icon_search">搜索</string>
+    <string name="content_icon_clear">清除</string>
+    <string name="content_icon_input">输入搜索内容</string>
 </resources>

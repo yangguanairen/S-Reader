@@ -6,16 +6,14 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter4.BaseQuickAdapter
 import com.chad.library.adapter4.viewholder.QuickViewHolder
 import com.lxj.xpopup.core.CenterPopupView
-import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.R
-import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.getOrNull
+import com.sena.lanraragi.utils.toast
 
 
 /**
@@ -57,13 +55,12 @@ class TagEditPopup(context: Context) : CenterPopupView(context) {
                 val contentView = mRecyclerView.getChildAt(p).findViewById<EditText>(R.id.content)
                 val content = contentView.text.toString()
                 if (header.isBlank() || content.isBlank()) {
-                    Toast.makeText(LanraragiApplication.getContext(), "Header和Content不得为空!!", Toast.LENGTH_SHORT).show()
+                    toast(R.string.detail_tag_add_verify_failed)
                     return@addOnItemChildClickListener
                 }
                 headerView.setText("")
                 contentView.setText("")
                 a.add(p, Pair(header,content))
-                DebugLog.e("测试: , $header, $content")
             } else {
                 a.removeAt(p)
             }
@@ -85,7 +82,6 @@ class TagEditPopup(context: Context) : CenterPopupView(context) {
     }
 
     fun setTags(tags: String) {
-        DebugLog.e("测试: setTags() $tags")
         val result = parseTagsToPair(tags).apply { add(Pair("", "")) }
         mRecyclerView.adapter = mAdapter
         mAdapter.submitList(result)

@@ -1,13 +1,13 @@
 package com.sena.lanraragi.ui.reader
 
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sena.lanraragi.LanraragiApplication
+import com.sena.lanraragi.R
 import com.sena.lanraragi.utils.DebugLog
 import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.PosSource
+import com.sena.lanraragi.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,11 +48,11 @@ class ReaderVM : ViewModel() {
         // 校验page正确性
         val totalCount = fileNameList.value?.size ?: 0
         if (page < 0) {
-            Toast.makeText(LanraragiApplication.getContext(), "已经没有前一页了哦", Toast.LENGTH_SHORT).show()
+            toast(R.string.read_no_pre_page)
             DebugLog.d("ReaderActivity: 错误的当前位置: $page")
             return
         } else if (page > totalCount - 1) {
-            Toast.makeText(LanraragiApplication.getContext(), "已经没有后一页了哦", Toast.LENGTH_SHORT).show()
+            toast(R.string.read_no_next_page)
             DebugLog.d("ReaderActivity: 错误的当前位置: $page")
             return
         }
@@ -85,9 +85,9 @@ class ReaderVM : ViewModel() {
                 NewHttpHelper.updateServerThumb(id, page)
             }
             if (isSuccess) {
-                Toast.makeText(LanraragiApplication.getContext(), "成功设置为第${page}页", Toast.LENGTH_SHORT).show()
+                toast(R.string.read_set_thumb_success, page)
             } else {
-                Toast.makeText(LanraragiApplication.getContext(), "设置失败", Toast.LENGTH_SHORT).show()
+                toast(R.string.read_set_thumb_failed)
             }
         }
     }

@@ -46,7 +46,10 @@ class DetailActivity : BaseActivity() {
         }
         val fragments = arrayListOf(introduceFragment, previewFragment)
 
-        val tabTitles = arrayListOf("详细", "预览图")
+        val tabTitles = arrayListOf(
+            getString(R.string.detail_introduce_title),
+            getString(R.string.detail_preview_title)
+        )
         binding.viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
             override fun getItemCount(): Int {
                 return fragments.size

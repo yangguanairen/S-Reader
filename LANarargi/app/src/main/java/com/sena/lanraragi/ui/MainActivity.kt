@@ -10,13 +10,11 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.FlexboxLayout
 import com.sena.lanraragi.AppConfig
-import com.sena.lanraragi.LanraragiApplication
 import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.databinding.ActivityMainBinding
 import com.sena.lanraragi.R
@@ -32,6 +30,7 @@ import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
 import com.sena.lanraragi.utils.INTENT_KEY_POS
 import com.sena.lanraragi.utils.INTENT_KEY_QUERY
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
+import com.sena.lanraragi.utils.toast
 import kotlinx.coroutines.launch
 
 class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
@@ -189,7 +188,7 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
                         i.putExtra(INTENT_KEY_ARCHIVE, result)
                         startActivity(i)
                     } else {
-                        Toast.makeText(LanraragiApplication.getContext(), "无法获取随机档案", Toast.LENGTH_SHORT).show()
+                        toast(R.string.main_get_random_failed)
                     }
                 }
             } else {
@@ -315,6 +314,15 @@ class MainActivity : BaseArchiveListActivity(R.menu.menu_main) {
 
     override fun onThemeChanged(theme: Int) {
         super.onThemeChanged(theme)
+        recreateActivity()
+    }
+
+    override fun onLanguageChanged() {
+        super.onLanguageChanged()
+        recreateActivity()
+    }
+
+    private fun recreateActivity() {
         // 重启当前活动
         val curPos = (mRecyclerView?.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
         intent.putExtra(INTENT_KEY_POS, curPos)

@@ -50,7 +50,7 @@ class RandomActivity : BaseArchiveListActivity(R.menu.menu_random) {
     }
 
     private fun initPopup() {
-        randomCountCustomPop = SettingInputPopup(this, getString(R.string.setting_random_count_title), true)
+        randomCountCustomPop = SettingInputPopup(this, R.string.setting_random_count_title, true)
         randomCountCustomPop.setOnConfirmClickListener { t ->
             val number = t.toIntOrNull() ?: return@setOnConfirmClickListener
             AppConfig.randomCount = number

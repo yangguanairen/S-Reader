@@ -17,15 +17,20 @@ object DataStoreHelper {
         SERVER_HOST("server_host"),
         SERVER_SECRET_KEY("server_secret_Key"),
 
+        /*
         COMMON_SCROLL_REFRESH("common_scroll_refresh"),
+         */
         COMMON_THEME("common_theme"),
+        COMMON_LANGUAGE("common_language"),
         COMMON_VIEW_METHOD("common_view_method"),
 
         READ_RTL("read_rtl"),
         READ_VOICE("read_voice"),
+        /*
         READ_MERGE("read_merge"),
         READ_REVERSE_MERGE("read_reverse_merge"),
         READ_MERGE_METHOD("read_merge_method"),
+         */
         READ_SCALE_METHOD("read_scale_method"),
         READ_KEEP_SCREEN_LIGHT("read_keep_screen_light"),
         READ_SYN_PROGRESS("read_syn_progress"),
@@ -56,6 +61,22 @@ object DataStoreHelper {
             is Float -> sp.getFloat(key.s, defValue)
             is Boolean -> sp.getBoolean(key.s, defValue)
             is Long -> sp.getLong(key.s, defValue)
+            is AppTheme -> when (sp.getString(key.s, null)) {
+                AppTheme.Dark.name -> AppTheme.Dark
+                AppTheme.HVerse.name -> AppTheme.HVerse
+                else -> defValue
+            }
+            is AppLanguage -> when (sp.getString(key.s, null)) {
+                AppLanguage.CHINA.name -> AppLanguage.CHINA
+                AppLanguage.JAPAN.name -> AppLanguage.JAPAN
+                AppLanguage.ENGLISH.name -> AppLanguage.ENGLISH
+                else -> defValue
+            }
+            is CardType -> when (sp.getString(key.s, null)) {
+                CardType.VERTICAL.name -> CardType.VERTICAL
+                CardType.LAND.name -> CardType.LAND
+                else -> defValue
+            }
             is LanraragiDB.DBHelper.SORT, -> when (sp.getString(key.s, null)) {
                 LanraragiDB.DBHelper.SORT.TIME.name -> LanraragiDB.DBHelper.SORT.TIME
                 LanraragiDB.DBHelper.SORT.TITLE.name -> LanraragiDB.DBHelper.SORT.TITLE
@@ -94,6 +115,9 @@ object DataStoreHelper {
             is Float -> sp.edit().putFloat(key.s, value).apply()
             is Boolean -> sp.edit().putBoolean(key.s, value).apply()
             is Long -> sp.edit().putLong(key.s, value).apply()
+            is AppTheme -> sp.edit().putString(key.s, value.name).apply()
+            is AppLanguage -> sp.edit().putString(key.s, value.name).apply()
+            is CardType -> sp.edit().putString(key.s, value.name).apply()
             is LanraragiDB.DBHelper.SORT -> sp.edit().putString(key.s, value.name).apply()
             is LanraragiDB.DBHelper.ORDER -> sp.edit().putString(key.s, value.name).apply()
             is ScaleType -> sp.edit().putString(key.s, value.name).apply()
