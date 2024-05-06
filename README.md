@@ -1,13 +1,38 @@
-# LANraragi
+# S-Reader
+<img src="screenShot/icon_app.png" alt = "icon" style="border-radius: 10px; width: 200px; height: 200px;">
+
+An Android client developed based on the LANraragi web interface and API, including basic functions of the web interface as well as management functions.   
+Requires Android 6.0 or higher.
 
 
+# Features
+- Browse and search the LANraragi database
+- Read archives
+- View tags and categories
+- 🔑 Edit tags and categories
+- 🔑 Modify archive cover
+- Sync reading progress
+- Local favorites
+- Multiple themes and multilingual(Chinese,English,Japanese)
 
 
 # ScreenShot
+- [Main Page-LandCard](screenShot/phone/mainPageLandCard.jpg?raw=true)
+- [Main Page-VerticalCard](screenShot/phone/mainPageVerticalCard.jpg?raw=true)
+- [Main Page-TagPopup](screenShot/phone/mainPageTagPopup.jpg?raw=true)
+- [Main Page-Bookmark](screenShot/phone/mainPagBookmark.jpg?raw=true)
+- [Detail Page](screenShot/phone/detailPage.jpg?raw=true)
+- [Preview Page](screenShot/phone/previewPage.jpg?raw=true)
+- [Reader Page](screenShot/phone/readerPage.jpg?raw=true)
+- [Reader Page-BottomPop](screenShot/phone/readerPageBottomPop.jpg?raw=true)
+- [Setting Page](screenShot/phone/settingPage.jpg?raw=true)
+- [H-Verse Theme](screenShot/phone/h-verseTheme.jpg?raw=true)
 
 
-
-
+# User Guide
+- Functions marked with the 🔑 symbol require an API key to be set on the server side and the client side to match for proper use.
+- After enabling progress synchronization, the server's reading progress will overwrite the local one.
+- Local favorites are stored independently based on the server address, so there's no need to worry about data loss when switching servers.
 
 
 # LICENSE
