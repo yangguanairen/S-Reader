@@ -1,5 +1,5 @@
 # S-Reader
-<img src="screenShot/icon_app.png" alt = "icon" style="border-radius: 10px; width: 200px; height: 200px;">
+<img src="fastlane/icon_app.png" alt = "icon" style="border-radius: 10px; width: 200px; height: 200px;">
 
 An Android client developed based on the LANraragi web interface and API, including basic functions of the web interface as well as management functions.   
 Requires Android 6.0 or higher.
@@ -17,16 +17,16 @@ Requires Android 6.0 or higher.
 
 
 # ScreenShot
-- [Main Page-LandCard](screenShot/phone/mainPageLandCard.jpg?raw=true)
-- [Main Page-VerticalCard](screenShot/phone/mainPageVerticalCard.jpg?raw=true)
-- [Main Page-TagPopup](screenShot/phone/mainPageTagPopup.jpg?raw=true)
-- [Main Page-Bookmark](screenShot/phone/mainPagBookmark.jpg?raw=true)
-- [Detail Page](screenShot/phone/detailPage.jpg?raw=true)
-- [Preview Page](screenShot/phone/previewPage.jpg?raw=true)
-- [Reader Page](screenShot/phone/readerPage.jpg?raw=true)
-- [Reader Page-BottomPop](screenShot/phone/readerPageBottomPop.jpg?raw=true)
-- [Setting Page](screenShot/phone/settingPage.jpg?raw=true)
-- [H-Verse Theme](screenShot/phone/h-verseTheme.jpg?raw=true)
+- [Main Page-LandCard](fastlane/phone/mainPageLandCard.jpg?raw=true)
+- [Main Page-VerticalCard](fastlane/phone/mainPageVerticalCard.jpg?raw=true)
+- [Main Page-TagPopup](fastlane/phone/mainPageTagPopup.jpg?raw=true)
+- [Main Page-Bookmark](fastlane/phone/mainPagBookmark.jpg?raw=true)
+- [Detail Page](fastlane/phone/detailPage.jpg?raw=true)
+- [Preview Page](fastlane/phone/previewPage.jpg?raw=true)
+- [Reader Page](fastlane/phone/readerPage.jpg?raw=true)
+- [Reader Page-BottomPop](fastlane/phone/readerPageBottomPop.jpg?raw=true)
+- [Setting Page](fastlane/phone/settingPage.jpg?raw=true)
+- [H-Verse Theme](fastlane/phone/h-verseTheme.jpg?raw=true)
 
 
 # User Guide
