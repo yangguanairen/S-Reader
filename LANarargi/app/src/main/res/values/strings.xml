@@ -83,6 +83,7 @@
     <string name="setting_server_theme">服务器</string>
     <string name="setting_server_host_title">服务器地址</string>
     <string name="setting_server_key_title">API密钥</string>
+    <string name="setting_server_key_not_correct">API密钥验证错误…</string>
     // 设置--缓存
     <string name="setting_cache_theme">缓存</string>
     <string name="setting_cache_clear_title">清除本地缓存</string>

@@ -84,6 +84,7 @@
     <string name="setting_server_theme">サーバー</string>
     <string name="setting_server_host_title">サーバーアドレス</string>
     <string name="setting_server_key_title">APIキー</string>
+    <string name="setting_server_key_not_correct">APIキー検証エラー…</string>c
     // 設定--キャッシュ
     <string name="setting_cache_theme">キャッシュ</string>
     <string name="setting_cache_clear_title">ローカルキャッシュをクリア</string>

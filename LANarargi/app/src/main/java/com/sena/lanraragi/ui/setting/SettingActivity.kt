@@ -26,6 +26,7 @@ import com.sena.lanraragi.utils.GlobalCrashUtils
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.INTENT_KEY_OPERATE
 import com.sena.lanraragi.utils.LanguageHelper
+import com.sena.lanraragi.utils.NewHttpHelper
 import com.sena.lanraragi.utils.OPERATE_KEY_VALUE1
 import com.sena.lanraragi.utils.ScaleType
 import com.sena.lanraragi.utils.getThemeColor
@@ -380,18 +381,43 @@ class SettingActivity : BaseActivity() {
 
         serverKeyCustomPop = SettingInputPopup(this, R.string.setting_server_key_title)
         serverKeyCustomPop.setOnConfirmClickListener { t ->
+            val isBlank = t.isBlank()
             binding.server.keyText.apply {
-                visibility = if (t.isBlank()) View.GONE else View.VISIBLE
+                visibility = if (isBlank) View.GONE else View.VISIBLE
                 text = t
             }
             AppConfig.serverSecretKey = t
             DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.SERVER_SECRET_KEY, t)
+            // 原本的想法是强制用户在输入页等待
+            // 禁止其他任何的点击(点击关闭弹窗、输入区域、确定、取消)
+            // 显示一个加载动画，并展示验证的错误结果
+            // 但想了想，设置页发生网络请求感觉有些不妥
+            // 设置故名而意，改变本地设置的，不应该出现耗时操作
+            if (!isBlank) {
+                lifecycleScope.launch {
+                    val isCorrect = NewHttpHelper.validateKey(t)
+                    if (!isCorrect) {
+                        toast(R.string.setting_server_key_not_correct)
+                    } else {
+                        setApiKey(t)
+                    }
+                }
+            }
         }
         serverKeyPop = XPopup.Builder(this)
             .autoFocusEditText(true)
             .autoOpenSoftInput(true)
             .moveUpToKeyboard(true)
             .asCustom(serverKeyCustomPop)
+    }
+
+    private fun setApiKey(t: String) {
+        binding.server.keyText.apply {
+            visibility = if (t.isBlank()) View.GONE else View.VISIBLE
+            text = t
+        }
+        AppConfig.serverSecretKey = t
+        DataStoreHelper.updateValue(this@SettingActivity, DataStoreHelper.KEY.SERVER_SECRET_KEY, t)
     }
 
     private fun initCommonPop() {

@@ -84,6 +84,26 @@ object NewHttpHelper {
         val result = LanraragiDB.getRandomArchive(count)
         return result
     }
+
+    /**
+     * 通过Get Shinobu Status API来验证key是否正确
+     */
+    suspend fun validateKey(secretKey: String): Boolean {
+        val url = AppConfig.serverHost + "/api/shinobu"
+        val encodedStr = Base64.encodeToString(secretKey.toByteArray(), Base64.NO_WRAP)
+
+        val mBuilder = Build().url(url)
+            .addHeader("Authorization", "Bearer $encodedStr")
+        val isCorrect: Boolean = withContext(Dispatchers.IO) {
+            kotlin.runCatching {
+                val response = mBuilder.execute()
+                if (response?.code != 200) return@withContext false
+                val jsonObject = response.body?.byteStream()?.toJSONObject() ?: return@withContext false
+                return@withContext !jsonObject.has("error")
+            }.getOrDefault(false)
+        }
+        return isCorrect
+    }
     
     suspend fun extractManga(id: String): ArrayList<String>? {
         val url = AppConfig.serverHost + "/api/archives/$id/files?force=true"
@@ -432,7 +452,6 @@ object NewHttpHelper {
         private var method: String = "get"
         private var body: RequestBody? = null
 
-
         fun url(s: String): Build {
             this.url = s
             return this
@@ -440,6 +459,11 @@ object NewHttpHelper {
 
         fun addClient(c: OkHttpClient): Build {
             mClient = c
+            return this
+        }
+
+        fun addHeader(key: String, value: String): Build {
+            headers[key] = value
             return this
         }
 
@@ -455,7 +479,7 @@ object NewHttpHelper {
                 .url(mUrl)
                 .method(method, body)
             val secretKey = AppConfig.serverSecretKey
-            if (secretKey.isNotBlank()) {
+            if (!headers.containsKey("Authorization") && secretKey.isNotBlank()) {
                 val encodedStr = Base64.encodeToString(secretKey.toByteArray(), Base64.NO_WRAP)
                 headers["Authorization"] = "Bearer $encodedStr"
             }

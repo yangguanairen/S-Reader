@@ -83,6 +83,7 @@
     <string name="setting_server_theme">Server</string>
     <string name="setting_server_host_title">Server Address</string>
     <string name="setting_server_key_title">API Key</string>
+    <string name="setting_server_key_not_correct">API key validation error…</string>
     // Settings--Cache
     <string name="setting_cache_theme">Cache</string>
     <string name="setting_cache_clear_title">Clear Local Cache</string>
