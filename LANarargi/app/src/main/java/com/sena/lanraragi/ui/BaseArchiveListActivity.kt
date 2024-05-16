@@ -8,6 +8,7 @@ import android.view.View
 import android.view.Window
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,12 +17,16 @@ import com.lxj.xpopup.core.CenterPopupView
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.BaseActivity
 import com.sena.lanraragi.R
+import com.sena.lanraragi.database.LanraragiDB
 import com.sena.lanraragi.database.archiveData.Archive
 import com.sena.lanraragi.ui.detail.DetailActivity
 import com.sena.lanraragi.ui.widet.TagsViewer
 import com.sena.lanraragi.utils.COVER_SHARE_ANIMATION
 import com.sena.lanraragi.utils.INTENT_KEY_ARCHIVE
 import com.sena.lanraragi.utils.getOrNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -69,13 +74,19 @@ abstract class BaseArchiveListActivity(menu: Int) : BaseActivity(menu) {
             }
         }
         mAdapter.setOnItemLongClickListener { a, _, p ->
-            a.getItem(p)?.tags?.let { tags ->
-                val pop = TagViewPop(this, tags)
-                pop.setOnTagSelectedListener { h, c -> onTagSelected(h, c) }
-                XPopup.Builder(this)
-                    .isDestroyOnDismiss(true)
-                    .asCustom(pop)
-                    .show()
+            val id = a.getItem(p)?.arcid ?: return@setOnItemLongClickListener false
+            lifecycleScope.launch {
+                val latestTag = withContext(Dispatchers.IO) {
+                    LanraragiDB.queryArchiveById(id)?.tags
+                }
+                latestTag?.let { tags ->
+                    val pop = TagViewPop(this@BaseArchiveListActivity, tags)
+                    pop.setOnTagSelectedListener { h, c -> onTagSelected(h, c) }
+                    XPopup.Builder(this@BaseArchiveListActivity)
+                        .isDestroyOnDismiss(true)
+                        .asCustom(pop)
+                        .show()
+                }
             }
             true
         }
