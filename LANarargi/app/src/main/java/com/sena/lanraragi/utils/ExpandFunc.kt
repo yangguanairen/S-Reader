@@ -1,6 +1,8 @@
 package com.sena.lanraragi.utils
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.TypedValue
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -149,7 +151,17 @@ fun toast(@StringRes textId: Int, vararg params: Any? = emptyArray()) {
                 String.format(getString(textId), params)
             }
         }?.let {
-            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
+
+fun toast(text: String) {
+    LanraragiApplication.getContext().apply {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
         }
     }
 }

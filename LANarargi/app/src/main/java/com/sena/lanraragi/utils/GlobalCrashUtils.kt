@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import com.sena.lanraragi.AppConfig
 import com.sena.lanraragi.LanraragiApplication
 import java.io.File
@@ -41,13 +40,13 @@ object GlobalCrashUtils {
                 try {
                     Looper.loop()
                 } catch (e: Throwable) {
-                    toastInDebugMode(application, e, true)
+                    toastInDebugMode(e, true)
                     mainCrashHandler?.mainException(Looper.getMainLooper().thread, e)
                 }
             }
         }
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
-            toastInDebugMode(application, e, false)
+            toastInDebugMode(e, false)
             uncaughtCrashHandler?.uncaughtException(t, e)
         }
     }
@@ -73,13 +72,13 @@ object GlobalCrashUtils {
         file.appendText(crashStr, Charset.forName("UTF-8"))
     }
 
-    private fun toastInDebugMode(context: Context, e: Throwable, isMain: Boolean) {
+    private fun toastInDebugMode(e: Throwable, isMain: Boolean) {
         DebugLog.e("未捕获的线程异常行为: ${e.stackTraceToString()}")
         e.printStackTrace()
         if (AppConfig.enableCrashInfo) {
             Handler(Looper.getMainLooper()).post {
                 val showText = "Crash Problem in ${if (isMain) "Main" else "Other"}Thread" + e.stackTraceToString()
-                Toast.makeText(context, showText, Toast.LENGTH_SHORT).show()
+                toast(showText)
             }
         }
     }

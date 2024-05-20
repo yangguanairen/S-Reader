@@ -55,7 +55,9 @@ class MainVM : ViewModel() {
         if (result == null) {
             DebugLog.e("List为空, 不更新Stats表")
         } else {
-            LanraragiDB.updateStatsTable(result)
+            withContext(Dispatchers.IO) {
+                LanraragiDB.updateStatsTable(result)
+            }
         }
     }
 
@@ -66,7 +68,9 @@ class MainVM : ViewModel() {
         if (result == null) {
             DebugLog.e("List为空, 不更新Stats表")
         } else {
-            LanraragiDB.updateCategoryTable(result)
+            withContext(Dispatchers.IO) {
+                LanraragiDB.updateCategoryTable(result)
+            }
         }
         val dbResult = withContext(Dispatchers.IO) {
             LanraragiDB.queryAllCategories()

@@ -187,8 +187,10 @@ class IntroduceFragment : BaseFragment() {
             ViewCompat.setTransitionName(binding.cover, COVER_SHARE_ANIMATION)
             ImageLoad.Builder(requireContext())
                 .loadThumb(archive.arcid)
-                .doOnFinish {
-                    requireActivity().supportStartPostponedEnterTransition()
+                .doOnStart {
+                    requireActivity().apply {
+                        runOnUiThread { supportStartPostponedEnterTransition() }
+                    }
                 }
                 .into(binding.cover)
                 .execute()
